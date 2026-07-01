@@ -19,7 +19,7 @@ def home():
 
 @app.route('/contact')
 def contact_redirect():
-    return redirect('/#contact')
+    return render_template('index.html')
 
 # Endpoint to handle downloads of resume and certifications
 @app.route('/download/<path:filename>')

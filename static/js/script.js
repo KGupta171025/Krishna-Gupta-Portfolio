@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 5. Stats Counter Animation Engine
     initStatsCounter();
+
+    // 6. Auto-scroll to contact section if URL path ends with /contact
+    handleContactPathScroll();
 });
 
 /* ==========================================================
@@ -451,4 +454,19 @@ function initStatsCounter() {
     }, observerOptions);
 
     stats.forEach(stat => statsObserver.observe(stat));
+}
+
+/* ==========================================================
+   6. Auto-scroll to Contact Section (for URL path routing)
+   ========================================================== */
+function handleContactPathScroll() {
+    const path = window.location.pathname;
+    if (path.endsWith('/contact') || path.endsWith('/contact/')) {
+        const contactSection = document.getElementById('contact');
+        if (contactSection) {
+            setTimeout(() => {
+                contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 600); // 600ms allows the initial fade-in animations to load
+        }
+    }
 }

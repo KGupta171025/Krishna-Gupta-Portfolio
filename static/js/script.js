@@ -269,8 +269,22 @@ function initCoreUI() {
         }
     });
 
+    const basePath = window.location.pathname.startsWith('/Krishna-Gupta-Portfolio') ? '/Krishna-Gupta-Portfolio' : '';
+
     navLinks.forEach(link => {
-        link.addEventListener('click', () => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const href = link.getAttribute('href');
+            const targetId = href.includes('#') ? href.split('#')[1] : 'hero';
+            const targetSection = document.getElementById(targetId);
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Update URL path cleanly
+                const targetPath = targetId === 'hero' ? (basePath || '/') : `${basePath}/${targetId}`;
+                window.history.replaceState(null, null, targetPath);
+            }
+            
             navMenu.classList.remove('open');
             navHamburger.querySelector('i').className = 'fas fa-bars';
         });
@@ -286,23 +300,37 @@ function initCoreUI() {
         }
     });
 
-    // D. ScrollSpy Active navigation highlight
+    // D. ScrollSpy Active navigation highlight & Dynamic URL updates
     const sections = document.querySelectorAll('section');
     window.addEventListener('scroll', () => {
         let currentId = '';
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
-            if (window.scrollY >= (sectionTop - 160)) {
+            if (window.scrollY >= (sectionTop - 180)) {
                 currentId = section.getAttribute('id');
             }
         });
 
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === `#${currentId}`) {
+            const href = link.getAttribute('href');
+            if (href.endsWith(`#${currentId}`)) {
                 link.classList.add('active');
             }
         });
+
+        // Update URL path dynamically as they scroll
+        if (currentId && currentId !== 'hero') {
+            const targetPath = `${basePath}/${currentId}`;
+            if (window.location.pathname !== targetPath && window.location.pathname !== targetPath + '/') {
+                window.history.replaceState(null, null, targetPath);
+            }
+        } else if (currentId === 'hero') {
+            const rootPath = basePath || '/';
+            if (window.location.pathname !== rootPath) {
+                window.history.replaceState(null, null, rootPath);
+            }
+        }
     });
 
     // E. Skills Category tab filters
@@ -457,16 +485,20 @@ function initStatsCounter() {
 }
 
 /* ==========================================================
-   6. Auto-scroll to Contact Section (for URL path routing)
+   6. Auto-scroll to Section based on URL Path on load
    ========================================================== */
 function handleContactPathScroll() {
     const path = window.location.pathname;
-    if (path.endsWith('/contact') || path.endsWith('/contact/')) {
-        const contactSection = document.getElementById('contact');
-        if (contactSection) {
-            setTimeout(() => {
-                contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 600); // 600ms allows the initial fade-in animations to load
+    const sections = ['about', 'skills', 'experience', 'projects', 'certifications', 'contact'];
+    for (const sectionId of sections) {
+        if (path.endsWith('/' + sectionId) || path.endsWith('/' + sectionId + '/')) {
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                setTimeout(() => {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 600); // 600ms allows the initial fade-in animations to load
+            }
+            break;
         }
     }
 }

@@ -11,14 +11,14 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='.')
 
-from flask import redirect
-
 @app.route('/')
-def home():
-    return render_template('index.html')
-
+@app.route('/about')
+@app.route('/skills')
+@app.route('/experience')
+@app.route('/projects')
+@app.route('/certifications')
 @app.route('/contact')
-def contact_redirect():
+def home():
     return render_template('index.html')
 
 # Endpoint to handle downloads of resume and certifications

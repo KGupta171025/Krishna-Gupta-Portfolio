@@ -1,14 +1,141 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>Redirecting...</title>
-    <meta http-equiv="refresh" content="0; url=../#contact" />
-    <script type="text/javascript">
-        window.location.href = "../#contact";
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Krishna Gupta | Data Scientist & Full-Stack Developer</title>
+    <meta name="description" content="Get in touch with Krishna Gupta. Send a message to collaborate on Data Engineering, AI/ML, and Software Development.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <style>
+        .contact-page-wrapper {
+            min-height: calc(100vh - 150px);
+            display: flex;
+            align-items: center;
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+        .contact-section {
+            width: 100%;
+            background: transparent !important;
+        }
+    </style>
 </head>
-<body>
-    <p>Redirecting to contact form...</p>
+<body class="dark-theme">
+    <!-- Full-Page 3D WebGL Background Canvas -->
+    <canvas id="three-bg"></canvas>
+
+    <!-- Theme Toggle Floating Button -->
+    <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle Light/Dark Mode">
+        <i class="fas fa-sun"></i>
+    </button>
+
+    <!-- Header & Navigation -->
+    <header class="navbar scrolled" id="navbar">
+        <div class="nav-container">
+            <a href="../" class="nav-logo">
+                <span class="logo-accent">&lt;</span>Krishna<span class="logo-accent">.G /&gt;</span>
+            </a>
+            <nav class="nav-menu" id="navMenu">
+                <a href="../#hero" class="nav-link">Home</a>
+                <a href="../#about" class="nav-link">About</a>
+                <a href="../#skills" class="nav-link">Skills</a>
+                <a href="../#experience" class="nav-link">Experience</a>
+                <a href="../#projects" class="nav-link">Projects</a>
+                <a href="../#certifications" class="nav-link">Certifications</a>
+                <a href="./" class="nav-link active">Contact</a>
+            </nav>
+            <div class="nav-hamburger" id="navHamburger">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Centered Contact Form Section -->
+    <div class="contact-page-wrapper">
+        <section class="contact-section" id="contact">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Get In Touch</h2>
+                    <div class="section-bar"></div>
+                </div>
+                
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <h3>Let's collaborate on data and code.</h3>
+                        <p>I am actively seeking internships, entry-level, or remote roles in Data Engineering, AI/ML development, and Software Engineering.</p>
+                        
+                        <div class="contact-details-list">
+                            <div class="contact-detail-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>
+                                    <h4>Email</h4>
+                                    <p>hg497kg@gmail.com</p>
+                                </div>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-phone"></i>
+                                <div>
+                                    <h4>Phone</h4>
+                                    <p>+91-9993153109</p>
+                                </div>
+                            </div>
+                            <div class="contact-detail-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <div>
+                                    <h4>Location</h4>
+                                    <p>Bhopal, Madhya Pradesh, India (Open to remote & relocation)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-form-container">
+                        <form id="contactForm" class="contact-form">
+                            <div class="form-group">
+                                <label for="name">Full Name</label>
+                                <input type="text" id="name" name="name" required placeholder="Krishna Gupta">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" required placeholder="hg497kg@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="message">Message</label>
+                                <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, let's talk about a role..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <span id="btnText">Send Message</span> <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                        <div id="formFeedback" class="form-feedback hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-container">
+            <p>&copy; 2026 Krishna Gupta. All Rights Reserved.</p>
+            <div class="footer-socials">
+                <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank"><i class="fab fa-linkedin"></i></a>
+                <a href="https://github.com/KGupta171025" target="_blank"><i class="fab fa-github"></i></a>
+                <a href="mailto:hg497kg@gmail.com"><i class="fas fa-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../static/js/script.js" defer></script>
 </body>
 </html>

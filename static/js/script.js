@@ -1,14 +1,201 @@
 // ==========================================
-// Krishna Gupta - Interactive Scripts
+// Krishna Gupta - Interactive Web Engine
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Theme Toggle Logic
+    // 1. Initialize Three.js WebGL Particle Background
+    initThreeBackground();
+
+    // 2. Initialize 3D Card Tilt Effects
+    initCardTiltEffects();
+
+    // 3. Scroll Reveal Animation Engine (Intersection Observer)
+    initScrollReveal();
+
+    // 4. Core UI / Theme Toggling / Mobile Nav / Form Handler
+    initCoreUI();
+});
+
+/* ==========================================================
+   1. Three.js Background Constellation
+   ========================================================== */
+function initThreeBackground() {
+    const canvas = document.getElementById('three-bg');
+    if (!canvas) return;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // WebGL Renderer with alpha transparency enabled
+    const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    // Particle nodes setup
+    const count = 180;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const velocities = [];
+
+    for (let i = 0; i < count * 3; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 15;
+        positions[i + 1] = (Math.random() - 0.5) * 15;
+        positions[i + 2] = (Math.random() - 0.5) * 15;
+
+        // Random velocities
+        velocities.push((Math.random() - 0.5) * 0.003);
+        velocities.push((Math.random() - 0.5) * 0.003);
+        velocities.push((Math.random() - 0.5) * 0.003);
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    // Materials
+    const material = new THREE.PointsMaterial({
+        size: 0.07,
+        color: 0x818cf8,
+        transparent: true,
+        opacity: 0.55,
+        blending: THREE.AdditiveBlending
+    });
+
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
+
+    camera.position.z = 6;
+
+    // Mouse movement physics
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+        mouseX = (e.clientX / window.innerWidth - 0.5);
+        mouseY = (e.clientY / window.innerHeight - 0.5);
+    });
+
+    // Animation Loop
+    function animate() {
+        requestAnimationFrame(animate);
+
+        // Smooth camera damping/inertia
+        targetX += (mouseX - targetX) * 0.05;
+        targetY += (mouseY - targetY) * 0.05;
+
+        // Slow automatic particle spin
+        points.rotation.y += 0.0006;
+        points.rotation.x += 0.0003;
+
+        // Move camera slightly to warp the perspective
+        camera.position.x = targetX * 3.5;
+        camera.position.y = -targetY * 3.5;
+        camera.lookAt(scene.position);
+
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize Handler
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+}
+
+/* ==========================================================
+   2. Custom 3D Card Tilt & Glare Reflections
+   ========================================================== */
+function initCardTiltEffects() {
+    const tiltCards = document.querySelectorAll('[data-tilt]');
+    
+    tiltCards.forEach(card => {
+        // Create a shining glare overlay inside the card
+        const glare = document.createElement('div');
+        glare.className = 'card-glare';
+        glare.style.position = 'absolute';
+        glare.style.top = '0';
+        glare.style.left = '0';
+        glare.style.width = '100%';
+        glare.style.height = '100%';
+        glare.style.pointerEvents = 'none';
+        glare.style.borderRadius = 'inherit';
+        glare.style.background = 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.06) 0%, transparent 80%)';
+        glare.style.opacity = '0';
+        glare.style.transition = 'opacity 0.25s ease';
+        glare.style.zIndex = '5';
+        card.style.position = 'relative';
+        card.appendChild(glare);
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            
+            // Mouse coordinate relative to the card bounds
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Normalize coordinate between -0.5 and 0.5
+            const normX = (x / rect.width) - 0.5;
+            const normY = (y / rect.top - rect.bottom) - 0.5; // wait, simple calculation:
+            const relY = (y / rect.height) - 0.5;
+
+            // Tilt limit factor in degrees
+            const maxTilt = 8;
+            const tiltX = -relY * maxTilt;
+            const tiltY = normX * maxTilt;
+
+            // Apply 3D transforms
+            card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(1.02, 1.02, 1.02)`;
+
+            // Align glare position
+            const glareX = (x / rect.width) * 100;
+            const glareY = (y / rect.height) * 100;
+            glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.12) 0%, transparent 60%)`;
+            glare.style.opacity = '1';
+        });
+
+        card.addEventListener('mouseleave', () => {
+            // Reset transforms with smooth ease
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+            glare.style.opacity = '0';
+        });
+    });
+}
+
+/* ==========================================================
+   3. Scroll Reveal Animation Engine
+   ========================================================== */
+function initScrollReveal() {
+    const reveals = document.querySelectorAll('.reveal');
+
+    const observerOptions = {
+        root: null,
+        threshold: 0.12, // Element is 12% visible
+        rootMargin: '0px'
+    };
+
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('active');
+                observer.unobserve(entry.target); // Trigger once
+            }
+        });
+    }, observerOptions);
+
+    reveals.forEach(el => revealObserver.observe(el));
+}
+
+/* ==========================================================
+   4. Core UI Controllers
+   ========================================================== */
+function initCoreUI() {
+    // A. Theme Switcher
     const body = document.body;
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const themeIcon = themeToggleBtn.querySelector('i');
 
-    // Load theme preference from localStorage or default to dark
     const savedTheme = localStorage.getItem('theme') || 'dark-theme';
     body.className = savedTheme;
     updateThemeIcon(savedTheme);
@@ -33,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 2. Mobile Responsive Menu
+    // B. Mobile Responsive Navigation Toggle
     const navHamburger = document.getElementById('navHamburger');
     const navMenu = document.getElementById('navMenu');
     const navLinks = document.querySelectorAll('.nav-link');
@@ -48,7 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Close menu when clicking a link
     navLinks.forEach(link => {
         link.addEventListener('click', () => {
             navMenu.classList.remove('open');
@@ -56,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. Navbar scroll layout change
+    // C. Sticky Navbar sizing on Scroll
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
         if (window.scrollY > 50) {
@@ -66,44 +252,41 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // 4. Skills Tab Filter
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabPanes = document.querySelectorAll('.tab-pane');
-
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove active class from all buttons and panes
-            tabBtns.forEach(b => b.classList.remove('active'));
-            tabPanes.forEach(p => p.classList.remove('active'));
-
-            // Add active to current click
-            btn.classList.add('active');
-            const tabId = btn.getAttribute('data-tab');
-            document.getElementById(tabId).classList.add('active');
-        });
-    });
-
-    // 5. ScrollSpy (Active nav link highlighting)
+    // D. ScrollSpy Active navigation highlight
     const sections = document.querySelectorAll('section');
     window.addEventListener('scroll', () => {
-        let currentSectionId = '';
+        let currentId = '';
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.scrollY >= (sectionTop - 150)) {
-                currentSectionId = section.getAttribute('id');
+            if (window.scrollY >= (sectionTop - 160)) {
+                currentId = section.getAttribute('id');
             }
         });
 
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href') === `#${currentSectionId}`) {
+            if (link.getAttribute('href') === `#${currentId}`) {
                 link.classList.add('active');
             }
         });
     });
 
-    // 6. Contact Form Mock Submission
+    // E. Skills Category tab filters
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            tabPanes.forEach(p => p.classList.remove('active'));
+
+            btn.classList.add('active');
+            const targetPane = btn.getAttribute('data-tab');
+            document.getElementById(targetPane).classList.add('active');
+        });
+    });
+
+    // F. Contact Form Submission Handling
     const contactForm = document.getElementById('contactForm');
     const formFeedback = document.getElementById('formFeedback');
     const btnText = document.getElementById('btnText');
@@ -112,22 +295,18 @@ document.addEventListener('DOMContentLoaded', () => {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
-        // Loading state
         submitBtn.disabled = true;
         btnText.textContent = 'Sending...';
         formFeedback.className = 'form-feedback hidden';
 
-        // Simulate AJAX request
+        // Mock ajax submission delay
         setTimeout(() => {
             submitBtn.disabled = false;
             btnText.textContent = 'Send Message';
             
-            // Show custom success feedback
             formFeedback.textContent = 'Thank you for reaching out, Krishna will respond to you shortly!';
             formFeedback.className = 'form-feedback success';
-
-            // Reset form fields
             contactForm.reset();
         }, 1500);
     });
-});
+}

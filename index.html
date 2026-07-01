@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Krishna Gupta | B.Tech Data Science Portfolio & Resume</title>
-    <meta name="description" content="Portfolio of Krishna Gupta - B.Tech Data Science student skilled in Data Engineering, AI/ML, and Software Development. Explore projects, experience, and download certifications.">
+    <title>Krishna Gupta | Data Scientist & Full-Stack Developer</title>
+    <meta name="description" content="Portfolio of Krishna Gupta - B.Tech Data Science student skilled in Data Engineering, AI/ML, and Software Development. Explore interactive 3D elements, projects, and downloads.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body class="dark-theme">
+    <!-- Full-Page 3D WebGL Background Canvas -->
+    <canvas id="three-bg"></canvas>
+
     <!-- Theme Toggle Floating Button -->
     <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle Light/Dark Mode">
         <i class="fas fa-sun"></i>
@@ -43,13 +46,8 @@
 
     <!-- Hero Section -->
     <section class="hero-section" id="hero">
-        <div class="hero-bg-shapes">
-            <div class="shape shape-1"></div>
-            <div class="shape shape-2"></div>
-            <div class="shape shape-3"></div>
-        </div>
         <div class="container hero-container">
-            <div class="hero-content">
+            <div class="hero-content reveal">
                 <div class="hero-badge">
                     <span class="pulse-dot"></span> Available for Opportunities
                 </div>
@@ -62,7 +60,7 @@
                 </p>
                 
                 <div class="hero-actions">
-                    <a href="/download/KG__Resume.pdf" class="btn btn-primary">
+                    <a href="static/assets/KG__Resume.pdf" class="btn btn-primary" download>
                         <i class="fas fa-file-download"></i> Download Resume
                     </a>
                     <a href="#contact" class="btn btn-secondary">
@@ -70,25 +68,25 @@
                     </a>
                 </div>
 
-                <!-- Featured Certifications (Quick Spotlight) -->
+                <!-- Featured Credentials (Quick Spotlight) -->
                 <div class="featured-certs">
                     <p class="featured-certs-title">Featured Credentials</p>
                     <div class="featured-certs-grid">
-                        <div class="featured-cert-card">
+                        <div class="featured-cert-card" data-tilt>
                             <i class="fab fa-aws cert-icon-aws"></i>
                             <div class="featured-cert-info">
                                 <h4>AWS Certified Developer</h4>
                                 <p>Infosys Springboard</p>
                             </div>
                         </div>
-                        <div class="featured-cert-card">
+                        <div class="featured-cert-card" data-tilt>
                             <i class="fab fa-python cert-icon-ibm"></i>
                             <div class="featured-cert-info">
                                 <h4>ML with Python</h4>
                                 <p>IBM SkillsBuild</p>
                             </div>
                         </div>
-                        <div class="featured-cert-card">
+                        <div class="featured-cert-card" data-tilt>
                             <i class="fas fa-chart-line cert-icon-hp"></i>
                             <div class="featured-cert-info">
                                 <h4>Data Science & Analytics</h4>
@@ -99,8 +97,8 @@
                 </div>
             </div>
             
-            <div class="hero-visual">
-                <div class="visual-card">
+            <div class="hero-visual reveal delay-2">
+                <div class="visual-card" data-tilt>
                     <div class="code-header">
                         <span class="code-dot red"></span>
                         <span class="code-dot yellow"></span>
@@ -111,7 +109,7 @@
                         <pre><code><span class="code-keyword">class</span> <span class="code-class">DataScientist</span>:
     <span class="code-keyword">def</span> <span class="code-method">__init__</span>(self):
         self.name = <span class="code-str">"Krishna Gupta"</span>
-        self.role = <span class="code-str">"Data & AI Intern"</span>
+        self.role = <span class="code-str">"Data & AI Developer"</span>
         self.education = <span class="code-str">"B.Tech Data Science (2027)"</span>
         self.skills = [
             <span class="code-str">"Python"</span>, <span class="code-str">"SQL"</span>, <span class="code-str">"AI/ML"</span>, 
@@ -119,9 +117,9 @@
         ]
         
     <span class="code-keyword">def</span> <span class="code-method">get_objective</span>(self):
-        <span class="code-keyword">return</span> <span class="code-str">"Extract insights & build scalable intelligence"</span>
+        <span class="code-keyword">return</span> <span class="code-str">"Build scalable intelligent systems"</span>
 
-<span class="code-comment"># Initialize profiles</span>
+<span class="code-comment"># Instantiate profiles</span>
 me = DataScientist()
 print(me.get_objective())</code></pre>
                     </div>
@@ -133,13 +131,13 @@ print(me.get_objective())</code></pre>
     <!-- About Section -->
     <section class="about-section" id="about">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">About Me</h2>
                 <div class="section-bar"></div>
             </div>
             
             <div class="about-grid">
-                <div class="about-text">
+                <div class="about-text reveal">
                     <p class="about-p">
                         I am currently pursuing a <strong>Bachelor of Technology (B.Tech) in Data Science</strong> at the <strong>Oriental Institute of Science and Technology, Bhopal (2023 - 2027)</strong>. I combine deep analytical data skills with robust software engineering practices.
                     </p>
@@ -173,23 +171,23 @@ print(me.get_objective())</code></pre>
                     </div>
                 </div>
                 
-                <div class="about-stats">
-                    <div class="stat-card">
+                <div class="about-stats reveal delay-2">
+                    <div class="stat-card" data-tilt>
                         <div class="stat-icon"><i class="fas fa-cogs"></i></div>
                         <div class="stat-number">50K+</div>
                         <div class="stat-text">LLM Outputs Evaluated</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" data-tilt>
                         <div class="stat-icon"><i class="fas fa-database"></i></div>
                         <div class="stat-number">2+</div>
-                        <div class="stat-text">Paid Internships Completed</div>
+                        <div class="stat-text">Paid Internships</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" data-tilt>
                         <div class="stat-icon"><i class="fas fa-code-branch"></i></div>
                         <div class="stat-number">7+</div>
-                        <div class="stat-text">Professional Certifications</div>
+                        <div class="stat-text">Certifications</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat-card" data-tilt>
                         <div class="stat-icon"><i class="fas fa-rocket"></i></div>
                         <div class="stat-number">100%</div>
                         <div class="stat-text">Commitment to Quality</div>
@@ -202,23 +200,23 @@ print(me.get_objective())</code></pre>
     <!-- Skills Section -->
     <section class="skills-section" id="skills">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">Technical Expertise</h2>
                 <div class="section-bar"></div>
             </div>
             
-            <div class="skills-tabs">
+            <div class="skills-tabs reveal">
                 <button class="tab-btn active" data-tab="ds-ml">AI & Data Science</button>
                 <button class="tab-btn" data-tab="data-eng">Data Engineering</button>
                 <button class="tab-btn" data-tab="web-dev">Web Development</button>
                 <button class="tab-btn" data-tab="tools">Databases & Tools</button>
             </div>
             
-            <div class="skills-tab-content">
+            <div class="skills-tab-content reveal delay-2">
                 <!-- AI & Data Science -->
                 <div class="tab-pane active" id="ds-ml">
                     <div class="skills-grid">
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-brain"></i></span>
                             <h3>Machine Learning</h3>
                             <p>Supervised and unsupervised learning techniques, predictive modeling, data mining.</p>
@@ -226,7 +224,7 @@ print(me.get_objective())</code></pre>
                                 <span>Scikit-learn</span><span>Pandas</span><span>NumPy</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-robot"></i></span>
                             <h3>Generative AI & LLMs</h3>
                             <p>LLM evaluation, LLM post-training workflows, validation, and GenAI automation.</p>
@@ -234,7 +232,7 @@ print(me.get_objective())</code></pre>
                                 <span>LLM Post-Training</span><span>GenAI APIs</span><span>Model Validation</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fab fa-python"></i></span>
                             <h3>Languages</h3>
                             <p>Core development logic, scripting, analysis pipelines, algorithms.</p>
@@ -248,7 +246,7 @@ print(me.get_objective())</code></pre>
                 <!-- Data Engineering -->
                 <div class="tab-pane" id="data-eng">
                     <div class="skills-grid">
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-project-diagram"></i></span>
                             <h3>ETL Pipelines</h3>
                             <p>Designing structures to extract, transform, and load datasets reliably.</p>
@@ -256,7 +254,7 @@ print(me.get_objective())</code></pre>
                                 <span>ETL</span><span>Data Loading</span><span>Pipelines</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-check-circle"></i></span>
                             <h3>Data Validation</h3>
                             <p>Automated validation checks, quality assurance, anomaly detection in raw datasets.</p>
@@ -264,7 +262,7 @@ print(me.get_objective())</code></pre>
                                 <span>Data QA</span><span>Validation Scripts</span><span>Automation</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-network-wired"></i></span>
                             <h3>Workflow Automation</h3>
                             <p>Replacing manual routines with secure background worker processes.</p>
@@ -278,7 +276,7 @@ print(me.get_objective())</code></pre>
                 <!-- Web Development -->
                 <div class="tab-pane" id="web-dev">
                     <div class="skills-grid">
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fab fa-react"></i></span>
                             <h3>Frontend Development</h3>
                             <p>Building responsive, component-based single page web applications.</p>
@@ -286,7 +284,7 @@ print(me.get_objective())</code></pre>
                                 <span>React</span><span>HTML5</span><span>CSS3</span><span>ES6+ JS</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fab fa-node-js"></i></span>
                             <h3>Backend Architecture</h3>
                             <p>RESTful APIs, routing logic, server-side data operations.</p>
@@ -294,7 +292,7 @@ print(me.get_objective())</code></pre>
                                 <span>Node.js</span><span>ExpressJS</span><span>Flask (Python)</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-cloud"></i></span>
                             <h3>Cloud & Hosting</h3>
                             <p>Deploying applications, configuring file hosting and database storage.</p>
@@ -308,7 +306,7 @@ print(me.get_objective())</code></pre>
                 <!-- Databases & Tools -->
                 <div class="tab-pane" id="tools">
                     <div class="skills-grid">
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-database"></i></span>
                             <h3>Database Systems</h3>
                             <p>Optimizing relational schemas, indexing, writing complex queries.</p>
@@ -316,7 +314,7 @@ print(me.get_objective())</code></pre>
                                 <span>PostgreSQL</span><span>MySQL</span><span>Supabase DB</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fab fa-git-alt"></i></span>
                             <h3>Development Tools</h3>
                             <p>Version control, modern terminal, editor setup, agile practices.</p>
@@ -324,7 +322,7 @@ print(me.get_objective())</code></pre>
                                 <span>Git</span><span>GitHub</span><span>VS Code</span><span>Linux Command Line</span>
                             </div>
                         </div>
-                        <div class="skill-card">
+                        <div class="skill-card" data-tilt>
                             <span class="skill-icon"><i class="fas fa-sync-alt"></i></span>
                             <h3>Query Optimization</h3>
                             <p>Diagnosing bottlenecks, tuning queries, schema design.</p>
@@ -341,17 +339,17 @@ print(me.get_objective())</code></pre>
     <!-- Experience Section -->
     <section class="experience-section" id="experience">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">Work Experience</h2>
                 <div class="section-bar"></div>
             </div>
             
-            <div class="timeline">
+            <div class="timeline reveal">
                 <!-- Timeline Item 1 -->
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="timeline-date">Feb 2026 – May 2026</div>
-                    <div class="timeline-content">
+                    <div class="timeline-content" data-tilt>
                         <div class="timeline-header">
                             <h3>LLM Post Training Intern</h3>
                             <span class="company-badge">Ethara AI</span>
@@ -369,7 +367,7 @@ print(me.get_objective())</code></pre>
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="timeline-date">Oct 2025 – Feb 2026</div>
-                    <div class="timeline-content">
+                    <div class="timeline-content" data-tilt>
                         <div class="timeline-header">
                             <h3>Full Stack Development Intern</h3>
                             <span class="company-badge">Kanchan Pvt Ltd (Sapphire Web Wing)</span>
@@ -389,14 +387,14 @@ print(me.get_objective())</code></pre>
     <!-- Projects Section -->
     <section class="projects-section" id="projects">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">Projects</h2>
                 <div class="section-bar"></div>
             </div>
             
-            <div class="projects-grid">
+            <div class="projects-grid reveal">
                 <!-- Project 1 -->
-                <div class="project-card">
+                <div class="project-card" data-tilt>
                     <div class="project-header">
                         <span class="project-type">Full-Stack Application</span>
                         <div class="project-links">
@@ -414,7 +412,7 @@ print(me.get_objective())</code></pre>
                 </div>
                 
                 <!-- Project 2 -->
-                <div class="project-card">
+                <div class="project-card" data-tilt>
                     <div class="project-header">
                         <span class="project-type">AI & Workflow Automation</span>
                         <div class="project-links">
@@ -436,16 +434,16 @@ print(me.get_objective())</code></pre>
     <!-- Certifications Section -->
     <section class="certifications-section" id="certifications">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">Certifications & Credentials</h2>
                 <div class="section-bar"></div>
             </div>
             
-            <p class="section-subtitle">Browse and download official credentials and course completions.</p>
+            <p class="section-subtitle reveal">Browse and download official credentials and course completions.</p>
             
-            <div class="certifications-grid">
+            <div class="certifications-grid reveal">
                 <!-- IBM -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fab fa-python cert-badge-icon"></i>
                     </div>
@@ -457,7 +455,7 @@ print(me.get_objective())</code></pre>
                         </p>
                         <div class="cert-footer">
                             <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                            <a href="/download/certificates/IBM_ML0101EN_Certificate.pdf" class="btn btn-download-sm">
+                            <a href="static/assets/certificates/IBM_ML0101EN_Certificate.pdf" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
                         </div>
@@ -465,7 +463,7 @@ print(me.get_objective())</code></pre>
                 </div>
 
                 <!-- AWS -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fab fa-aws cert-badge-icon"></i>
                     </div>
@@ -477,7 +475,7 @@ print(me.get_objective())</code></pre>
                         </p>
                         <div class="cert-footer">
                             <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                            <a href="/download/certificates/AWS_Certified_Developer.pdf" class="btn btn-download-sm">
+                            <a href="static/assets/certificates/AWS_Certified_Developer.pdf" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
                         </div>
@@ -485,7 +483,7 @@ print(me.get_objective())</code></pre>
                 </div>
 
                 <!-- HP LIFE -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fas fa-chart-line cert-badge-icon"></i>
                     </div>
@@ -497,7 +495,7 @@ print(me.get_objective())</code></pre>
                         </p>
                         <div class="cert-footer">
                             <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                            <a href="/download/certificates/HP_LIFE_Data_Science_Analytics.pdf" class="btn btn-download-sm">
+                            <a href="static/assets/certificates/HP_LIFE_Data_Science_Analytics.pdf" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
                         </div>
@@ -505,19 +503,19 @@ print(me.get_objective())</code></pre>
                 </div>
 
                 <!-- Gemini -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fas fa-wand-magic-sparkles cert-badge-icon"></i>
                     </div>
                     <div class="cert-details">
                         <span class="cert-issuer">Google</span>
-                        <h3 class="cert-name">Gemini for Google Workspace Workshop</h3>
+                        <h3 class="cert-name">Gemini for Google Workspace</h3>
                         <p class="cert-description">
                             Hands-on workshop focused on prompt engineering, generative workflow automations, scripting, and code assistance utilizing Gemini AI systems.
                         </p>
                         <div class="cert-footer">
-                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Workshop Completion</span>
-                            <a href="/download/certificates/Gemini_for_Google_Workshop.png" class="btn btn-download-sm">
+                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Workshop</span>
+                            <a href="static/assets/certificates/Gemini_for_Google_Workshop.png" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PNG
                             </a>
                         </div>
@@ -525,7 +523,7 @@ print(me.get_objective())</code></pre>
                 </div>
 
                 <!-- SQL LinkedIn -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fas fa-database cert-badge-icon"></i>
                     </div>
@@ -536,8 +534,8 @@ print(me.get_objective())</code></pre>
                             Covers relational database constructs, complex schema joins, writing subqueries, aggregations, database views, and query optimizations.
                         </p>
                         <div class="cert-footer">
-                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Course Completion</span>
-                            <a href="/download/certificates/Learning_SQL_Programming.pdf" class="btn btn-download-sm">
+                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Course</span>
+                            <a href="static/assets/certificates/Learning_SQL_Programming.pdf" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
                         </div>
@@ -545,19 +543,19 @@ print(me.get_objective())</code></pre>
                 </div>
 
                 <!-- CNN LinkedIn -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fas fa-brain cert-badge-icon"></i>
                     </div>
                     <div class="cert-details">
                         <span class="cert-issuer">LinkedIn Learning</span>
-                        <h3 class="cert-name">Neural Networks and CNNs Essential Training</h3>
+                        <h3 class="cert-name">Neural Networks and CNNs</h3>
                         <p class="cert-description">
                             Covers dense layers, convolutional kernels, backpropagation math, activation functions, pooling operations, and basic computer vision deep architectures.
                         </p>
                         <div class="cert-footer">
-                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Course Completion</span>
-                            <a href="/download/certificates/Neural_Networks_CNN_Essential_Training.pdf" class="btn btn-download-sm">
+                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Course</span>
+                            <a href="static/assets/certificates/Neural_Networks_CNN_Essential_Training.pdf" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
                         </div>
@@ -565,19 +563,19 @@ print(me.get_objective())</code></pre>
                 </div>
 
                 <!-- Internship -->
-                <div class="cert-card">
+                <div class="cert-card" data-tilt>
                     <div class="cert-media">
                         <i class="fas fa-file-contract cert-badge-icon"></i>
                     </div>
                     <div class="cert-details">
                         <span class="cert-issuer">Professional Internship</span>
-                        <h3 class="cert-name">Internship Completion Certificate</h3>
+                        <h3 class="cert-name">Internship Certificate</h3>
                         <p class="cert-description">
                             Official certificate validating core developer accomplishments, demonstrating successful execution of duties and engineering capabilities.
                         </p>
                         <div class="cert-footer">
-                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Internship verified</span>
-                            <a href="/download/certificates/Internship_Completion_Certificate.pdf" class="btn btn-download-sm">
+                            <span class="cert-date"><i class="far fa-calendar-alt"></i> Verified</span>
+                            <a href="static/assets/certificates/Internship_Completion_Certificate.pdf" class="btn btn-download-sm" download>
                                 <i class="fas fa-download"></i> Download PDF
                             </a>
                         </div>
@@ -590,13 +588,13 @@ print(me.get_objective())</code></pre>
     <!-- Education Section -->
     <section class="education-section" id="education">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">Education & Coursework</h2>
                 <div class="section-bar"></div>
             </div>
             
             <div class="edu-course-grid">
-                <div class="education-list">
+                <div class="education-list reveal">
                     <h3>Academic Timeline</h3>
                     
                     <div class="edu-card">
@@ -616,7 +614,7 @@ print(me.get_objective())</code></pre>
                     </div>
                 </div>
                 
-                <div class="coursework-list">
+                <div class="coursework-list reveal delay-2">
                     <h3>Core Coursework</h3>
                     <div class="course-tags">
                         <span>Data Structures & Algorithms (DSA)</span>
@@ -627,12 +625,12 @@ print(me.get_objective())</code></pre>
                         <span>Operating Systems (OS)</span>
                     </div>
                     
-                    <div class="profile-card">
+                    <div class="profile-card" data-tilt>
                         <i class="fas fa-quote-left quote-icon"></i>
                         <p class="quote-text">
-                            "Krishna is highly capable in adapting to fast-paced technologies. His experience with both deep-level AI evaluations and scalable React/Node.js stacks makes him an exceptional candidate for versatile roles."
+                            "Krishna adapts exceptionally fast to modern technical landscapes, bridging data analytics with scalable interface architectures seamlessly."
                         </p>
-                        <p class="quote-author">- Kanchan Pvt Ltd & Ethara AI Feedback</p>
+                        <p class="quote-author">- Ethara AI & Kanchan Feedback</p>
                     </div>
                 </div>
             </div>
@@ -642,14 +640,14 @@ print(me.get_objective())</code></pre>
     <!-- Contact Section -->
     <section class="contact-section" id="contact">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header reveal">
                 <h2 class="section-title">Get In Touch</h2>
                 <div class="section-bar"></div>
             </div>
             
             <div class="contact-grid">
-                <div class="contact-info">
-                    <h3>Let's talk about your project or role!</h3>
+                <div class="contact-info reveal">
+                    <h3>Let's collaborate on data and code.</h3>
                     <p>I am actively seeking internships, entry-level, or remote roles in Data Engineering, AI/ML development, and Software Engineering.</p>
                     
                     <div class="contact-details-list">
@@ -671,13 +669,13 @@ print(me.get_objective())</code></pre>
                             <i class="fas fa-map-marker-alt"></i>
                             <div>
                                 <h4>Location</h4>
-                                <p>Bhopal, Madhya Pradesh, India (Open to relocation & remote)</p>
+                                <p>Bhopal, Madhya Pradesh, India (Open to remote & relocation)</p>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <div class="contact-form-container">
+                <div class="contact-form-container reveal delay-2">
                     <form id="contactForm" class="contact-form">
                         <div class="form-group">
                             <label for="name">Full Name</label>
@@ -689,7 +687,7 @@ print(me.get_objective())</code></pre>
                         </div>
                         <div class="form-group">
                             <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, I'd love to talk about a role..."></textarea>
+                            <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, let's talk about a role..."></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block">
                             <span id="btnText">Send Message</span> <i class="fas fa-paper-plane"></i>
@@ -713,7 +711,9 @@ print(me.get_objective())</code></pre>
         </div>
     </footer>
 
+    <!-- Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script src="static/js/script.js"></script>
 </body>
 </html>

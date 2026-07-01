@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Glassmorphic Overlay & Transparent Container Overrides
+# Custom CSS for Advanced UI/UX Styling & Streamlit Element Overrides
 st.markdown("""
 <style>
     /* Premium Styling */
@@ -45,37 +45,46 @@ st.markdown("""
     
     /* Title Gradient */
     .hero-title {
-        font-size: 3.5rem !important;
+        font-size: 3.8rem !important;
         font-weight: 900 !important;
         background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 5px;
+        letter-spacing: -1px;
     }
     
     .hero-tagline {
-        font-size: 1.3rem;
+        font-size: 1.35rem;
         color: #818cf8;
-        font-weight: 500;
+        font-weight: 600;
         margin-bottom: 25px;
+        letter-spacing: 0.5px;
     }
     
-    /* Glassmorphism Containers with Frosted Blur */
+    /* Glassmorphism Containers with Hover Scaling & Neon Border Reflex */
     .glass-card {
-        background: rgba(17, 24, 39, 0.65) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
+        background: rgba(17, 24, 39, 0.7) !important;
+        backdrop-filter: blur(14px) !important;
+        -webkit-backdrop-filter: blur(14px) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
         border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 20px;
+        padding: 26px;
+        margin-bottom: 22px;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+        transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s ease, box-shadow 0.3s ease !important;
+    }
+    
+    .glass-card:hover {
+        transform: translateY(-5px) !important;
+        border-color: rgba(99, 102, 241, 0.3) !important;
+        box-shadow: 0 12px 40px 0 rgba(99, 102, 241, 0.18) !important;
     }
     
     /* Stat Badge */
     .stat-number {
-        font-size: 2.2rem;
-        font-weight: 800;
+        font-size: 2.3rem;
+        font-weight: 900;
         color: #6366f1;
         margin-bottom: 0px;
         font-family: 'Outfit', sans-serif;
@@ -84,10 +93,116 @@ st.markdown("""
         font-size: 0.85rem;
         color: #9ca3af;
         text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 600;
+    }
+    
+    /* Technical Lists Custom Bullet point styling */
+    .glass-card ul {
+        list-style-type: none !important;
+        padding-left: 0 !important;
+    }
+    
+    .glass-card ul li {
+        position: relative !important;
+        padding-left: 22px !important;
+        margin-bottom: 12px !important;
+        color: #d1d5db !important;
+        font-size: 0.95rem !important;
+    }
+    
+    .glass-card ul li::before {
+        content: "✦" !important;
+        position: absolute !important;
+        left: 0 !important;
+        color: #6366f1 !important;
+        font-weight: bold !important;
+    }
+    
+    /* Advanced Overrides for Streamlit Buttons (Submit & Downloads) */
+    .stButton > button, div[data-testid="stDownloadButton"] > button {
+        background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%) !important;
+        color: white !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 0.95rem !important;
+        padding: 12px 28px !important;
+        border-radius: 30px !important;
+        border: none !important;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
         letter-spacing: 0.5px;
     }
     
-    /* Hide Streamlit Footer & Menu */
+    .stButton > button:hover, div[data-testid="stDownloadButton"] > button:hover {
+        transform: translateY(-2.5px) !important;
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.55) !important;
+        background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%) !important;
+    }
+    
+    .stButton > button:active, div[data-testid="stDownloadButton"] > button:active {
+        transform: translateY(0px) !important;
+    }
+    
+    /* Redesign Streamlit Tabs into Pill Glass selectors */
+    div[data-baseweb="tab-list"] {
+        background: rgba(17, 24, 39, 0.45) !important;
+        border-radius: 12px !important;
+        padding: 6px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        gap: 8px !important;
+    }
+    
+    div[data-baseweb="tab"] {
+        color: #9ca3af !important;
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        padding: 10px 20px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        background: transparent !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    div[data-baseweb="tab"]:hover {
+        color: #fff !important;
+        background: rgba(255, 255, 255, 0.04) !important;
+    }
+    
+    div[data-baseweb="tab"][aria-selected="true"] {
+        color: #fff !important;
+        background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%) !important;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.28) !important;
+    }
+    
+    /* Hide default tab line bar */
+    div[data-baseweb="tab-highlight"] {
+        background-color: transparent !important;
+    }
+    
+    /* Forms, Inputs and Textareas */
+    .stTextInput input, .stTextArea textarea {
+        background: rgba(17, 24, 39, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 10px !important;
+        color: #f3f4f6 !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 12px 16px !important;
+        outline: none !important;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
+    }
+    
+    .stTextInput input:focus, .stTextArea textarea:focus {
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 10px rgba(99, 102, 241, 0.28) !important;
+    }
+    
+    /* Hide Streamlit Default Elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -111,7 +226,6 @@ st.markdown("""
 st.markdown("""
 <div id="three-bg-loader"></div>
 <script>
-    // Check if Three.js is loaded, otherwise download dynamically
     if (!window.THREE) {
         const script = document.createElement('script');
         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
@@ -122,7 +236,6 @@ st.markdown("""
     }
 
     function initThreeBG() {
-        // Prevent duplicate canvases during Streamlit state reruns
         if (document.getElementById('three-bg')) return;
 
         const canvas = document.createElement('canvas');
@@ -142,7 +255,6 @@ st.markdown("""
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Create 3D particle constellation grid
         const count = 180;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(count * 3);
@@ -178,19 +290,15 @@ st.markdown("""
             mouseY = (e.clientY / window.innerHeight - 0.5);
         });
 
-        // Animation loops
         function animate() {
             requestAnimationFrame(animate);
 
-            // Easing/smoothing mouse interaction
             targetX += (mouseX - targetX) * 0.05;
             targetY += (mouseY - targetY) * 0.05;
 
-            // Spin points gently
             points.rotation.y += 0.0006;
             points.rotation.x += 0.0003;
 
-            // Camera tilt
             camera.position.x = targetX * 3.5;
             camera.position.y = -targetY * 3.5;
             camera.lookAt(scene.position);

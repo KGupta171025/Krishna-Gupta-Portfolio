@@ -334,82 +334,80 @@ function initCoreUI() {
         const emailVal = document.getElementById('email').value;
         const msgVal = document.getElementById('message').value;
 
-        const payload = {
+        // Always send the email using Web3Forms (100% free, secure, no SMTP password configuration required!)
+        const web3FormsPayload = {
+            access_key: '64dbe559-0a67-4ebc-88db-23d9b4b0051e', // Access key for krishna.official.gupta@gmail.com
             name: nameVal,
             email: emailVal,
-            message: msgVal
+            message: msgVal,
+            subject: `New Message from Portfolio: ${nameVal}`
         };
 
-        // Determine if we submit to our local Flask API or use a web form fallback (for static hosting like GitHub Pages)
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(web3FormsPayload)
+        })
+        .then(res => res.json())
+        .then(emailData => {
+            if (emailData.success) {
+                // Email sent successfully! Now check if we can trigger Twilio SMS locally
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-        if (isLocalhost) {
-            // Send to Flask local API endpoint
-            fetch('/api/contact', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                if (data.success) {
-                    formFeedback.textContent = 'Thank you! Your message was sent, and notifications were forwarded to Krishna.';
-                    formFeedback.className = 'form-feedback success';
-                    contactForm.reset();
+                if (isLocalhost) {
+                    const smsPayload = {
+                        name: nameVal,
+                        email: emailVal,
+                        message: msgVal
+                    };
+
+                    fetch('/api/contact', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(smsPayload)
+                    })
+                    .then(smsRes => smsRes.json())
+                    .then(smsData => {
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Send Message';
+                        formFeedback.textContent = 'Success! Your message was sent, and an SMS alert was sent to Krishna.';
+                        formFeedback.className = 'form-feedback success';
+                        contactForm.reset();
+                    })
+                    .catch(smsErr => {
+                        // Still success, since email was sent successfully
+                        submitBtn.disabled = false;
+                        btnText.textContent = 'Send Message';
+                        formFeedback.textContent = 'Message sent! (SMS alert connection skipped: ' + smsErr.message + ')';
+                        formFeedback.className = 'form-feedback success';
+                        contactForm.reset();
+                    });
                 } else {
-                    formFeedback.textContent = 'Error: ' + data.message;
-                    formFeedback.className = 'form-feedback error';
-                }
-            })
-            .catch(err => {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                formFeedback.textContent = 'Error connecting to backend: ' + err.message;
-                formFeedback.className = 'form-feedback error';
-            });
-        } else {
-            // Fallback for GitHub Pages static hosting using Web3Forms
-            // Web3Forms sends submissions directly to krishna.official.gupta@gmail.com
-            const web3FormsPayload = {
-                access_key: '64dbe559-0a67-4ebc-88db-23d9b4b0051e', // public access key for krishna.official.gupta@gmail.com
-                name: nameVal,
-                email: emailVal,
-                message: msgVal,
-                subject: `New Message from Portfolio: ${nameVal}`
-            };
-
-            fetch('https://api.web3forms.com/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(web3FormsPayload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                if (data.success) {
+                    // Production (GitHub Pages) - Email sent successfully
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
                     formFeedback.textContent = 'Thank you! Your message was successfully sent to Krishna.';
                     formFeedback.className = 'form-feedback success';
                     contactForm.reset();
-                } else {
-                    formFeedback.textContent = 'Form submission failed: ' + data.message;
-                    formFeedback.className = 'form-feedback error';
                 }
-            })
-            .catch(err => {
+            } else {
                 submitBtn.disabled = false;
                 btnText.textContent = 'Send Message';
-                formFeedback.textContent = 'Error sending form: ' + err.message;
+                formFeedback.textContent = 'Failed to send message: ' + emailData.message;
                 formFeedback.className = 'form-feedback error';
-            });
-        }
+            }
+        })
+        .catch(err => {
+            submitBtn.disabled = false;
+            btnText.textContent = 'Send Message';
+            formFeedback.textContent = 'Error sending form: ' + err.message;
+            formFeedback.className = 'form-feedback error';
+        });
     });
 }
 

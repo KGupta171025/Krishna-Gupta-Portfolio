@@ -529,7 +529,7 @@ h1, h2, h3, h4, h5, h6 {
 /* About Section */
 .about-section {
     padding: 100px 0;
-    background-color: var(--bg-secondary);
+    background-color: transparent;
 }
 
 .about-grid {
@@ -736,7 +736,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Experience Section - Timeline */
 .experience-section {
     padding: 100px 0;
-    background: var(--bg-secondary);
+    background: transparent;
 }
 
 .timeline {
@@ -918,7 +918,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Certifications Section */
 .certifications-section {
     padding: 100px 0;
-    background: var(--bg-secondary);
+    background: transparent;
 }
 
 .certifications-grid {
@@ -1166,7 +1166,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Contact Section */
 .contact-section {
     padding: 100px 0;
-    background: var(--bg-secondary);
+    background: transparent;
 }
 
 .contact-grid {

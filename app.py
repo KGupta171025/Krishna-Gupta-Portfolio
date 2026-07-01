@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for Premium Design & Hiding Streamlit Default Elements
+# Custom CSS for Glassmorphic Overlay & Transparent Container Overrides
 st.markdown("""
 <style>
     /* Premium Styling */
@@ -24,6 +24,23 @@ st.markdown("""
     h1, h2, h3, h4, h5, h6 {
         font-family: 'Outfit', sans-serif;
         font-weight: 700;
+    }
+    
+    /* Full-Page Background Transparency Overrides */
+    .stApp {
+        background: transparent !important;
+    }
+    [data-testid="stAppViewContainer"] {
+        background: transparent !important;
+    }
+    [data-testid="stHeader"] {
+        background: transparent !important;
+    }
+    .main {
+        background: transparent !important;
+    }
+    body {
+        background-color: #0b0f19 !important; /* Fallback dark theme */
     }
     
     /* Title Gradient */
@@ -43,14 +60,16 @@ st.markdown("""
         margin-bottom: 25px;
     }
     
-    /* Glassmorphism containers */
+    /* Glassmorphism Containers with Frosted Blur */
     .glass-card {
-        background: rgba(17, 24, 39, 0.45);
-        border: 1px solid rgba(255, 255, 255, 0.05);
+        background: rgba(17, 24, 39, 0.65) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
         border-radius: 16px;
         padding: 24px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
     }
     
     /* Stat Badge */
@@ -75,9 +94,9 @@ st.markdown("""
     
     /* Highlight Badge */
     .cert-badge {
-        background-color: rgba(99, 102, 241, 0.1);
+        background-color: rgba(99, 102, 241, 0.15);
         color: #818cf8;
-        border: 1px solid rgba(99, 102, 241, 0.2);
+        border: 1px solid rgba(99, 102, 241, 0.25);
         padding: 4px 12px;
         border-radius: 20px;
         font-size: 0.8rem;
@@ -88,9 +107,109 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Helper Function to construct a beautiful 3D Neural Network
+# Inject Document-Level Three.js 3D WebGL background
+st.markdown("""
+<div id="three-bg-loader"></div>
+<script>
+    // Check if Three.js is loaded, otherwise download dynamically
+    if (!window.THREE) {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+        script.onload = initThreeBG;
+        document.head.appendChild(script);
+    } else {
+        initThreeBG();
+    }
+
+    function initThreeBG() {
+        // Prevent duplicate canvases during Streamlit state reruns
+        if (document.getElementById('three-bg')) return;
+
+        const canvas = document.createElement('canvas');
+        canvas.id = 'three-bg';
+        canvas.style.position = 'fixed';
+        canvas.style.top = '0';
+        canvas.style.left = '0';
+        canvas.style.width = '100vw';
+        canvas.style.height = '100vh';
+        canvas.style.zIndex = '-2';
+        canvas.style.pointerEvents = 'none';
+        document.body.prepend(canvas);
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Create 3D particle constellation grid
+        const count = 180;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+
+        for (let i = 0; i < count * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 15;
+            positions[i + 1] = (Math.random() - 0.5) * 15;
+            positions[i + 2] = (Math.random() - 0.5) * 15;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.08,
+            color: 0x818cf8,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+
+        const points = new THREE.Points(geometry, material);
+        scene.add(points);
+
+        camera.position.z = 6;
+
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth - 0.5);
+            mouseY = (e.clientY / window.innerHeight - 0.5);
+        });
+
+        // Animation loops
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Easing/smoothing mouse interaction
+            targetX += (mouseX - targetX) * 0.05;
+            targetY += (mouseY - targetY) * 0.05;
+
+            // Spin points gently
+            points.rotation.y += 0.0006;
+            points.rotation.x += 0.0003;
+
+            // Camera tilt
+            camera.position.x = targetX * 3.5;
+            camera.position.y = -targetY * 3.5;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    }
+</script>
+""", unsafe_allow_html=True)
+
+# Helper Function to construct the 3D Neural Network Plotly chart
 def create_3d_neural_network():
-    # Number of nodes per layer
     layers = [5, 8, 8, 3]
     x_nodes = []
     y_nodes = []
@@ -102,15 +221,11 @@ def create_3d_neural_network():
     layer_names = ["Input Layer", "Hidden Layer 1", "Hidden Layer 2", "Output Layer"]
     layer_colors = ["#10b981", "#6366f1", "#06b6d4", "#f59e0b"]
     
-    # Generate nodes coordinates
     for layer_idx, num_nodes in enumerate(layers):
-        x_val = layer_idx * 4  # Layer spacing on x-axis
-        
-        # Space nodes out on y and z axes
+        x_val = layer_idx * 4
         y_vals = np.linspace(-3, 3, num_nodes)
         
         for node_idx, y_val in enumerate(y_vals):
-            # Add a slight circular spread to Z to make it 3D
             z_val = np.sin(node_idx) * 1.5
             
             x_nodes.append(x_val)
@@ -121,7 +236,6 @@ def create_3d_neural_network():
             node_color.append(layer_colors[layer_idx])
             node_size.append(12 if layer_idx in [0, 3] else 10)
 
-    # Generate edges connections
     edge_x = []
     edge_y = []
     edge_z = []
@@ -141,7 +255,6 @@ def create_3d_neural_network():
                 edge_y.extend([y_nodes[c_node], y_nodes[n_node], None])
                 edge_z.extend([z_nodes[c_node], z_nodes[n_node], None])
                 
-    # Create line trace for edges
     edge_trace = go.Scatter3d(
         x=edge_x, y=edge_y, z=edge_z,
         mode='lines',
@@ -149,7 +262,6 @@ def create_3d_neural_network():
         hoverinfo='none'
     )
     
-    # Create marker trace for nodes
     node_trace = go.Scatter3d(
         x=x_nodes, y=y_nodes, z=z_nodes,
         mode='markers',
@@ -163,7 +275,6 @@ def create_3d_neural_network():
         hoverinfo='text'
     )
     
-    # Setup layout
     layout = go.Layout(
         showlegend=False,
         scene=dict(
@@ -221,7 +332,7 @@ with col1:
             mime="application/pdf"
         )
     else:
-        st.warning("Resume file not found locally. Using placeholder.")
+        st.warning("Resume file not found locally.")
 
 with col2:
     st.markdown("### Interactive 3D Neural Network Model")
@@ -361,7 +472,6 @@ st.markdown("## Certifications & Credentials")
 
 certs_dir = "static/assets/certificates"
 
-# Helper function to render a certificate card with its download button
 def render_cert_card(title, issuer, desc, date, filename):
     file_path = os.path.join(certs_dir, filename)
     st.markdown(f"#### {title}")
@@ -377,10 +487,10 @@ def render_cert_card(title, issuer, desc, date, filename):
             data=file_data,
             file_name=filename,
             mime=mime_type,
-            key=filename  # Unique key for Streamlit widgets
+            key=filename
         )
     else:
-        st.caption("Certificate file not found locally. Link is placeholder.")
+        st.caption("Certificate file not found locally.")
     st.write("")
 
 # Display grid

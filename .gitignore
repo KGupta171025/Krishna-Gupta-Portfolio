@@ -1,0 +1,22 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Virtualenv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Editor / OS configs
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.log

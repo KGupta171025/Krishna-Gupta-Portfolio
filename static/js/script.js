@@ -376,7 +376,7 @@ function initCoreUI() {
             // Web3Forms sends submissions directly to krishna.official.gupta@gmail.com
             // (Note: replace access_key below with your free Web3Forms key to enable emails in production)
             const web3FormsPayload = {
-                access_key: '64dbe559-0a67-4ebc-88db-23d9b4b0051e', 
+                access_key: '71e95101-47ab-4f82-a128-f044979facce', 
                 name: nameVal,
                 email: emailVal,
                 message: msgVal,

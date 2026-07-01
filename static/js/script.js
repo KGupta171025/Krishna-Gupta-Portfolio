@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Core UI / Theme Toggling / Mobile Nav / Form Handler
     initCoreUI();
+
+    // 5. Stats Counter Animation Engine
+    initStatsCounter();
 });
 
 /* ==========================================================
@@ -62,6 +65,29 @@ function initThreeBackground() {
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
+    // Torus Knot floating wireframe mesh for 3D depth showcase
+    const shapeGeom = new THREE.TorusKnotGeometry(0.8, 0.22, 100, 16);
+    const shapeMat = new THREE.MeshBasicMaterial({
+        color: 0x06b6d4,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.18,
+        blending: THREE.AdditiveBlending
+    });
+    const shapeMesh = new THREE.Mesh(shapeGeom, shapeMat);
+    scene.add(shapeMesh);
+
+    function updateShapePosition() {
+        if (window.innerWidth < 991) {
+            shapeMesh.position.set(0, -2.4, -2.5);
+            shapeMesh.scale.set(0.65, 0.65, 0.65);
+        } else {
+            shapeMesh.position.set(3, 1, -1);
+            shapeMesh.scale.set(1, 1, 1);
+        }
+    }
+    updateShapePosition();
+
     camera.position.z = 6;
 
     // Mouse movement physics
@@ -92,6 +118,10 @@ function initThreeBackground() {
         camera.position.y = -targetY * 3.5;
         camera.lookAt(scene.position);
 
+        // Spin the Torus Knot mesh with cursor parallax inertia
+        shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
+        shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
+
         renderer.render(scene, camera);
     }
     animate();
@@ -101,6 +131,7 @@ function initThreeBackground() {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+        updateShapePosition();
     });
 }
 
@@ -309,4 +340,43 @@ function initCoreUI() {
             contactForm.reset();
         }, 1500);
     });
+}
+
+/* ==========================================================
+   5. Stats Counter Animation Engine (Scroll Triggered)
+   ========================================================== */
+function initStatsCounter() {
+    const stats = document.querySelectorAll('.stat-number');
+    
+    const observerOptions = {
+        root: null,
+        threshold: 0.25
+    };
+
+    const statsObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const stat = entry.target;
+                const target = +stat.getAttribute('data-target');
+                const suffix = stat.getAttribute('data-suffix') || '';
+                let current = 0;
+                const increment = target / 70; // Animate over roughly 70 frames
+                
+                const animate = () => {
+                    current += increment;
+                    if (current >= target) {
+                        stat.textContent = target + suffix;
+                    } else {
+                        stat.textContent = Math.floor(current) + suffix;
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                animate();
+                observer.unobserve(stat);
+            }
+        });
+    }, observerOptions);
+
+    stats.forEach(stat => statsObserver.observe(stat));
 }

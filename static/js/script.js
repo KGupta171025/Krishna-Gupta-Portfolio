@@ -491,7 +491,7 @@ function handleContactPathScroll() {
     const path = window.location.pathname;
     const sections = ['about', 'skills', 'experience', 'projects', 'certifications', 'contact'];
     for (const sectionId of sections) {
-        if (path.endsWith('/' + sectionId) || path.endsWith('/' + sectionId + '/')) {
+        if (path.endsWith('/' + sectionId) || path.endsWith('/' + sectionId + '/') || path.endsWith('/' + sectionId + '.html')) {
             const targetSection = document.getElementById(sectionId);
             if (targetSection) {
                 setTimeout(() => {

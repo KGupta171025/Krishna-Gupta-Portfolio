@@ -358,90 +358,118 @@ function initCoreUI() {
         e.preventDefault();
 
         submitBtn.disabled = true;
-        btnText.textContent = 'Sending...';
+        btnText.textContent = 'Verifying email...';
         formFeedback.className = 'form-feedback hidden';
 
         const nameVal = document.getElementById('name').value;
         const emailVal = document.getElementById('email').value;
         const msgVal = document.getElementById('message').value;
 
-        // Determine if we submit to our local Flask API or use a web form fallback (for static hosting like GitHub Pages)
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        // Reusable function to perform standard submission
+        const performSubmission = () => {
+            btnText.textContent = 'Sending...';
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-        if (isLocalhost) {
-            // Send to Flask local API endpoint (handles Twilio SMS + optional SMTP email)
-            const localPayload = {
-                name: nameVal,
-                email: emailVal,
-                message: msgVal
-            };
+            if (isLocalhost) {
+                const localPayload = {
+                    name: nameVal,
+                    email: emailVal,
+                    message: msgVal
+                };
 
-            fetch('/api/contact', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(localPayload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                if (data.success) {
-                    formFeedback.textContent = 'Success! Your message was received, and notifications were forwarded to Krishna.';
-                    formFeedback.className = 'form-feedback success';
-                    contactForm.reset();
-                } else {
-                    formFeedback.textContent = 'Error: ' + data.message;
+                fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(localPayload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
+                    if (data.success) {
+                        formFeedback.textContent = 'Success! Your message was received, and notifications were forwarded to Krishna.';
+                        formFeedback.className = 'form-feedback success';
+                        contactForm.reset();
+                    } else {
+                        formFeedback.textContent = 'Error: ' + data.message;
+                        formFeedback.className = 'form-feedback error';
+                    }
+                })
+                .catch(err => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
+                    formFeedback.textContent = 'Error connecting to local server: ' + err.message;
                     formFeedback.className = 'form-feedback error';
-                }
-            })
-            .catch(err => {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                formFeedback.textContent = 'Error connecting to local server: ' + err.message;
-                formFeedback.className = 'form-feedback error';
-            });
-        } else {
-            // Fallback for GitHub Pages static hosting using Web3Forms
-            // Web3Forms sends submissions directly to krishna.official.gupta@gmail.com
-            // (Note: replace access_key below with your free Web3Forms key to enable emails in production)
-            const web3FormsPayload = {
-                access_key: '71e95101-47ab-4f82-a128-f044979facce', 
-                name: nameVal,
-                email: emailVal,
-                message: msgVal,
-                subject: `New Message from Portfolio: ${nameVal}`
-            };
+                });
+            } else {
+                const web3FormsPayload = {
+                    access_key: '71e95101-47ab-4f82-a128-f044979facce', 
+                    name: nameVal,
+                    email: emailVal,
+                    message: msgVal,
+                    subject: `New Message from Portfolio: ${nameVal}`
+                };
 
-            fetch('https://api.web3forms.com/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(web3FormsPayload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                if (data.success) {
-                    formFeedback.textContent = 'Thank you! Your message was successfully sent to Krishna.';
-                    formFeedback.className = 'form-feedback success';
-                    contactForm.reset();
-                } else {
-                    formFeedback.textContent = 'Form submission failed: ' + data.message + ' (Check your Web3Forms access key!)';
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(web3FormsPayload)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
+                    if (data.success) {
+                        formFeedback.textContent = 'Thank you! Your message was successfully sent to Krishna.';
+                        formFeedback.className = 'form-feedback success';
+                        contactForm.reset();
+                    } else {
+                        formFeedback.textContent = 'Form submission failed: ' + data.message + ' (Check your Web3Forms access key!)';
+                        formFeedback.className = 'form-feedback error';
+                    }
+                })
+                .catch(err => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
+                    formFeedback.textContent = 'Error sending form: ' + err.message;
                     formFeedback.className = 'form-feedback error';
-                }
-            })
-            .catch(err => {
+                });
+            }
+        };
+
+        // Real-time Email Verification via Disify API (MX records & syntax checks)
+        fetch(`https://disify.com/api/email/${encodeURIComponent(emailVal)}`)
+        .then(res => res.json())
+        .then(emailCheck => {
+            if (!emailCheck.format || !emailCheck.dns) {
                 submitBtn.disabled = false;
                 btnText.textContent = 'Send Message';
-                formFeedback.textContent = 'Error sending form: ' + err.message;
+                formFeedback.textContent = 'Error: The email address does not exist or has an inactive domain. Please enter a valid, active email address.';
                 formFeedback.className = 'form-feedback error';
-            });
-        }
+                return;
+            }
+
+            if (emailCheck.disposable) {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Send Message';
+                formFeedback.textContent = 'Error: Temporary or disposable email addresses are not allowed.';
+                formFeedback.className = 'form-feedback error';
+                return;
+            }
+
+            // If email is fully verified, proceed with submission
+            performSubmission();
+        })
+        .catch(err => {
+            console.warn('Email verification API unavailable. Bypassing check.', err);
+            // Fallback: Proceed with submission if the verification service is down or blocked
+            performSubmission();
+        });
     });
 }
 

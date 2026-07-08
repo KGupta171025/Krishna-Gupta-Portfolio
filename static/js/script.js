@@ -378,16 +378,98 @@ function initCoreUI() {
     const formFeedback = document.getElementById('formFeedback');
     const btnText = document.getElementById('btnText');
     const submitBtn = contactForm.querySelector('button[type="submit"]');
+    const emailInput = document.getElementById('email');
+
+    // Create and style real-time validation feedback status element
+    const emailStatus = document.createElement('div');
+    emailStatus.className = 'email-status-feedback';
+    emailStatus.style.fontSize = '0.8rem';
+    emailStatus.style.marginTop = '4px';
+    emailStatus.style.fontWeight = '600';
+    emailStatus.style.transition = 'all 0.3s ease';
+    emailInput.parentNode.appendChild(emailStatus);
+
+    let isEmailValid = false;
+    let emailTimeout = null;
+
+    const verifyEmailRealtime = (emailVal) => {
+        emailStatus.textContent = 'Verifying email address...';
+        emailStatus.style.color = '#818cf8'; // Indigo load state
+
+        fetch(`https://disify.com/api/email/${encodeURIComponent(emailVal)}`)
+        .then(res => res.json())
+        .then(emailCheck => {
+            if (!emailCheck.format || !emailCheck.dns) {
+                emailStatus.textContent = '✗ Email domain does not exist or has inactive DNS.';
+                emailStatus.style.color = '#ef4444'; // Red error
+                isEmailValid = false;
+                return;
+            }
+
+            if (emailCheck.disposable) {
+                emailStatus.textContent = '✗ Temporary or disposable email addresses are not allowed.';
+                emailStatus.style.color = '#ef4444';
+                isEmailValid = false;
+                return;
+            }
+
+            emailStatus.textContent = '✓ Email address exists and is active.';
+            emailStatus.style.color = '#10b981'; // Green active
+            isEmailValid = true;
+        })
+        .catch(err => {
+            console.warn('Real-time verification service unavailable:', err);
+            // Fallback: If verification api is down, trust syntax formatting
+            emailStatus.textContent = '✓ Syntax format is correct.';
+            emailStatus.style.color = '#10b981';
+            isEmailValid = true;
+        });
+    };
+
+    emailInput.addEventListener('input', () => {
+        isEmailValid = false;
+        clearTimeout(emailTimeout);
+        emailStatus.textContent = '';
+
+        const emailVal = emailInput.value.trim();
+        if (!emailVal) return;
+
+        // Local regex validation check (instant feedback)
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+            emailStatus.textContent = '✗ Invalid email format.';
+            emailStatus.style.color = '#ef4444';
+            return;
+        }
+
+        // Debounce actual server DNS verification for 600ms
+        emailTimeout = setTimeout(() => {
+            verifyEmailRealtime(emailVal);
+        }, 600);
+    });
+
+    emailInput.addEventListener('blur', () => {
+        const emailVal = emailInput.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (emailVal && emailRegex.test(emailVal) && !isEmailValid) {
+            verifyEmailRealtime(emailVal);
+        }
+    });
 
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
 
+        if (!isEmailValid) {
+            formFeedback.textContent = 'Error: Please enter a valid, active email address before sending.';
+            formFeedback.className = 'form-feedback error';
+            return;
+        }
+
         submitBtn.disabled = true;
-        btnText.textContent = 'Verifying email...';
         formFeedback.className = 'form-feedback hidden';
 
         const nameVal = document.getElementById('name').value;
-        const emailVal = document.getElementById('email').value;
+        const emailVal = emailInput.value.trim();
         const msgVal = document.getElementById('message').value;
 
         // Reusable function to perform standard submission
@@ -413,6 +495,8 @@ function initCoreUI() {
                     formFeedback.textContent = 'Thank you! Your message was securely saved in Firebase and forwarded to Krishna.';
                     formFeedback.className = 'form-feedback success';
                     contactForm.reset();
+                    isEmailValid = false; // Reset verification state
+                    emailStatus.textContent = '';
                 })
                 .catch(err => {
                     console.error('Submission error:', err);
@@ -483,6 +567,8 @@ function initCoreUI() {
                 formFeedback.textContent = 'Thank you! Your message has been sent to Krishna.';
                 formFeedback.className = 'form-feedback success';
                 contactForm.reset();
+                isEmailValid = false; // Reset verification state
+                emailStatus.textContent = '';
             })
             .catch(err => {
                 submitBtn.disabled = false;
@@ -492,34 +578,7 @@ function initCoreUI() {
             });
         };
 
-        // Real-time Email Verification via Disify API (MX records & syntax checks)
-        fetch(`https://disify.com/api/email/${encodeURIComponent(emailVal)}`)
-        .then(res => res.json())
-        .then(emailCheck => {
-            if (!emailCheck.format || !emailCheck.dns) {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                formFeedback.textContent = 'Error: The email address does not exist or has an inactive domain. Please enter a valid, active email address.';
-                formFeedback.className = 'form-feedback error';
-                return;
-            }
-
-            if (emailCheck.disposable) {
-                submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
-                formFeedback.textContent = 'Error: Temporary or disposable email addresses are not allowed.';
-                formFeedback.className = 'form-feedback error';
-                return;
-            }
-
-            // If email is fully verified, proceed with submission
-            performSubmission();
-        })
-        .catch(err => {
-            console.warn('Email verification API unavailable. Bypassing check.', err);
-            // Fallback: Proceed with submission if the verification service is down or blocked
-            performSubmission();
-        });
+        performSubmission();
     });
 }
 

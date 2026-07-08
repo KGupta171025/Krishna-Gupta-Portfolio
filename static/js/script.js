@@ -395,7 +395,7 @@ function initCoreUI() {
             btnText.textContent = 'Sending...';
 
             if (typeof db !== 'undefined') {
-                // Submit to Google Firebase (Firestore Database & Trigger Email Extension)
+                // 1. Submit to Google Firebase (Firestore Database - 100% Free on Spark Plan)
                 const dbPromise = db.collection("contact_submissions").add({
                     name: nameVal,
                     email: emailVal,
@@ -403,32 +403,30 @@ function initCoreUI() {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                const mailPromise = db.collection("mail").add({
-                    to: "hg497kg@gmail.com",
-                    message: {
-                        subject: `New Message from Portfolio: ${nameVal}`,
-                        text: `Name: ${nameVal}\nEmail: ${emailVal}\n\nMessage:\n${msgVal}`
-                    }
-                });
+                // 2. Simultaneously send email notification using Web3Forms (for live) or Flask (for local)
+                const emailPromise = sendNotificationEmail();
 
-                Promise.all([dbPromise, mailPromise])
+                Promise.all([dbPromise, emailPromise])
                 .then(() => {
                     submitBtn.disabled = false;
                     btnText.textContent = 'Send Message';
-                    formFeedback.textContent = 'Thank you! Your message was securely saved and forwarded to Krishna.';
+                    formFeedback.textContent = 'Thank you! Your message was securely saved in Firebase and forwarded to Krishna.';
                     formFeedback.className = 'form-feedback success';
                     contactForm.reset();
                 })
                 .catch(err => {
-                    console.error('Firebase submission failed, falling back to Web3Forms/Flask:', err);
-                    fallbackSubmission();
+                    console.error('Submission error:', err);
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
+                    formFeedback.textContent = 'Error sending message. Please try again later.';
+                    formFeedback.className = 'form-feedback error';
                 });
             } else {
                 fallbackSubmission();
             }
         };
 
-        const fallbackSubmission = () => {
+        const sendNotificationEmail = () => {
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
             if (isLocalhost) {
@@ -438,7 +436,7 @@ function initCoreUI() {
                     message: msgVal
                 };
 
-                fetch('/api/contact', {
+                return fetch('/api/contact', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -447,22 +445,9 @@ function initCoreUI() {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Send Message';
-                    if (data.success) {
-                        formFeedback.textContent = 'Success! Your message was received, and notifications were forwarded to Krishna.';
-                        formFeedback.className = 'form-feedback success';
-                        contactForm.reset();
-                    } else {
-                        formFeedback.textContent = 'Error: ' + data.message;
-                        formFeedback.className = 'form-feedback error';
+                    if (!data.success) {
+                        throw new Error(data.message);
                     }
-                })
-                .catch(err => {
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Send Message';
-                    formFeedback.textContent = 'Error connecting to local server: ' + err.message;
-                    formFeedback.className = 'form-feedback error';
                 });
             } else {
                 const web3FormsPayload = {
@@ -473,7 +458,7 @@ function initCoreUI() {
                     subject: `New Message from Portfolio: ${nameVal}`
                 };
 
-                fetch('https://api.web3forms.com/submit', {
+                return fetch('https://api.web3forms.com/submit', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -483,24 +468,28 @@ function initCoreUI() {
                 })
                 .then(res => res.json())
                 .then(data => {
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Send Message';
-                    if (data.success) {
-                        formFeedback.textContent = 'Thank you! Your message was successfully sent to Krishna.';
-                        formFeedback.className = 'form-feedback success';
-                        contactForm.reset();
-                    } else {
-                        formFeedback.textContent = 'Form submission failed: ' + data.message + ' (Check your Web3Forms access key!)';
-                        formFeedback.className = 'form-feedback error';
+                    if (!data.success) {
+                        throw new Error(data.message);
                     }
-                })
-                .catch(err => {
-                    submitBtn.disabled = false;
-                    btnText.textContent = 'Send Message';
-                    formFeedback.textContent = 'Error sending form: ' + err.message;
-                    formFeedback.className = 'form-feedback error';
                 });
             }
+        };
+
+        const fallbackSubmission = () => {
+            sendNotificationEmail()
+            .then(() => {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Send Message';
+                formFeedback.textContent = 'Thank you! Your message has been sent to Krishna.';
+                formFeedback.className = 'form-feedback success';
+                contactForm.reset();
+            })
+            .catch(err => {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Send Message';
+                formFeedback.textContent = 'Error sending form: ' + err.message;
+                formFeedback.className = 'form-feedback error';
+            });
         };
 
         // Real-time Email Verification via Disify API (MX records & syntax checks)

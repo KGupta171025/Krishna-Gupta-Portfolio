@@ -2,6 +2,23 @@
 // Krishna Gupta - Interactive Web Engine
 // ==========================================
 
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDo8ChYMXOHJzcmXfm27ooNXOggrZRaDmE",
+  authDomain: "krishna-gupta--portfolio.firebaseapp.com",
+  projectId: "krishna-gupta--portfolio",
+  storageBucket: "krishna-gupta--portfolio.firebasestorage.app",
+  messagingSenderId: "963185062473",
+  appId: "1:963185062473:web:bc89e5774b9fdc9a5ec598",
+  measurementId: "G-Z372F9BDJW"
+};
+
+// Initialize Firebase if compat SDK loaded
+if (typeof firebase !== 'undefined') {
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Three.js WebGL Particle Background
     initThreeBackground();
@@ -376,6 +393,42 @@ function initCoreUI() {
         // Reusable function to perform standard submission
         const performSubmission = () => {
             btnText.textContent = 'Sending...';
+
+            if (typeof db !== 'undefined') {
+                // Submit to Google Firebase (Firestore Database & Trigger Email Extension)
+                const dbPromise = db.collection("contact_submissions").add({
+                    name: nameVal,
+                    email: emailVal,
+                    message: msgVal,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const mailPromise = db.collection("mail").add({
+                    to: "hg497kg@gmail.com",
+                    message: {
+                        subject: `New Message from Portfolio: ${nameVal}`,
+                        text: `Name: ${nameVal}\nEmail: ${emailVal}\n\nMessage:\n${msgVal}`
+                    }
+                });
+
+                Promise.all([dbPromise, mailPromise])
+                .then(() => {
+                    submitBtn.disabled = false;
+                    btnText.textContent = 'Send Message';
+                    formFeedback.textContent = 'Thank you! Your message was securely saved and forwarded to Krishna.';
+                    formFeedback.className = 'form-feedback success';
+                    contactForm.reset();
+                })
+                .catch(err => {
+                    console.error('Firebase submission failed, falling back to Web3Forms/Flask:', err);
+                    fallbackSubmission();
+                });
+            } else {
+                fallbackSubmission();
+            }
+        };
+
+        const fallbackSubmission = () => {
             const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
             if (isLocalhost) {

@@ -80,12 +80,15 @@ function initThreeBackground() {
     const shapeMesh = new THREE.Mesh(shapeGeom, shapeMat);
     scene.add(shapeMesh);
 
+    let initialY = 1;
     function updateShapePosition() {
         if (window.innerWidth < 991) {
             shapeMesh.position.set(0, -2.4, -2.5);
+            initialY = -2.4;
             shapeMesh.scale.set(0.65, 0.65, 0.65);
         } else {
             shapeMesh.position.set(3, 1, -1);
+            initialY = 1;
             shapeMesh.scale.set(1, 1, 1);
         }
     }
@@ -120,6 +123,11 @@ function initThreeBackground() {
         camera.position.x = targetX * 3.5;
         camera.position.y = -targetY * 3.5;
         camera.lookAt(scene.position);
+
+        // Adjust mesh Y position based on document scroll (3D parallax)
+        const scrollFraction = window.scrollY / window.innerHeight;
+        const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
+        shapeMesh.position.y = initialY - (scrollFraction * visibleHeight);
 
         // Spin the Torus Knot mesh with cursor parallax inertia
         shapeMesh.rotation.x += 0.004 + (targetY * 0.015);

@@ -1,6 +1,9 @@
 import os
+import time
 import requests
 import smtplib
+import threading
+from collections import defaultdict
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import Flask, render_template, send_from_directory, request, jsonify
@@ -10,6 +13,37 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__, template_folder='.')
+
+# --- DEFENSIVE CYBERSECURITY MODULES ---
+
+# 1. Thread-safe In-Memory Rate Limiter (IP-based)
+ip_requests = defaultdict(list)
+rate_limiter_lock = threading.Lock()
+
+def is_rate_limited(ip_address, limit=3, period=60):
+    """
+    Checks if an IP address has exceeded the rate limit.
+    Default limit: maximum of 3 requests per 60 seconds.
+    """
+    now = time.time()
+    with rate_limiter_lock:
+        # Keep only timestamps within the current active period window
+        ip_requests[ip_address] = [t for t in ip_requests[ip_address] if now - t < period]
+        if len(ip_requests[ip_address]) >= limit:
+            return True
+        ip_requests[ip_address].append(now)
+        return False
+
+# 2. Asynchronous Notification Processor
+def send_async_notifications(name, email_address, message):
+    """
+    Executes SMTP and Twilio requests inside a background thread
+    to prevent synchronous worker thread exhaustion (DoS defense).
+    """
+    send_email_notification(name, email_address, message)
+    send_sms_notification(name, email_address)
+
+# --- END OF SECURITY MODULES ---
 
 @app.route('/')
 @app.route('/about')
@@ -25,7 +59,13 @@ def home():
 @app.route('/download/<path:filename>')
 def download_file(filename):
     directory = os.path.join(app.root_path, 'static', 'assets')
-    return send_from_directory(directory, filename, as_attachment=True)
+    
+    # Path Traversal Defense: Ensure requested filename is strictly a base filename (no directory nesting/traversals)
+    safe_filename = os.path.basename(filename)
+    if safe_filename != filename or ".." in filename:
+        return jsonify({'success': False, 'message': 'Access denied.'}), 403
+        
+    return send_from_directory(directory, safe_filename, as_attachment=True)
 
 # Helper function to send email notification
 def send_email_notification(name, email_address, message):
@@ -39,12 +79,16 @@ def send_email_notification(name, email_address, message):
         print("SMTP Credentials not configured in environment. Skipping email sending.")
         return False
 
+    # CRLF Header Injection Defense: Strip carriage return and line feed characters
+    clean_name = "".join(c for c in name if c not in "\r\n")
+    clean_email = "".join(c for c in email_address if c not in "\r\n")
+
     msg = MIMEMultipart()
     msg['From'] = sender_email
     msg['To'] = recipient_email
-    msg['Subject'] = f"New Portfolio Message from {name}"
+    msg['Subject'] = f"New Portfolio Message from {clean_name}"
 
-    body = f"Name: {name}\nEmail: {email_address}\n\nMessage:\n{message}"
+    body = f"Name: {clean_name}\nEmail: {clean_email}\n\nMessage:\n{message}"
     msg.attach(MIMEText(body, 'plain'))
 
     try:
@@ -69,11 +113,15 @@ def send_sms_notification(name, email_address):
         print("Twilio Credentials not configured in environment. Skipping SMS sending.")
         return False
 
+    # CRLF Injection Defense
+    clean_name = "".join(c for c in name if c not in "\r\n")
+    clean_email = "".join(c for c in email_address if c not in "\r\n")
+
     url = f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Messages.json"
     data = {
         'From': twilio_number,
         'To': recipient_number,
-        'Body': f"Alert: You received a new portfolio message from {name} ({email_address}). Check your mail!"
+        'Body': f"Alert: You received a new portfolio message from {clean_name} ({clean_email}). Check your mail!"
     }
     
     try:
@@ -90,6 +138,14 @@ def send_sms_notification(name, email_address):
 # API Endpoint to handle contact form submissions
 @app.route('/api/contact', methods=['POST'])
 def contact():
+    # 1. Rate Limiting Check
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if client_ip and ',' in client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+
+    if is_rate_limited(client_ip, limit=3, period=60):
+        return jsonify({'success': False, 'message': 'Too many requests. Please try again after 60 seconds.'}), 429
+
     try:
         data = request.get_json()
         if not data:
@@ -102,15 +158,22 @@ def contact():
         if not all([name, email, message]):
             return jsonify({'success': False, 'message': 'Please fill in all fields.'}), 400
 
-        # Attempt to send email and SMS notifications
-        email_sent = send_email_notification(name, email, message)
-        sms_sent = send_sms_notification(name, email)
+        # Input Length Attack Defense: Restrict character lengths to prevent resource exhaustion
+        if len(name) > 100 or len(email) > 100 or len(message) > 5000:
+            return jsonify({'success': False, 'message': 'Input length limits exceeded.'}), 400
+
+        # 2. Async Execution: Spawn a background thread to process notifications
+        # This returns a 200 OK instantly and blocks slow resource exhaustion attacks
+        notification_thread = threading.Thread(
+            target=send_async_notifications, 
+            args=(name, email, message)
+        )
+        notification_thread.daemon = True
+        notification_thread.start()
 
         return jsonify({
             'success': True,
-            'message': 'Message processed successfully!',
-            'email_sent': email_sent,
-            'sms_sent': sms_sent
+            'message': 'Message received! Notifications are processing in the background.'
         }), 200
 
     except Exception as e:

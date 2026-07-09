@@ -21,7 +21,7 @@ if (typeof firebase !== 'undefined') {
 
 // Initialize EmailJS if SDK loaded
 if (typeof emailjs !== 'undefined') {
-    emailjs.init("YOUR_PUBLIC_KEY");
+    emailjs.init("QTI7kZcTA6MMVZrtv");
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -548,7 +548,7 @@ function initCoreUI() {
                     title: `Message from ${nameVal}`
                 };
 
-                return emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", templateParams);
+                return emailjs.send("service_jaq73yp", "template_xxqt4qj", templateParams);
             }
         };
 

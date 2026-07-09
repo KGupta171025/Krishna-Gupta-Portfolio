@@ -25,6 +25,14 @@ if (typeof emailjs !== 'undefined') {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Force HTTPS redirection (except on localhost / local staging IPs)
+    if (window.location.protocol === 'http:' && 
+        window.location.hostname !== 'localhost' && 
+        window.location.hostname !== '127.0.0.1') {
+        window.location.href = window.location.href.replace('http:', 'https:');
+        return;
+    }
+
     // 1. Initialize Three.js WebGL Particle Background
     initThreeBackground();
 
@@ -461,6 +469,21 @@ function initCoreUI() {
         }
     });
     
+    // Dynamic Math Captcha Generator (Spambot defense)
+    const num1 = Math.floor(Math.random() * 10) + 1;
+    const num2 = Math.floor(Math.random() * 10) + 1;
+    const captchaAnswer = (num1 + num2).toString();
+
+    // Dynamically insert Captcha field in the form above the submit button
+    const captchaGroup = document.createElement('div');
+    captchaGroup.className = 'form-group';
+    captchaGroup.id = 'captchaGroup';
+    captchaGroup.innerHTML = `
+        <label for="captchaCode">Human Verification: What is ${num1} + ${num2}?</label>
+        <input type="text" id="captchaCode" placeholder="Enter answer" required style="text-align: center; font-size: 1rem; font-weight: bold;">
+    `;
+    contactForm.insertBefore(captchaGroup, submitBtn);
+
     let generatedOtp = null;
     let isOtpSent = false;
 
@@ -473,6 +496,14 @@ function initCoreUI() {
 
         // If OTP has not been sent yet, trigger the OTP sending process
         if (!isOtpSent) {
+            // First check the math captcha
+            const userCaptcha = document.getElementById('captchaCode').value.trim();
+            if (userCaptcha !== captchaAnswer) {
+                formFeedback.textContent = 'Error: Incorrect math captcha answer. Please try again.';
+                formFeedback.className = 'form-feedback error';
+                return;
+            }
+
             submitBtn.disabled = true;
             btnText.textContent = 'Sending verification code...';
             formFeedback.className = 'form-feedback hidden';
@@ -488,13 +519,16 @@ function initCoreUI() {
             };
 
             // Send using your connected Gmail Service and a dedicated OTP Template ID
-            // NOTE: Replace "YOUR_OTP_TEMPLATE_ID" with your second template ID once created.
             emailjs.send("service_jaq73yp", "template_otp", otpParams)
             .then(() => {
                 submitBtn.disabled = false;
                 btnText.textContent = 'Verify & Send Message';
                 formFeedback.textContent = 'A 6-digit verification code has been sent to your email. Please check your inbox and enter it below.';
                 formFeedback.className = 'form-feedback success';
+
+                // Hide the math captcha group once solved
+                const capGroup = document.getElementById('captchaGroup');
+                if (capGroup) capGroup.style.display = 'none';
 
                 // Dynamically inject the verification input code field if not already present
                 if (!document.getElementById('otpGroup')) {

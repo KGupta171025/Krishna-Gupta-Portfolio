@@ -19,6 +19,11 @@ if (typeof firebase !== 'undefined') {
     var db = firebase.firestore();
 }
 
+// Initialize EmailJS if SDK loaded
+if (typeof emailjs !== 'undefined') {
+    emailjs.init("YOUR_PUBLIC_KEY");
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Initialize Three.js WebGL Particle Background
     initThreeBackground();
@@ -534,28 +539,16 @@ function initCoreUI() {
                     }
                 });
             } else {
-                const web3FormsPayload = {
-                    access_key: '71e95101-47ab-4f82-a128-f044979facce', 
+                // Use EmailJS for production notification
+                const templateParams = {
                     name: nameVal,
                     email: emailVal,
                     message: msgVal,
-                    subject: `New Message from Portfolio: ${nameVal}`
+                    time: new Date().toLocaleString(),
+                    title: `Message from ${nameVal}`
                 };
 
-                return fetch('https://api.web3forms.com/submit', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(web3FormsPayload)
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (!data.success) {
-                        throw new Error(data.message);
-                    }
-                });
+                return emailjs.send("YOUR_SERVICE_ID", "YOUR_TEMPLATE_ID", templateParams);
             }
         };
 

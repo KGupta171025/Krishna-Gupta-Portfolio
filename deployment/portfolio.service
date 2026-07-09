@@ -1,0 +1,20 @@
+[Unit]
+Description=Gunicorn instance to serve Flask Portfolio Backend
+After=network.target
+
+[Service]
+# Security Best Practice: Run under a restricted service account, not root
+User=webuser
+Group=www-data
+WorkingDirectory=/var/www/portfolio
+Environment="PATH=/var/www/portfolio/venv/bin"
+ExecStart=/var/www/portfolio/venv/bin/gunicorn --workers 4 --bind 127.0.0.1:5000 app:app
+
+# Auto-recovery monitoring rules: restart Gunicorn if it crashes
+Restart=always
+RestartSec=5
+KillMode=process
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

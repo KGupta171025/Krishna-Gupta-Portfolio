@@ -460,27 +460,79 @@ function initCoreUI() {
             verifyEmailRealtime(emailVal);
         }
     });
+    
+    let generatedOtp = null;
+    let isOtpSent = false;
 
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
-
-        if (!isEmailValid) {
-            formFeedback.textContent = 'Error: Please enter a valid, active email address before sending.';
-            formFeedback.className = 'form-feedback error';
-            return;
-        }
-
-        submitBtn.disabled = true;
-        formFeedback.className = 'form-feedback hidden';
 
         const nameVal = document.getElementById('name').value;
         const emailVal = emailInput.value.trim();
         const msgVal = document.getElementById('message').value;
 
-        // Reusable function to perform standard submission
-        const performSubmission = () => {
-            btnText.textContent = 'Sending...';
+        // If OTP has not been sent yet, trigger the OTP sending process
+        if (!isOtpSent) {
+            submitBtn.disabled = true;
+            btnText.textContent = 'Sending verification code...';
+            formFeedback.className = 'form-feedback hidden';
 
+            // Generate a secure 6-digit verification code
+            generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Send OTP directly to the visitor's email address
+            const otpParams = {
+                email: emailVal,
+                name: nameVal,
+                otp: generatedOtp
+            };
+
+            // Send using your connected Gmail Service and a dedicated OTP Template ID
+            // NOTE: Replace "YOUR_OTP_TEMPLATE_ID" with your second template ID once created.
+            emailjs.send("service_jaq73yp", "template_otp", otpParams)
+            .then(() => {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Verify & Send Message';
+                formFeedback.textContent = 'A 6-digit verification code has been sent to your email. Please check your inbox and enter it below.';
+                formFeedback.className = 'form-feedback success';
+
+                // Dynamically inject the verification input code field if not already present
+                if (!document.getElementById('otpGroup')) {
+                    const otpGroup = document.createElement('div');
+                    otpGroup.className = 'form-group';
+                    otpGroup.id = 'otpGroup';
+                    otpGroup.innerHTML = `
+                        <label for="otpCode">Verification Code</label>
+                        <input type="text" id="otpCode" placeholder="Enter 6-digit code" required maxlength="6" style="text-align: center; font-size: 1.1rem; font-weight: bold; letter-spacing: 4px;">
+                    `;
+                    // Insert right above the submit button
+                    contactForm.insertBefore(otpGroup, submitBtn);
+                }
+                isOtpSent = true;
+            })
+            .catch(err => {
+                console.error('Error sending verification code:', err);
+                submitBtn.disabled = false;
+                btnText.textContent = 'Send Message';
+                formFeedback.textContent = 'Error sending verification code. Please make sure the email is valid and try again.';
+                formFeedback.className = 'form-feedback error';
+            });
+            return;
+        }
+
+        // If OTP has been sent, verify it
+        const userOtp = document.getElementById('otpCode').value.trim();
+        if (userOtp !== generatedOtp) {
+            formFeedback.textContent = 'Error: Incorrect verification code. Please check your email inbox.';
+            formFeedback.className = 'form-feedback error';
+            return;
+        }
+
+        // OTP is correct! Proceed with final database submission and notification email
+        submitBtn.disabled = true;
+        btnText.textContent = 'Sending...';
+
+        const performSubmission = () => {
             if (typeof db !== 'undefined') {
                 // 1. Submit to Google Firebase (Firestore Database - 100% Free on Spark Plan)
                 const dbPromise = db.collection("contact_submissions").add({
@@ -490,7 +542,7 @@ function initCoreUI() {
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                // 2. Simultaneously send email notification using Web3Forms (for live) or Flask (for local)
+                // 2. Send email notification to you
                 const emailPromise = sendNotificationEmail();
 
                 Promise.all([dbPromise, emailPromise])
@@ -500,14 +552,18 @@ function initCoreUI() {
                     formFeedback.textContent = 'Thank you! Your message was securely saved in Firebase and forwarded to Krishna.';
                     formFeedback.className = 'form-feedback success';
                     contactForm.reset();
-                    isEmailValid = false; // Reset verification state
+                    isEmailValid = false; // Reset verification states
                     emailStatus.textContent = '';
+                    isOtpSent = false;
+                    generatedOtp = null;
+                    const otpGroup = document.getElementById('otpGroup');
+                    if (otpGroup) otpGroup.remove();
                 })
                 .catch(err => {
                     console.error('Submission error:', err);
                     submitBtn.disabled = false;
-                    btnText.textContent = 'Send Message';
-                    formFeedback.textContent = 'Error sending message. Please try again later.';
+                    btnText.textContent = 'Verify & Send Message';
+                    formFeedback.textContent = 'Error completing submission. Please try again.';
                     formFeedback.className = 'form-feedback error';
                 });
             } else {
@@ -560,12 +616,16 @@ function initCoreUI() {
                 formFeedback.textContent = 'Thank you! Your message has been sent to Krishna.';
                 formFeedback.className = 'form-feedback success';
                 contactForm.reset();
-                isEmailValid = false; // Reset verification state
+                isEmailValid = false;
                 emailStatus.textContent = '';
+                isOtpSent = false;
+                generatedOtp = null;
+                const otpGroup = document.getElementById('otpGroup');
+                if (otpGroup) otpGroup.remove();
             })
             .catch(err => {
                 submitBtn.disabled = false;
-                btnText.textContent = 'Send Message';
+                btnText.textContent = 'Verify & Send Message';
                 formFeedback.textContent = 'Error sending form: ' + err.message;
                 formFeedback.className = 'form-feedback error';
             });

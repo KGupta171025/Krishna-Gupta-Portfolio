@@ -858,12 +858,33 @@ function initAIChatbot() {
         // Show Typing Indicator
         showTypingIndicator();
 
-        // Simulate AI Processing Delay
-        setTimeout(() => {
+        // Query Backend Flask AI Agent Endpoint
+        fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: text })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Backend unavailable");
+            return response.json();
+        })
+        .then(data => {
             removeTypingIndicator();
-            const response = generateAIResponse(text);
-            appendMessage(response, 'bot');
-        }, 1000);
+            if (data && data.success) {
+                appendMessage(data.message, 'bot');
+            } else {
+                const localResponse = generateAIResponse(text);
+                appendMessage(localResponse, 'bot');
+            }
+        })
+        .catch(err => {
+            console.log("Using client-side fallback AI matching:", err);
+            removeTypingIndicator();
+            const localResponse = generateAIResponse(text);
+            appendMessage(localResponse, 'bot');
+        });
     }
 
     function appendMessage(text, sender) {

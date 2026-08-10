@@ -179,5 +179,185 @@ def contact():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+# --- BACKEND AI AGENT ENDPOINT ---
+
+# Try importing google-generativeai for the real Gemini AI model
+try:
+    import google.generativeai as genai
+    HAS_GEMINI = True
+except ImportError:
+    HAS_GEMINI = False
+
+# Setup Gemini API key securely from environment
+if HAS_GEMINI:
+    gemini_key = os.environ.get("GEMINI_API_KEY")
+    if gemini_key:
+        genai.configure(api_key=gemini_key)
+    else:
+        HAS_GEMINI = False
+
+# Krishna's Profile Knowledge Base
+KRISHNA_KNOWLEDGE = {
+    "summary": """
+    Krishna Gupta is a Data Science B.Tech student at the Oriental Institute of Science and Technology, Bhopal (Class of 2027).
+    He is an aspiring Data Scientist, AI/ML Engineer, LLM Engineer, Data Engineer, and Software Engineer.
+    Experienced in Full Stack Development, REST APIs, and workflow automation.
+    He has hands-on expertise in LLM post-training evaluation, prompt engineering, and data quality assurance.
+    """,
+    "education": """
+    • Oriental Institute of Science and Technology, Bhopal, Madhya Pradesh, India.
+      Bachelor of Technology (B.Tech) in Data Science (2023 - 2027).
+    """,
+    "experience": """
+    • Ethara AI (Feb 2026 - May 2026) | LLM Post Training Intern (Paid Internship, Remote):
+      - Evaluated 50,000+ Large Language Model (LLM) outputs via prompt/model evaluation, improving AI quality and data validation.
+      - Developed Python automation scripts and workflow pipelines for post-training LLM evaluation, enhancing QA.
+    • Kanchan Pvt Ltd - Web Development Wing (Sapphire) (Oct 2025 - Feb 2026) | Full Stack Development Intern (Paid Internship, Remote):
+      - Engineered and deployed the full-stack architecture of "RevU Social" (revu.social) using React.js, Node.js, Express.js, and REST APIs with secure JWT authentication.
+      - Designed and optimized relational databases in MySQL and PostgreSQL, utilizing GenAI-assisted development to accelerate design.
+    """,
+    "projects": """
+    • KALKI 1.5 - Enterprise Intelligence Operating System (IOS) [2024 - Present]:
+      - Technologies: Python, PyTorch, LLMs, VLMs, Autonomous Multi-Agents, Hybrid RAG, Defensive Cybersecurity.
+      - Description: An Enterprise Intelligence Operating System integrating LLMs, Vision Language Models (VLMs), and autonomous multi-agent workflows. Implements a hybrid RAG pipeline to optimize search accuracy and speed. Contains agentic safety protocols and defensive cybersecurity mechanisms.
+      - Repository: github.com/KGupta171025/KALKI-1.5
+    • RevU Social - Full-Stack Review & Analytics Platform [Oct 2025 - Feb 2026]:
+      - Technologies: React, Node.js, REST APIs, MySQL, PostgreSQL.
+      - Live: www.revu.social / Repository: github.com/srohatgi01/opinion-play-earn
+      - Description: A responsive full-stack review management app with secure REST APIs and JWT session authentication.
+    • RNN Poetry Generation:
+      - Technologies: Python, PyTorch, RNN, Text Generation, Sequence Modeling.
+      - Description: A character-level text generation model implementing Recurrent Neural Networks to output coherent poetry.
+      - Repository: github.com/KGupta171025/RNN_Poetry_Generation
+    """,
+    "skills": """
+    • Programming: Python, SQL, JavaScript, C++.
+    • AI & Machine Learning: PyTorch, TensorFlow, Scikit-learn, Deep Learning, Natural Language Processing (NLP), LLMs, LLM Evaluation, Prompt Engineering, Feature Engineering.
+    • Data Engineering: Pandas, NumPy, ETL Concepts, Data Validation, Data Processing, Workflow Automation.
+    • Web & APIs: FastAPI, Flask, React.js, Node.js, Express.js, REST APIs, JWT Authentication.
+    • Databases & Tools: PostgreSQL, MySQL, Supabase, Git, GitHub, Docker, Postman, Linux, AWS.
+    • Development & AI Tools: SDLC, Agile Methodology, OOP, ChatGPT, Gemini, Claude, Perplexity, Antigravity.
+    """,
+    "certifications": """
+    • AWS Certified Developer Associate (Infosys Springboard, Jun 2026)
+    • Machine Learning with Python (IBM SkillsBuild, Jun 2026)
+    • Data Science & Analytics (HP LIFE, Jun 2026)
+    • Tata Data Visualisation: Empowering Business with Effective Insights (Forage, Sep 2025)
+    • Deloitte Australia Data Analytics Job Simulation (Forage, Sep 2025)
+    """,
+    "contact": """
+    • Email: hg497kg@gmail.com / krishna.official.gupta@gmail.com
+    • LinkedIn: linkedin.com/in/krishnaofficialgupta
+    • GitHub: github.com/KGupta171025
+    • Phone: +91-9993153109
+    • Portfolio: kgupta171025.github.io/Krishna-Gupta-Portfolio
+    """
+}
+
+# Rule-based NLP fallback engine
+class LocalAIAgent:
+    def __init__(self, knowledge):
+        self.knowledge = knowledge
+
+    def get_response(self, user_message):
+        msg = user_message.lower().strip()
+        if any(w in msg for w in ["who is", "about", "profile", "summary", "krishna"]):
+            return f"<strong>Krishna Gupta Summary:</strong><br>{self.knowledge['summary']}"
+        elif any(w in msg for w in ["skill", "tech", "languages", "programming", "python", "javascript", "frameworks"]):
+            return f"<strong>Technical Skills:</strong><br>{self.knowledge['skills']}"
+        elif any(w in msg for w in ["work", "experience", "job", "intern", "ethara", "kanchan"]):
+            return f"<strong>Professional Experience:</strong><br>{self.knowledge['experience']}"
+        elif any(w in msg for w in ["project", "kalki", "revu", "poetry", "rnn"]):
+            return f"<strong>Key Projects:</strong><br>{self.knowledge['projects']}"
+        elif any(w in msg for w in ["certificat", "credential", "aws", "ibm"]):
+            return f"<strong>Certifications & Credentials:</strong><br>{self.knowledge['certifications']}"
+        elif any(w in msg for w in ["contact", "email", "phone", "linkedin", "social", "address"]):
+            return f"<strong>Contact Details:</strong><br>{self.knowledge['contact']}"
+        return """
+        I am Krishna's AI agent. I can answer questions about his summary, skills, experience, projects, certifications, or contact details. 
+        <br><br>Please ask something like "What are his skills?" or "Tell me about the KALKI 1.5 project!".
+        """
+
+local_agent = LocalAIAgent(KRISHNA_KNOWLEDGE)
+
+def query_gemini_model(prompt):
+    """Queries Gemini 1.5 Pro/Flash if available, otherwise returns None."""
+    if not HAS_GEMINI:
+        return None
+    try:
+        system_instruction = f"""
+        You are Krishna Gupta's personal Portfolio AI Agent.
+        Your task is to answer visitors' questions about Krishna's profile, skills, professional experience, projects, certifications, and contact details.
+        
+        Here is Krishna's official profile details:
+        
+        SUMMARY:
+        {KRISHNA_KNOWLEDGE['summary']}
+        
+        EDUCATION:
+        {KRISHNA_KNOWLEDGE['education']}
+        
+        EXPERIENCE:
+        {KRISHNA_KNOWLEDGE['experience']}
+        
+        PROJECTS:
+        {KRISHNA_KNOWLEDGE['projects']}
+        
+        SKILLS:
+        {KRISHNA_KNOWLEDGE['skills']}
+        
+        CERTIFICATIONS:
+        {KRISHNA_KNOWLEDGE['certifications']}
+        
+        CONTACT:
+        {KRISHNA_KNOWLEDGE['contact']}
+        
+        Guidelines:
+        1. Always be professional, helpful, and friendly.
+        2. Keep your answers concise, clear, and easy to read. Use HTML linebreaks (<br>) and list formatting for structure.
+        3. Do not invent details. If you don't know the answer, politely guide the user to the contact form or give them Krishna's email.
+        """
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction)
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        print(f"Error querying Gemini API: {e}")
+        return None
+
+# API route for AI Chatbot Agent
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    # Rate limiter check for anti-DoS
+    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    if client_ip and ',' in client_ip:
+        client_ip = client_ip.split(',')[0].strip()
+
+    if is_rate_limited(client_ip, limit=10, period=60):
+        return jsonify({'success': False, 'message': 'Too many chat requests. Please slow down.'}), 429
+
+    try:
+        data = request.get_json()
+        if not data or 'message' not in data:
+            return jsonify({'success': False, 'message': 'No message provided.'}), 400
+
+        user_message = data.get('message')
+        if len(user_message) > 500:
+            return jsonify({'success': False, 'message': 'Message is too long.'}), 400
+
+        # Try to get response from Gemini
+        ai_response = query_gemini_model(user_message)
+        
+        # If Gemini is not available or fails, fall back to our local Python NLP matcher
+        if not ai_response:
+            ai_response = local_agent.get_response(user_message)
+
+        return jsonify({
+            'success': True,
+            'message': ai_response
+        }), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=False, host='127.0.0.1', port=5000)

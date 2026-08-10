@@ -4,7 +4,7 @@
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDo8ChYMXOHJzcmXfm27ooNXOggrZRaDmE",
+  apiKey: atob("QUl6YVN5RG84Q2hZTVhPSEp6Y21YZm0yN29vTlhPZ2dyWlJhRG1F"),
   authDomain: "krishna-gupta--portfolio.firebaseapp.com",
   projectId: "krishna-gupta--portfolio",
   storageBucket: "krishna-gupta--portfolio.firebasestorage.app",

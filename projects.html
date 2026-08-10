@@ -774,6 +774,59 @@ print(me.get_objective())</code></pre>
         </div>
     </footer>
 
+    <!-- AI Chatbot Widget -->
+    <div id="ai-chat-widget" class="ai-chat-widget">
+        <!-- Floating Toggle Button -->
+        <button id="ai-chat-toggle" class="ai-chat-toggle" aria-label="Open AI Assistant">
+            <i class="fas fa-robot"></i>
+            <span class="chat-badge hidden">1</span>
+        </button>
+
+        <!-- Chat Window Container -->
+        <div id="ai-chat-window" class="ai-chat-window hidden">
+            <!-- Header -->
+            <div class="chat-header">
+                <div class="chat-header-info">
+                    <div class="chat-avatar">
+                        <i class="fas fa-robot"></i>
+                        <span class="online-indicator"></span>
+                    </div>
+                    <div>
+                        <h4>KG Assistant</h4>
+                        <p>Ask about Krishna</p>
+                    </div>
+                </div>
+                <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
+            </div>
+
+            <!-- Messages Stream -->
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-message bot">
+                    <p>Hello! I am Krishna's AI assistant. 🤖</p>
+                </div>
+                <div class="chat-message bot">
+                    <p>You can ask me questions about his experience, projects, skills, or certifications. How can I help you today?</p>
+                </div>
+                <div class="chat-quick-replies">
+                    <button class="quick-reply-btn" data-query="Who is Krishna Gupta?">Who is Krishna?</button>
+                    <button class="quick-reply-btn" data-query="Tell me about KALKI 1.5">KALKI 1.5 Project</button>
+                    <button class="quick-reply-btn" data-query="What are his core technical skills?">Technical Skills</button>
+                    <button class="quick-reply-btn" data-query="Show professional experience">Experience</button>
+                    <button class="quick-reply-btn" data-query="How can I contact Krishna?">Contact Details</button>
+                </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="chat-input-bar">
+                <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+                <button id="chat-send" class="chat-send-btn" aria-label="Send Message">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Firebase SDK (Compat Version) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>

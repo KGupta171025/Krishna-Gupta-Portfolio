@@ -53,6 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 7. Log visitor analytics to Firebase Firestore
     logVisitor();
+
+    // 8. Initialize AI Agent Chatbot Widget
+    initAIChatbot();
 });
 
 /* ==========================================================
@@ -782,4 +785,192 @@ function logVisitor() {
                 .then(() => console.log("Visitor metadata logged (sans geo)."))
                 .catch(dbErr => console.error("Error logging metadata:", dbErr));
         });
+}
+
+/* ==========================================================
+   8. AI Chatbot Widget Engine
+   ========================================================== */
+function initAIChatbot() {
+    const toggleBtn = document.getElementById('ai-chat-toggle');
+    const closeBtn = document.getElementById('ai-chat-close');
+    const chatWindow = document.getElementById('ai-chat-window');
+    const chatInput = document.getElementById('chat-input');
+    const chatSend = document.getElementById('chat-send');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatBadge = toggleBtn ? toggleBtn.querySelector('.chat-badge') : null;
+
+    if (!toggleBtn || !chatWindow || !chatInput || !chatSend || !chatMessages) return;
+
+    // Show unread notification badge after 4 seconds
+    setTimeout(() => {
+        if (chatWindow.classList.contains('hidden') && chatBadge) {
+            chatBadge.classList.remove('hidden');
+        }
+    }, 4000);
+
+    // Toggle Chat Window
+    toggleBtn.addEventListener('click', () => {
+        chatWindow.classList.toggle('hidden');
+        if (!chatWindow.classList.contains('hidden')) {
+            chatInput.focus();
+            if (chatBadge) chatBadge.classList.add('hidden');
+        }
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatWindow.classList.add('hidden');
+    });
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !chatWindow.classList.contains('hidden')) {
+            chatWindow.classList.add('hidden');
+        }
+    });
+
+    // Send Message Trigger
+    chatSend.addEventListener('click', handleUserSendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleUserSendMessage();
+        }
+    });
+
+    // Handle Quick Replies
+    chatMessages.addEventListener('click', (e) => {
+        if (e.target.classList.contains('quick-reply-btn')) {
+            const query = e.target.getAttribute('data-query');
+            if (query) {
+                chatInput.value = query;
+                handleUserSendMessage();
+            }
+        }
+    });
+
+    function handleUserSendMessage() {
+        const text = chatInput.value.trim();
+        if (!text) return;
+
+        // Append User Message
+        appendMessage(text, 'user');
+        chatInput.value = '';
+
+        // Show Typing Indicator
+        showTypingIndicator();
+
+        // Simulate AI Processing Delay
+        setTimeout(() => {
+            removeTypingIndicator();
+            const response = generateAIResponse(text);
+            appendMessage(response, 'bot');
+        }, 1000);
+    }
+
+    function appendMessage(text, sender) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chat-message ${sender}`;
+        msgDiv.innerHTML = `<p>${text}</p>`;
+        
+        // Remove existing quick replies block if bot sends a new message
+        const oldReplies = chatMessages.querySelector('.chat-quick-replies');
+        if (oldReplies && sender === 'user') {
+            oldReplies.remove();
+        }
+
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message bot typing';
+        typingDiv.id = 'chat-typing-indicator';
+        typingDiv.innerHTML = `
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        `;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const indicator = document.getElementById('chat-typing-indicator');
+        if (indicator) indicator.remove();
+    }
+
+    // Knowledge base intent processor
+    function generateAIResponse(query) {
+        const cleanQuery = query.toLowerCase().trim();
+
+        // 1. Identity / Who is Krishna
+        if (cleanQuery.includes('who is') || cleanQuery.includes('about krishna') || cleanQuery.includes('profile') || cleanQuery.includes('summary')) {
+            return `Krishna Gupta is a Data Science B.Tech student at the Oriental Institute of Science and Technology (Class of 2027) and an aspiring Data Scientist/AI Engineer. 
+            <br><br>He has hands-on experience in Full Stack Development, REST APIs, LLM evaluation, prompt engineering, and data quality assurance.`;
+        }
+
+        // 2. KALKI 1.5
+        if (cleanQuery.includes('kalki') || cleanQuery.includes('intelligence operating system') || cleanQuery.includes('ios')) {
+            return `<strong>KALKI 1.5</strong> is Krishna's flagship project! It is an <em>Enterprise Intelligence Operating System</em> that integrates LLMs, Vision Language Models (VLMs), and autonomous multi-agent workflows.
+            <br><br>Key Features:
+            <br>• Hybrid RAG pipeline to optimize search speeds.
+            <br>• Agentic safety protocols and defensive cybersecurity layers.
+            <br>• Repository: <a href="https://github.com/KGupta171025/KALKI-1.5" target="_blank" style="color:#06b6d4;text-decoration:underline;">KALKI 1.5 on GitHub</a>`;
+        }
+
+        // 3. RevU Social
+        if (cleanQuery.includes('revu') || cleanQuery.includes('revu social') || cleanQuery.includes('opinion-play')) {
+            return `<strong>RevU Social</strong> is a full-stack social review and analytics platform engineered by Krishna.
+            <br><br>Stack: React.js, Node.js, Express.js, MySQL, and PostgreSQL.
+            <br>• Live Demo: <a href="https://www.revu.social/" target="_blank" style="color:#06b6d4;text-decoration:underline;">revu.social</a>
+            <br>• Repository: <a href="https://github.com/srohatgi01/opinion-play-earn" target="_blank" style="color:#06b6d4;text-decoration:underline;">opinion-play-earn</a>`;
+        }
+
+        // 4. Skills
+        if (cleanQuery.includes('skill') || cleanQuery.includes('technolog') || cleanQuery.includes('languages') || cleanQuery.includes('programming')) {
+            return `Krishna's technical skillset includes:
+            <br>• <strong>Programming</strong>: Python, SQL, JavaScript (ES6+), C++.
+            <br>• <strong>AI & Machine Learning</strong>: PyTorch, TensorFlow, LLMs, NLP, Prompt Engineering.
+            <br>• <strong>Web & APIs</strong>: FastAPI, Flask, React.js, Node.js, Express.js.
+            <br>• <strong>Databases & Tools</strong>: PostgreSQL, MySQL, Supabase, Git, Docker, AWS.`;
+        }
+
+        // 5. Experience
+        if (cleanQuery.includes('experience') || cleanQuery.includes('job') || cleanQuery.includes('work') || cleanQuery.includes('intern')) {
+            return `Krishna has completed two key internships:
+            <br><br>1. <strong>Ethara AI</strong> (Feb 2026 – May 2026): <em>LLM Post Training Intern</em>. Evaluated 50,000+ LLM responses and built automated Python pipelines.
+            <br>2. <strong>Kanchan Pvt Ltd</strong> (Oct 2025 – Feb 2026): <em>Full Stack Development Intern</em>. Built the core architecture of RevU Social.`;
+        }
+
+        // 6. Certifications
+        if (cleanQuery.includes('certificat') || cleanQuery.includes('credential') || cleanQuery.includes('aws')) {
+            return `Krishna holds several prominent certifications:
+            <br>• <strong>AWS Certified Developer Associate</strong> (Infosys Springboard, Jun 2026)
+            <br>• <strong>Machine Learning with Python</strong> (IBM SkillsBuild, Jun 2026)
+            <br>• <strong>Data Science & Analytics</strong> (HP LIFE, Jun 2026)
+            <br>• <strong>Tata Data Visualisation</strong> (Forage, Sep 2025)`;
+        }
+
+        // 7. Contact / Socials
+        if (cleanQuery.includes('contact') || cleanQuery.includes('email') || cleanQuery.includes('phone') || cleanQuery.includes('hire') || cleanQuery.includes('linkedin')) {
+            return `You can reach Krishna through the following channels:
+            <br>• <strong>Email</strong>: <a href="mailto:hg497kg@gmail.com" style="color:#06b6d4;text-decoration:underline;">hg497kg@gmail.com</a>
+            <br>• <strong>LinkedIn</strong>: <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank" style="color:#06b6d4;text-decoration:underline;">krishnaofficialgupta</a>
+            <br>• <strong>GitHub</strong>: <a href="https://github.com/KGupta171025" target="_blank" style="color:#06b6d4;text-decoration:underline;">KGupta171025</a>
+            <br>• <strong>Phone</strong>: +91-9993153109`;
+        }
+
+        // Default Fallback Response
+        const suggestionsHTML = `
+            I'm not sure I understand that query. 😅 Here are some topics I can answer:
+            <div class="chat-quick-replies" style="margin-top: 10px;">
+                <button class="quick-reply-btn" data-query="Who is Krishna Gupta?">About Krishna</button>
+                <button class="quick-reply-btn" data-query="Tell me about KALKI 1.5">KALKI 1.5</button>
+                <button class="quick-reply-btn" data-query="What are his core technical skills?">Skills</button>
+                <button class="quick-reply-btn" data-query="Show professional experience">Experience</button>
+                <button class="quick-reply-btn" data-query="How can I contact Krishna?">Contact Info</button>
+            </div>
+        `;
+        return suggestionsHTML;
+    }
 }

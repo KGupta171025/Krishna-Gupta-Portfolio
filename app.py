@@ -317,7 +317,7 @@ def query_gemini_model(prompt):
         2. Keep your answers concise, clear, and easy to read. Use HTML linebreaks (<br>) and list formatting for structure.
         3. Do not invent details. If you don't know the answer, politely guide the user to the contact form or give them Krishna's email.
         """
-        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction)
+        model = genai.GenerativeModel('gemini-3.5-flash', system_instruction=system_instruction)
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:

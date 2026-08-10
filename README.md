@@ -71,19 +71,12 @@ git clone https://github.com/KGupta171025/Krishna-Gupta-Portfolio.git
 cd Krishna-Gupta-Portfolio
 ```
 
-### 2. Configure Local Secrets
-Create a `.env` file using the template:
+### 2. Configure Local Environment Variables
+Create a local `.env` configuration file from the template:
 ```bash
 copy .env.example .env
 ```
-Fill in the configuration details inside the file:
-```ini
-FLASK_SECRET=your_super_secret_key
-SMTP_EMAIL=your_inbox@gmail.com
-SMTP_PASSWORD=your_app_password
-TWILIO_SID=your_twilio_sid
-TWILIO_TOKEN=your_twilio_token
-```
+Update the placeholder configurations inside the `.env` file with your credentials (e.g., SMTP, Twilio parameters, and Gemini API keys) to enable email alerts, SMS forwarding, and AI agent integration.
 
 ### 3. Install & Start Server
 ```bash

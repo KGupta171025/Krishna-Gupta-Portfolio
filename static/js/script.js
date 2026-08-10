@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Auto-scroll to contact section if URL path ends with /contact
     handleContactPathScroll();
+
+    // 7. Log visitor analytics to Firebase Firestore
+    logVisitor();
 });
 
 /* ==========================================================
@@ -725,4 +728,58 @@ function handleContactPathScroll() {
             break;
         }
     }
+}
+
+/* ==========================================================
+   7. Log visitor analytics to Firebase Firestore
+   ========================================================== */
+function logVisitor() {
+    if (typeof db === 'undefined') return;
+
+    // Use session storage to prevent logging duplicate requests from the same tab session
+    if (sessionStorage.getItem('portfolio_visited')) return;
+    sessionStorage.setItem('portfolio_visited', 'true');
+
+    // Fetch geolocation data from ipapi.co (free public IP/Geo API)
+    fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(geoData => {
+            const visitorData = {
+                ip: geoData.ip || 'Unknown',
+                city: geoData.city || 'Unknown',
+                region: geoData.region || 'Unknown',
+                country: geoData.country_name || 'Unknown',
+                org: geoData.org || 'Unknown',
+                userAgent: navigator.userAgent,
+                language: navigator.language || 'Unknown',
+                screenSize: `${window.innerWidth}x${window.innerHeight}`,
+                referrer: document.referrer || 'Direct / Bookmark',
+                page: window.location.pathname,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("visitor_logs").add(visitorData)
+                .then(() => console.log("Visitor analytics logged successfully."))
+                .catch(err => console.error("Error logging analytics:", err));
+        })
+        .catch(err => {
+            // Fallback if IP API fails or is blocked by an adblocker
+            const visitorData = {
+                ip: 'Blocked/Failed',
+                city: 'Unknown',
+                region: 'Unknown',
+                country: 'Unknown',
+                org: 'Unknown',
+                userAgent: navigator.userAgent,
+                language: navigator.language || 'Unknown',
+                screenSize: `${window.innerWidth}x${window.innerHeight}`,
+                referrer: document.referrer || 'Direct / Bookmark',
+                page: window.location.pathname,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("visitor_logs").add(visitorData)
+                .then(() => console.log("Visitor metadata logged (sans geo)."))
+                .catch(dbErr => console.error("Error logging metadata:", dbErr));
+        });
 }

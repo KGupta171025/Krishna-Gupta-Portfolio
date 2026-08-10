@@ -204,6 +204,10 @@ KRISHNA_KNOWLEDGE = {
     Experienced in Full Stack Development, REST APIs, and workflow automation.
     He has hands-on expertise in LLM post-training evaluation, prompt engineering, and data quality assurance.
     """,
+    "personal": """
+    • Date of Birth (DOB): 17th October, 2005
+    • Age: 20 years old (turns 21 on October 17, 2026)
+    """,
     "education": """
     • Oriental Institute of Science and Technology, Bhopal, Madhya Pradesh, India.
       Bachelor of Technology (B.Tech) in Data Science (2023 - 2027).
@@ -261,7 +265,9 @@ class LocalAIAgent:
 
     def get_response(self, user_message):
         msg = user_message.lower().strip()
-        if any(w in msg for w in ["who is", "about", "profile", "summary", "krishna"]):
+        if any(w in msg for w in ["dob", "birth", "born", "age", "how old"]):
+            return "Krishna Gupta was born on 17th October, 2005, and is currently 20 years old (turning 21 on October 17, 2026)."
+        elif any(w in msg for w in ["who is", "about", "profile", "summary", "krishna"]):
             return f"<strong>Krishna Gupta Summary:</strong><br>{self.knowledge['summary']}"
         elif any(w in msg for w in ["skill", "tech", "languages", "programming", "python", "javascript", "frameworks"]):
             return f"<strong>Technical Skills:</strong><br>{self.knowledge['skills']}"
@@ -293,6 +299,9 @@ def query_gemini_model(prompt):
         
         SUMMARY:
         {KRISHNA_KNOWLEDGE['summary']}
+        
+        PERSONAL INFO (DOB & AGE):
+        {KRISHNA_KNOWLEDGE['personal']}
         
         EDUCATION:
         {KRISHNA_KNOWLEDGE['education']}

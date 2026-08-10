@@ -924,6 +924,11 @@ function initAIChatbot() {
     function generateAIResponse(query) {
         const cleanQuery = query.toLowerCase().trim();
 
+        // DOB & Age
+        if (cleanQuery.includes('dob') || cleanQuery.includes('birth') || cleanQuery.includes('born') || cleanQuery.includes('age') || cleanQuery.includes('how old')) {
+            return `Krishna Gupta was born on 17th October, 2005, and is currently 20 years old (turning 21 on October 17, 2026).`;
+        }
+
         // 1. Identity / Who is Krishna
         if (cleanQuery.includes('who is') || cleanQuery.includes('about krishna') || cleanQuery.includes('profile') || cleanQuery.includes('summary')) {
             return `Krishna Gupta is a Data Science B.Tech student at the Oriental Institute of Science and Technology (Class of 2027) and an aspiring Data Scientist/AI Engineer. 

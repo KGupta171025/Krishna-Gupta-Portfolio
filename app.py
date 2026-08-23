@@ -830,5 +830,209 @@ def admin_add_project():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+
+# Helper function to parse all projects from projects.html
+def get_existing_projects():
+    filepath = os.path.join(app.root_path, "projects.html")
+    if not os.path.exists(filepath):
+        return []
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    import re
+    import hashlib
+    # Match any project card container block
+    card_pattern = r'<div class="project-card-container">.*?</div>\s*</div>\s*</div>'
+    cards = re.findall(card_pattern, content, re.DOTALL)
+    
+    projects = []
+    for card in cards:
+        name_match = re.search(r'<h4 class="preview-title">([^<]+)</h4>', card)
+        name = name_match.group(1).strip() if name_match else ""
+        
+        live_match = re.search(r'<iframe src="([^"]+)"', card)
+        live_link = live_match.group(1).strip() if live_match else ""
+        
+        git_match = re.search(r'href="([^"]+)"[^>]*aria-label="GitHub"', card)
+        if not git_match:
+            git_match = re.search(r'aria-label="GitHub"[^>]*href="([^"]+)"', card)
+        github_link = git_match.group(1).strip() if git_match else ""
+        
+        if name:
+            projects.append({
+                "id": hashlib.md5(name.encode('utf-8')).hexdigest(),
+                "name": name,
+                "github_link": github_link,
+                "live_link": live_link,
+                "raw_html": card
+            })
+    return projects
+
+# Helper function to remove a project card from a file
+def remove_project_from_file(filepath, project_name):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    normalized_content = content.replace('\r\n', '\n')
+    pattern = r'(<!--\s*Project:[^*]*?-->\s*)?<div class="project-card-container">.*?</div>\s*</div>\s*</div>'
+    
+    matches = list(re.finditer(pattern, normalized_content, re.DOTALL))
+    target_match = None
+    for m in matches:
+        block = m.group(0)
+        if f'<h4 class="preview-title">{project_name}</h4>' in block:
+            target_match = m
+            break
+            
+    if target_match:
+        start, end = target_match.span()
+        new_content = normalized_content[:start] + normalized_content[end:]
+        content = new_content.replace('\n', '\r\n')
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return True
+    return False
+
+# Helper function to update project links in a file
+def update_project_links_in_file(filepath, project_name, new_github, new_live):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    normalized_content = content.replace('\r\n', '\n')
+    pattern = r'<div class="project-card-container">.*?</div>\s*</div>\s*</div>'
+    
+    matches = list(re.finditer(pattern, normalized_content, re.DOTALL))
+    target_match = None
+    for m in matches:
+        block = m.group(0)
+        if f'<h4 class="preview-title">{project_name}</h4>' in block:
+            target_match = m
+            break
+            
+    if target_match:
+        block_text = target_match.group(0)
+        block_text = re.sub(r'iframe src="[^"]+"', f'iframe src="{new_live}"', block_text)
+        block_text = re.sub(r'href="[^"]+"([^>]*aria-label="Live Demo")', f'href="{new_live}"\\1', block_text)
+        block_text = re.sub(r'(aria-label="Live Demo"[^>]*)href="[^"]+"', f'\\1href="{new_live}"', block_text)
+        block_text = re.sub(r'href="[^"]+"([^>]*aria-label="GitHub")', f'href="{new_github}"\\1', block_text)
+        block_text = re.sub(r'(aria-label="GitHub"[^>]*)href="[^"]+"', f'\\1href="{new_github}"', block_text)
+        
+        start, end = target_match.span()
+        new_content = normalized_content[:start] + block_text + normalized_content[end:]
+        content = new_content.replace('\n', '\r\n')
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return True
+    return False
+
+# 8. List Projects (API Endpoint)
+@app.route('/api/admin/projects', methods=['GET'])
+def admin_list_projects():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+    try:
+        projects = get_existing_projects()
+        response_data = []
+        for p in projects:
+            response_data.append({
+                "id": p["id"],
+                "name": p["name"],
+                "github_link": p["github_link"],
+                "live_link": p["live_link"]
+            })
+        return jsonify({'success': True, 'projects': response_data}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# 9. Delete Project (API Endpoint)
+@app.route('/api/admin/projects/delete', methods=['POST'])
+def admin_delete_project():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+    try:
+        data = request.get_json()
+        if not data or 'name' not in data:
+            return jsonify({'success': False, 'message': 'Project name is required.'}), 400
+        
+        proj_name = data.get('name')
+        
+        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
+        removed_count = 0
+        for filename in html_files:
+            filepath = os.path.join(app.root_path, filename)
+            if os.path.exists(filepath):
+                if remove_project_from_file(filepath, proj_name):
+                    removed_count += 1
+        
+        if removed_count == 0:
+            return jsonify({'success': False, 'message': f"Project '{proj_name}' was not found in any portfolio page."}), 404
+
+        # Trigger automatic Git commit & push
+        git_success = False
+        try:
+            import subprocess
+            subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
+            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Delete {proj_name}"], cwd=app.root_path, check=True)
+            subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
+            git_success = True
+        except Exception as git_err:
+            print(f"Failed to auto-push deletions to origin main: {git_err}")
+
+        msg = f"Project '{proj_name}' removed from all {removed_count} portfolio pages."
+        if git_success:
+            msg += " Git changes pushed live!"
+        else:
+            msg += " (Local files updated; Git push failed/skipped)."
+
+        return jsonify({'success': True, 'message': msg}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# 10. Update Project Links (API Endpoint)
+@app.route('/api/admin/projects/update', methods=['POST'])
+def admin_update_project():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+    try:
+        data = request.get_json()
+        if not data or not all(k in data for k in ['name', 'github_link', 'live_link']):
+            return jsonify({'success': False, 'message': 'Project name, github_link, and live_link are required.'}), 400
+        
+        proj_name = data.get('name')
+        new_github = data.get('github_link')
+        new_live = data.get('live_link')
+        
+        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
+        updated_count = 0
+        for filename in html_files:
+            filepath = os.path.join(app.root_path, filename)
+            if os.path.exists(filepath):
+                if update_project_links_in_file(filepath, proj_name, new_github, new_live):
+                    updated_count += 1
+                    
+        if updated_count == 0:
+            return jsonify({'success': False, 'message': f"Project '{proj_name}' was not found in any portfolio page."}), 404
+
+        # Trigger automatic Git commit & push
+        git_success = False
+        try:
+            import subprocess
+            subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
+            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Update links for {proj_name}"], cwd=app.root_path, check=True)
+            subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
+            git_success = True
+        except Exception as git_err:
+            print(f"Failed to auto-push updates to origin main: {git_err}")
+
+        msg = f"Project '{proj_name}' links successfully updated in all {updated_count} pages."
+        if git_success:
+            msg += " Git changes pushed live!"
+        else:
+            msg += " (Local files updated; Git push failed/skipped)."
+
+        return jsonify({'success': True, 'message': msg}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=False, host='127.0.0.1', port=5000)

@@ -542,29 +542,55 @@
                 </div>
             </div>
 
-            <!-- Right Panel: Catalog Manager -->
-            <div class="glass-card">
-                <h3 class="section-title"><i class="fas fa-server"></i> Encrypted PySpark / Parquet Dataset</h3>
-                <div class="documents-table-container">
-                    <table id="documents-table">
-                        <thead>
-                            <tr>
-                                <th>Filename</th>
-                                <th>Category</th>
-                                <th>File Size</th>
-                                <th>Registered Date</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="documents-list">
-                            <!-- Populated dynamically via JS -->
-                            <tr>
-                                <td colspan="5" style="text-align: center; color: var(--text-muted);">
-                                    <i class="fas fa-circle-notch fa-spin"></i> Loading encrypted dataset catalog...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <!-- Right Panel: Catalog Manager & Project Manager -->
+            <div style="display: flex; flex-direction: column; gap: 25px;">
+                <div class="glass-card">
+                    <h3 class="section-title"><i class="fas fa-server"></i> Encrypted PySpark / Parquet Dataset</h3>
+                    <div class="documents-table-container">
+                        <table id="documents-table">
+                            <thead>
+                                <tr>
+                                    <th>Filename</th>
+                                    <th>Category</th>
+                                    <th>File Size</th>
+                                    <th>Registered Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="documents-list">
+                                <!-- Populated dynamically via JS -->
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: var(--text-muted);">
+                                        <i class="fas fa-circle-notch fa-spin"></i> Loading encrypted dataset catalog...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3 class="section-title"><i class="fas fa-cubes"></i> Manage Showcase Projects</h3>
+                    <div class="documents-table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>GitHub Link</th>
+                                    <th>Live Demo Link</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projects-list">
+                                <!-- Populated dynamically via JS -->
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">
+                                        <i class="fas fa-circle-notch fa-spin"></i> Fetching showcase projects catalog...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -664,6 +690,7 @@
             document.getElementById('login-panel').style.display = 'none';
             document.getElementById('dashboard-panel').style.display = 'flex';
             loadCatalog();
+            loadProjects();
         }
 
         // Logout Handler
@@ -1007,6 +1034,165 @@
                     submitBtn.innerHTML = '<i class="fas fa-magic"></i> Auto-Generate Card';
                 }
             });
+        }
+
+
+        // Project list manager helpers
+        function loadProjects() {
+            const projectsList = document.getElementById('projects-list');
+            if (!projectsList) return;
+
+            if (isStaticMode) {
+                const staticProjects = [
+                    {
+                        name: "RevU Social",
+                        github_link: "https://github.com/srohatgi01/opinion-play-earn",
+                        live_link: "https://www.revu.social/"
+                    },
+                    {
+                        name: "KALKI 1.5",
+                        github_link: "https://github.com/KGupta171025/KALKI-1.5",
+                        live_link: "https://kgupta171025.github.io/KALKI-1.5/"
+                    },
+                    {
+                        name: "ShelfScanner",
+                        github_link: "https://github.com/KGupta171025/SHELF-SCANNER",
+                        live_link: "https://kgupta171025.github.io/SHELF-SCANNER/"
+                    }
+                ];
+                renderProjectsTable(staticProjects);
+                return;
+            }
+
+            fetch('/api/admin/projects')
+            .then(res => {
+                if (!res.ok) throw new Error("Could not load projects");
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    renderProjectsTable(data.projects);
+                } else {
+                    showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load projects: ", err);
+                showToast("Error retrieving projects list.", "error");
+            });
+        }
+
+        function renderProjectsTable(projects) {
+            const projectsList = document.getElementById('projects-list');
+            if (!projectsList) return;
+
+            if (projects.length === 0) {
+                projectsList.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-muted);">
+                            No active showcase projects found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            projectsList.innerHTML = projects.map(p => {
+                const nameEscaped = p.name.replace(/'/g, "\\'");
+                const gitEscaped = p.github_link.replace(/'/g, "\\'");
+                const liveEscaped = p.live_link.replace(/'/g, "\\'");
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(p.name)}</strong></td>
+                        <td><a href="${escapeHtml(p.github_link)}" target="_blank" class="doc-link"><i class="fab fa-github"></i> Source</a></td>
+                        <td><a href="${escapeHtml(p.live_link)}" target="_blank" class="doc-link"><i class="fas fa-external-link-alt"></i> Live</a></td>
+                        <td>
+                            <div class="action-btns">
+                                <button onclick="editProject('${nameEscaped}', '${gitEscaped}', '${liveEscaped}')" class="btn-exchange" title="Edit Links">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteProject('${nameEscaped}')" class="btn-delete" title="Delete Project">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        async function editProject(projectName, currentGithub, currentLive) {
+            const newGithub = prompt(`Edit GitHub URL for ${projectName}:`, currentGithub);
+            if (newGithub === null) return;
+            
+            const newLive = prompt(`Edit Live Demo URL for ${projectName}:`, currentLive);
+            if (newLive === null) return;
+
+            if (!newGithub.trim() || !newLive.trim()) {
+                showToast("Both links are required.", "error");
+                return;
+            }
+
+            showToast(`Updating links for ${projectName}...`, "info");
+            try {
+                const response = await fetch('/api/admin/projects/update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: projectName,
+                        github_link: newGithub.trim(),
+                        live_link: newLive.trim()
+                    })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showToast(result.message, "success");
+                    loadProjects();
+                } else {
+                    showToast(result.message || "Failed to update project.", "error");
+                }
+            } catch (err) {
+                showToast("Error updating project: " + err.message, "error");
+            }
+        }
+
+        async function deleteProject(projectName) {
+            if (!confirm(`Are you absolutely sure you want to remove the project "${projectName}" from your portfolio? This will delete its card from all 7 pages.`)) {
+                return;
+            }
+            
+            showToast(`Removing project ${projectName}...`, "info");
+            try {
+                const response = await fetch('/api/admin/projects/delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: projectName
+                    })
+                });
+                const result = await response.json();
+                if (response.ok && result.success) {
+                    showToast(result.message, "success");
+                    loadProjects();
+                } else {
+                    showToast(result.message || "Failed to delete project.", "error");
+                }
+            } catch (err) {
+                showToast("Error deleting project: " + err.message, "error");
+            }
         }
 
         // Load catalog on start if session is already active

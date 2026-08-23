@@ -6,13 +6,20 @@ import threading
 from collections import defaultdict
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask import Flask, render_template, send_from_directory, request, jsonify
+from flask import Flask, render_template, send_from_directory, request, jsonify, session, redirect, url_for
 from dotenv import load_dotenv
+import io
+import hashlib
+from werkzeug.utils import secure_filename
+from argon2 import PasswordHasher
+from cryptography.fernet import Fernet
+import pandas as pd
 
 # Load local environment variables from .env if present
 load_dotenv()
 
 app = Flask(__name__, template_folder='.')
+app.secret_key = os.environ.get("FLASK_SECRET", "super-secure-fallback-key-ralk-gupta")
 
 # --- DEFENSIVE CYBERSECURITY MODULES ---
 
@@ -364,6 +371,281 @@ def chat():
             'success': True,
             'message': ai_response
         }), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# --- SECURE DOCUMENT MANAGEMENT ENGINE (PYSPARK + ENCRYPTION AT REST) ---
+
+class EncryptedDocumentCatalog:
+    def __init__(self, file_path, encryption_key):
+        self.file_path = file_path
+        # Use Fernet key for encrypting data at rest. Fall back to plaintext if no key.
+        self.fernet = Fernet(encryption_key.encode('utf-8')) if encryption_key else None
+
+    def read_catalog(self):
+        """Reads and decrypts the Parquet catalog metadata into a Pandas DataFrame."""
+        if not os.path.exists(self.file_path):
+            return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
+
+        try:
+            with open(self.file_path, 'rb') as f:
+                encrypted_data = f.read()
+
+            if self.fernet:
+                decrypted_data = self.fernet.decrypt(encrypted_data)
+            else:
+                decrypted_data = encrypted_data
+
+            return pd.read_parquet(io.BytesIO(decrypted_data))
+        except Exception as e:
+            print(f"Error reading/decrypting catalog: {e}")
+            return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
+
+    def write_catalog(self, df):
+        """Encrypts and writes the Pandas DataFrame as a Parquet dataset to disk."""
+        try:
+            buffer = io.BytesIO()
+            df.to_parquet(buffer, index=False)
+            parquet_bytes = buffer.getvalue()
+
+            if self.fernet:
+                encrypted_data = self.fernet.encrypt(parquet_bytes)
+            else:
+                encrypted_data = parquet_bytes
+
+            with open(self.file_path, 'wb') as f:
+                f.write(encrypted_data)
+            return True
+        except Exception as e:
+            print(f"Error writing/encrypting catalog: {e}")
+            return False
+
+    def load_with_pyspark(self):
+        """Loads the decrypted catalog into PySpark for big-data operations (e.g. tracking logs/stats)."""
+        try:
+            from pyspark.sql import SparkSession
+            # Create local Spark Session (silence Spark log levels to prevent spam)
+            spark = SparkSession.builder \
+                .appName("AdminDocumentCatalog") \
+                .master("local[*]") \
+                .config("spark.sql.warehouse.dir", "/tmp/spark-warehouse") \
+                .getOrCreate()
+            spark.sparkContext.setLogLevel("ERROR")
+            
+            df_pd = self.read_catalog()
+            if df_pd.empty:
+                # Create empty spark schema
+                from pyspark.sql.types import StructType, StructField, StringType, LongType
+                schema = StructType([
+                    StructField("id", StringType(), True),
+                    StructField("filename", StringType(), True),
+                    StructField("path", StringType(), True),
+                    StructField("category", StringType(), True),
+                    StructField("size_bytes", LongType(), True),
+                    StructField("uploaded_at", StringType(), True),
+                ])
+                return spark.createDataFrame([], schema)
+            
+            # Spark session reads catalog DataFrame
+            return spark.createDataFrame(df_pd)
+        except Exception as e:
+            print(f"[PySpark Engine] Offline or unconfigured: {e}")
+            return None
+
+CATALOG_PATH = os.path.join(app.root_path, "static", "assets", "document_catalog.parquet.enc")
+DB_KEY = os.environ.get("DB_ENCRYPTION_KEY")
+
+catalog_manager = EncryptedDocumentCatalog(CATALOG_PATH, DB_KEY)
+
+# --- SECURE ADMIN DASHBOARD ROUTING ---
+
+# 1. Private Dashboard Route
+@app.route('/private')
+def private_dashboard():
+    # If authenticated, render private.html. Otherwise, render with login flag.
+    logged_in = session.get('admin_logged_in') is True
+    return render_template('private.html', logged_in=logged_in)
+
+# 2. Authentication API Endpoint (Argon2id + unique salt + SHA-256 Username Hashing)
+@app.route('/api/admin/login', methods=['POST'])
+def admin_login():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'message': 'Invalid request parameters.'}), 400
+
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password required.'}), 400
+
+        # Verify Username SHA-256 Hash
+        stored_user_hash = os.environ.get("ADMIN_USERNAME_HASH")
+        input_user_hash = hashlib.sha256(username.encode('utf-8')).hexdigest()
+
+        if input_user_hash != stored_user_hash:
+            # Constant-time mitigation: run standard verification check anyway to avoid timing leaks
+            PasswordHasher().hash("dummy_password")
+            return jsonify({'success': False, 'message': 'Invalid credentials.'}), 401
+
+        # Verify Password Argon2id Hash
+        stored_pass_hash = os.environ.get("ADMIN_PASSWORD_HASH")
+        ph = PasswordHasher()
+        try:
+            ph.verify(stored_pass_hash, password)
+            # Rehash if parameters have changed (best practice)
+            if ph.check_needs_rehash(stored_pass_hash):
+                pass
+        except Exception:
+            return jsonify({'success': False, 'message': 'Invalid credentials.'}), 401
+
+        # Establish Admin Session
+        session['admin_logged_in'] = True
+        return jsonify({'success': True, 'message': 'Access granted.'}), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# 3. Logout API Endpoint
+@app.route('/api/admin/logout', methods=['POST'])
+def admin_logout():
+    session.pop('admin_logged_in', None)
+    return jsonify({'success': True, 'message': 'Session terminated.'}), 200
+
+# 4. List Documents (API Endpoint)
+@app.route('/api/admin/documents', methods=['GET'])
+def admin_list_documents():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+
+    try:
+        # Load catalog (tries PySpark loading, falls back to Pandas)
+        spark_df = catalog_manager.load_with_pyspark()
+        
+        if spark_df is not None:
+            print("[PySpark Engine] Successfully cataloged document DataFrame in Spark session context.")
+            # Retrieve rows from Spark context
+            rows = [r.asDict() for r in spark_df.collect()]
+            engine = "PySpark Session Active"
+        else:
+            df = catalog_manager.read_catalog()
+            rows = df.to_dict(orient='records')
+            engine = "Pandas Native Decryption (Spark offline)"
+
+        return jsonify({
+            'success': True,
+            'engine': engine,
+            'documents': rows
+        }), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# 5. Upload/Replace Document (API Endpoint)
+@app.route('/api/admin/documents/upload', methods=['POST'])
+def admin_upload_document():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+
+    try:
+        if 'file' not in request.files:
+            return jsonify({'success': False, 'message': 'No file segment found.'}), 400
+
+        file = request.files['file']
+        category = request.form.get('category', 'Other')
+
+        if file.filename == '':
+            return jsonify({'success': False, 'message': 'No selected file.'}), 400
+
+        filename = secure_filename(file.filename)
+        
+        # Determine Destination folder and paths
+        if category == 'Resume':
+            dest_dir = os.path.join(app.root_path, 'static', 'assets')
+        elif category == 'Certificate':
+            dest_dir = os.path.join(app.root_path, 'static', 'assets', 'certificates')
+        else:
+            dest_dir = os.path.join(app.root_path, 'static', 'assets')
+
+        os.makedirs(dest_dir, exist_ok=True)
+        file_path = os.path.join(dest_dir, filename)
+
+        # Save file to disk
+        file.save(file_path)
+
+        # Update metadata in Parquet catalog
+        df = catalog_manager.read_catalog()
+        
+        # Check if file is already cataloged (Replacement)
+        rel_path = os.path.relpath(file_path, app.root_path).replace('\\', '/')
+        existing_idx = df[df['path'] == rel_path].index
+
+        new_record = {
+            "id": hashlib.md5(rel_path.encode('utf-8')).hexdigest(),
+            "filename": filename,
+            "path": rel_path,
+            "category": category,
+            "size_bytes": os.path.getsize(file_path),
+            "uploaded_at": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        }
+
+        if len(existing_idx) > 0:
+            # Replace record
+            for col in df.columns:
+                df.at[existing_idx[0], col] = new_record[col]
+            action = "Replaced"
+        else:
+            # Append new record
+            df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
+            action = "Added"
+
+        # Encrypt and save catalog to disk
+        catalog_manager.write_catalog(df)
+
+        return jsonify({
+            'success': True,
+            'message': f"Document successfully {action.lower()} and cataloged.",
+            'document': new_record
+        }), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+# 6. Delete Document (API Endpoint)
+@app.route('/api/admin/documents/delete', methods=['POST'])
+def admin_delete_document():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+
+    try:
+        data = request.get_json()
+        if not data or 'id' not in data:
+            return jsonify({'success': False, 'message': 'Document ID is required.'}), 400
+
+        doc_id = data.get('id')
+
+        # Read catalog
+        df = catalog_manager.read_catalog()
+        doc_record = df[df['id'] == doc_id]
+
+        if doc_record.empty:
+            return jsonify({'success': False, 'message': 'Document not found in catalog.'}), 404
+
+        rel_path = doc_record.iloc[0]['path']
+        abs_path = os.path.join(app.root_path, rel_path.replace('/', os.path.sep))
+
+        # Delete file from local disk if it exists
+        if os.path.exists(abs_path):
+            os.remove(abs_path)
+
+        # Remove row from catalog
+        df = df[df['id'] != doc_id]
+
+        # Encrypt and save updated catalog to disk
+        catalog_manager.write_catalog(df)
+
+        return jsonify({'success': True, 'message': 'Document successfully removed from system and catalog.'}), 200
 
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500

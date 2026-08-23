@@ -15,6 +15,17 @@
     <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body class="dark-theme">
+    <!-- Cinematic Preloader -->
+    <div id="page-loader" class="page-loader">
+        <div class="loader-content">
+            <div class="loader-spinner"></div>
+            <div class="loader-text-container">
+                <span class="loader-dot"></span>
+                <p class="loader-text">Securing session...</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Full-Page 3D WebGL Background Canvas -->
     <canvas id="three-bg"></canvas>
 
@@ -791,7 +802,12 @@ print(me.get_objective())</code></pre>
                         <p>Ask about Krishna</p>
                     </div>
                 </div>
-                <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
+                <div class="chat-header-actions">
+                    <button id="chat-clear" class="chat-clear-btn" title="Clear Chat History" aria-label="Clear Chat History">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
+                </div>
             </div>
 
             <!-- Messages Stream -->

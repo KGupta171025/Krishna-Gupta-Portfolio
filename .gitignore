@@ -25,3 +25,7 @@ Thumbs.db
 /Security_Analysis.pdf
 /Local_Windows_Instructions.pdf
 
+# Encrypted Datasets & Catalogs
+*.parquet*
+*.enc
+

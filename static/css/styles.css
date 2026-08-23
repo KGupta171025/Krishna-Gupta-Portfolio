@@ -1891,6 +1891,7 @@ h1, h2, h3, h4, h5, h6 {
     border: none;
     pointer-events: none; /* Allows click to pass through to flip the card */
     opacity: 0.95;
+    overflow: hidden;
 }
 
 .preview-click-indicator {

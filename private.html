@@ -391,6 +391,20 @@
             transform: scale(1.1);
         }
 
+        .btn-exchange {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s ease, transform 0.2s ease;
+            font-size: 1.1rem;
+        }
+
+        .btn-exchange:hover {
+            color: var(--primary);
+            transform: scale(1.1);
+        }
+
         /* Notifications */
         .toast-notification {
             position: fixed;
@@ -777,6 +791,9 @@
                     <td>${doc.uploaded_at}</td>
                     <td>
                         <div class="action-btns">
+                            <button class="btn-exchange" onclick="exchangeDocument('${doc.id}', '${doc.category}', '${doc.filename}')" title="Exchange / Replace document">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
                             <button class="btn-delete" onclick="deleteDocument('${doc.id}')" title="Delete document">
                                 <i class="far fa-trash-alt"></i>
                             </button>
@@ -862,6 +879,64 @@
                 showToast("Error deleting document.", "error");
             });
         }
+
+        // Hidden file input for document exchange
+        const exchangeFileInput = document.createElement('input');
+        exchangeFileInput.type = 'file';
+        exchangeFileInput.style.display = 'none';
+        document.body.appendChild(exchangeFileInput);
+
+        let activeExchangeInfo = null;
+
+        window.exchangeDocument = function(id, category, filename) {
+            if (isStaticMode) {
+                showToast("File replacement requires running the local Python backend (python app.py).", "error");
+                return;
+            }
+
+            activeExchangeInfo = { id, category, filename };
+            exchangeFileInput.click();
+        }
+
+        exchangeFileInput.addEventListener('change', () => {
+            if (!activeExchangeInfo || exchangeFileInput.files.length === 0) return;
+
+            const selectedFile = exchangeFileInput.files[0];
+            const originalFilename = activeExchangeInfo.filename;
+            
+            const formData = new FormData();
+            // Wrap file with original filename to override on disk
+            const fileToUpload = new File([selectedFile], originalFilename, { type: selectedFile.type });
+            
+            formData.append('file', fileToUpload);
+            formData.append('category', activeExchangeInfo.category);
+
+            showToast(`Uploading replacement for ${originalFilename}...`, "info");
+
+            fetch('/api/admin/documents/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Replacement failed");
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    showToast(data.message, "success");
+                    loadCatalog();
+                } else {
+                    showToast(data.message, "error");
+                }
+            })
+            .catch(err => {
+                showToast("Error processing replacement.", "error");
+            })
+            .finally(() => {
+                exchangeFileInput.value = '';
+                activeExchangeInfo = null;
+            });
+        });
 
         // Load catalog on start if session is already active
         document.addEventListener('DOMContentLoaded', () => {

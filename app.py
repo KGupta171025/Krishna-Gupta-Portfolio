@@ -650,5 +650,185 @@ def admin_delete_document():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 
+# 7. Add & Auto-Generate Project Card (API Endpoint)
+@app.route('/api/admin/projects/add', methods=['POST'])
+def admin_add_project():
+    if not session.get('admin_logged_in'):
+        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'success': False, 'message': 'No data provided.'}), 400
+
+        github_link = data.get('github_link')
+        live_link = data.get('live_link')
+
+        if not github_link or not live_link:
+            return jsonify({'success': False, 'message': 'Both GitHub link and live link are required.'}), 400
+
+        url = github_link.strip().rstrip('/')
+        if "github.com/" not in url:
+            return jsonify({'success': False, 'message': 'Invalid GitHub repository URL.'}), 400
+            
+        parts = url.split("github.com/")[-1].split('/')
+        if len(parts) < 2:
+            return jsonify({'success': False, 'message': 'Could not parse owner and repository name.'}), 400
+            
+        owner = parts[0]
+        repo = parts[1].replace(".git", "")
+
+        # Fetch GitHub repository metadata and README
+        headers = {'User-Agent': 'Krishna-Portfolio-Server'}
+        meta_url = f"https://api.github.com/repos/{owner}/{repo}"
+        meta_res = requests.get(meta_url, headers=headers)
+        
+        repo_desc = ""
+        if meta_res.status_code == 200:
+            repo_desc = meta_res.json().get('description', '')
+
+        readme_url = f"https://raw.githubusercontent.com/{owner}/{repo}/main/README.md"
+        readme_res = requests.get(readme_url, headers=headers)
+        if readme_res.status_code != 200:
+            readme_url = f"https://raw.githubusercontent.com/{owner}/{repo}/master/README.md"
+            readme_res = requests.get(readme_url, headers=headers)
+        
+        readme_content = readme_res.text if readme_res.status_code == 200 else ""
+
+        # Default fallback values
+        proj_name = repo.replace('-', ' ').title()
+        proj_category = "Software Engineering"
+        proj_desc = repo_desc if repo_desc else "A software project hosted on GitHub."
+        proj_stack = ["GitHub", "Git", "Software", "Python"]
+
+        # Call Gemini API to extract details if available
+        if HAS_GEMINI:
+            try:
+                import json
+                prompt = f"""
+                You are an expert software portfolio architect.
+                Analyze the following GitHub repository details:
+                - Repository: {owner}/{repo}
+                - Description: {repo_desc}
+                - README content: {readme_content[:3000]}
+                
+                Create a professional structured project card details in JSON format.
+                The JSON must contain the exact keys:
+                1. "name": A clean, concise title for the project card (e.g. "ShelfScanner", "KALKI 1.5", "OpinionPlay"). Max 30 chars.
+                2. "category": A professional portfolio category (e.g. "Full-Stack Application", "AI & Workflow Automation", "Computer Vision & AI Recommender"). Max 40 chars.
+                3. "description": A highly engaging 2-3 sentence overview description of what the project does, key features, and achievements. Keep it professional. Max 250 chars.
+                4. "stack": An array of exactly 4 relevant technologies or libraries used in this project (e.g. ["React", "Python", "MySQL", "NLP"]).
+                
+                Return ONLY the raw JSON string with no markdown formatting or other text.
+                """
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(prompt)
+                
+                cleaned_text = response.text.strip()
+                if cleaned_text.startswith("```"):
+                    start = cleaned_text.find("{")
+                    end = cleaned_text.rfind("}")
+                    if start != -1 and end != -1:
+                        cleaned_text = cleaned_text[start:end+1]
+                
+                parsed_data = json.loads(cleaned_text)
+                proj_name = parsed_data.get("name", proj_name)
+                proj_category = parsed_data.get("category", proj_category)
+                proj_desc = parsed_data.get("description", proj_desc)
+                proj_stack = parsed_data.get("stack", proj_stack)
+            except Exception as gem_err:
+                print(f"Gemini generation failed, using fallbacks: {gem_err}")
+
+        # Format technology stack tags
+        stack_spans = "".join([f"<span>{tech}</span>" for tech in proj_stack])
+
+        # Generate HTML project card container markup
+        project_card_markup = f"""                <!-- Project: {proj_name} -->
+                <div class="project-card-container">
+                    <div class="project-card">
+                        <!-- Front Face (Live Preview) -->
+                        <div class="project-card-front">
+                            <div class="preview-header">
+                                <h4 class="preview-title">{proj_name}</h4>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+                                </div>
+                            </div>
+                            <div class="preview-frame-container">
+                                <iframe src="{live_link}" class="preview-iframe" loading="lazy"></iframe>
+                                <div class="preview-click-indicator">
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Back Face (Details) -->
+                        <div class="project-card-back">
+                            <div class="project-header">
+                                <span class="project-type">{proj_category}</span>
+                                <div class="project-links">
+                                    <a href="{github_link}" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                                    <a href="{live_link}" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+                                </div>
+                            </div>
+                            <h3 class="project-title">{proj_name}</h3>
+                            <p class="project-desc">
+                                {proj_desc}
+                            </p>
+                            <div class="project-stack">
+                                {stack_spans}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+"""
+
+        # Read and inject into all 7 HTML files
+        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
+        for filename in html_files:
+            filepath = os.path.join(app.root_path, filename)
+            if os.path.exists(filepath):
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                target_str = '<div class="projects-grid reveal">'
+                if target_str in content:
+                    new_content = content.replace(target_str, f"{target_str}\n{project_card_markup}")
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(new_content)
+                else:
+                    print(f"Target projects-grid not found in {filename}!")
+
+        # Trigger automatic Git commit & push
+        git_success = False
+        try:
+            import subprocess
+            subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
+            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Add {proj_name}"], cwd=app.root_path, check=True)
+            subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
+            git_success = True
+        except Exception as git_err:
+            print(f"Failed to auto-push changes to origin main: {git_err}")
+
+        status_msg = f"Project '{proj_name}' card successfully generated and added."
+        if git_success:
+            status_msg += " Git changes pushed live to GitHub Pages!"
+        else:
+            status_msg += " (Local files updated; Git push failed/skipped)."
+
+        return jsonify({
+            'success': True,
+            'message': status_msg,
+            'project': {
+                'name': proj_name,
+                'category': proj_category,
+                'description': proj_desc,
+                'stack': proj_stack
+            }
+        }), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=False, host='127.0.0.1', port=5000)

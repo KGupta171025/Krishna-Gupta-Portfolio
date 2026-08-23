@@ -488,33 +488,58 @@
         </div>
 
         <div class="dashboard-grid">
-            <!-- Left Panel: Uploader -->
-            <div class="glass-card upload-section">
-                <h3 class="section-title"><i class="fas fa-file-upload"></i> Upload Asset</h3>
-                <form id="upload-form">
-                    <div class="dropzone" id="dropzone">
-                        <i class="fas fa-cloud-upload-alt"></i>
-                        <p>Click or Drag file here to upload</p>
-                        <input type="file" id="file-input" required>
-                    </div>
-                    <div class="file-selected-indicator" id="file-indicator">
-                        <span id="selected-file-name">filename.pdf</span>
-                        <i class="fas fa-times-circle" id="remove-file-btn"></i>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label for="category-select">Document Category</label>
-                        <select id="category-select" class="form-select">
-                            <option value="Resume">Resume (static/assets/)</option>
-                            <option value="Certificate">Certificate (static/assets/certificates/)</option>
-                            <option value="Other">Other Document</option>
-                        </select>
-                    </div>
-                    
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-upload"></i> Process & Catalog
-                    </button>
-                </form>
+            <!-- Left Panel: Uploader & Project Manager -->
+            <div style="display: flex; flex-direction: column; gap: 25px;">
+                <div class="glass-card upload-section">
+                    <h3 class="section-title"><i class="fas fa-file-upload"></i> Upload Asset</h3>
+                    <form id="upload-form">
+                        <div class="dropzone" id="dropzone">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Click or Drag file here to upload</p>
+                            <input type="file" id="file-input" required>
+                        </div>
+                        <div class="file-selected-indicator" id="file-indicator">
+                            <span id="selected-file-name">filename.pdf</span>
+                            <i class="fas fa-times-circle" id="remove-file-btn"></i>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="category-select">Document Category</label>
+                            <select id="category-select" class="form-select">
+                                <option value="Resume">Resume (static/assets/)</option>
+                                <option value="Certificate">Certificate (static/assets/certificates/)</option>
+                                <option value="Other">Other Document</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-upload"></i> Process & Catalog
+                        </button>
+                    </form>
+                </div>
+
+                <div class="glass-card">
+                    <h3 class="section-title"><i class="fas fa-folder-plus"></i> Add New Project</h3>
+                    <form id="project-form">
+                        <div class="form-group">
+                            <label for="project-github">GitHub Repository Link</label>
+                            <div class="input-wrapper">
+                                <i class="fab fa-github" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 5;"></i>
+                                <input type="url" id="project-github" class="form-control" placeholder="https://github.com/owner/repo" required>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label for="project-live">Live Running Link</label>
+                            <div class="input-wrapper">
+                                <i class="fas fa-external-link-alt" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 5;"></i>
+                                <input type="url" id="project-live" class="form-control" placeholder="https://live-link.com" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-submit" id="project-submit-btn" style="margin-top: 15px;">
+                            <i class="fas fa-magic"></i> Auto-Generate Card
+                        </button>
+                    </form>
+                </div>
             </div>
 
             <!-- Right Panel: Catalog Manager -->
@@ -937,6 +962,52 @@
                 activeExchangeInfo = null;
             });
         });
+
+        // Project form submission controller
+        const projectForm = document.getElementById('project-form');
+        if (projectForm) {
+            projectForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (isStaticMode) {
+                    showToast("GitHub Pages static mode cannot run backend code generation. Run locally in dev server!", "error");
+                    return;
+                }
+
+                const githubLink = document.getElementById('project-github').value.trim();
+                const liveLink = document.getElementById('project-live').value.trim();
+                const submitBtn = document.getElementById('project-submit-btn');
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing & Generating...';
+
+                try {
+                    const response = await fetch('/api/admin/projects/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            github_link: githubLink,
+                            live_link: liveLink
+                        })
+                    });
+
+                    const result = await response.json();
+                    if (response.ok && result.success) {
+                        showToast(result.message, 'success');
+                        projectForm.reset();
+                    } else {
+                        showToast(result.message || 'Failed to generate project.', 'error');
+                    }
+                } catch (error) {
+                    showToast('Error connecting to backend API: ' + error.message, 'error');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-magic"></i> Auto-Generate Card';
+                }
+            });
+        }
 
         // Load catalog on start if session is already active
         document.addEventListener('DOMContentLoaded', () => {

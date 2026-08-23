@@ -422,12 +422,16 @@
         .toast-notification.error {
             border-left-color: var(--red);
         }
+
+        #dashboard-panel {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
     <!-- 1. LOGIN CONTAINER -->
-    <div id="login-panel" class="glass-card login-container" style="display: {{ 'none' if logged_in else 'block' }};">
+    <div id="login-panel" class="glass-card login-container">
         <div class="login-logo"><span>&lt;</span>RALK<span>.G /&gt;</span></div>
         <p class="login-subtitle">Secure Administration Vault</p>
         
@@ -453,7 +457,7 @@
     </div>
 
     <!-- 2. DASHBOARD CONTAINER -->
-    <div id="dashboard-panel" class="dashboard-container" style="display: {{ 'flex' if logged_in else 'none' }};">
+    <div id="dashboard-panel" class="dashboard-container">
         <div class="glass-card">
             <div class="dashboard-header">
                 <div class="user-profile">
@@ -858,10 +862,21 @@
 
         // Load catalog on start if session is already active
         document.addEventListener('DOMContentLoaded', () => {
-            const loginDisplay = document.getElementById('login-panel').style.display;
-            if (loginDisplay === 'none') {
-                loadCatalog();
-            }
+            // Force strict hidden dashboard on start
+            document.getElementById('dashboard-panel').style.display = 'none';
+            document.getElementById('login-panel').style.display = 'block';
+
+            // Check if server session is active
+            fetch('/api/admin/documents')
+            .then(res => {
+                if (res.ok) {
+                    isStaticMode = false;
+                    enterDashboard();
+                }
+            })
+            .catch(err => {
+                console.log("Static mode or offline on start.");
+            });
         });
     </script>
 </body>

@@ -1792,3 +1792,188 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+
+
+/* ==========================================================================
+   3D Project Card Flip Animations & Live Previews
+   ========================================================================== */
+
+.project-card-container {
+    perspective: 1200px;
+    width: 100%;
+    height: 400px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.project-card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    border-radius: 16px;
+}
+
+.project-card-container.flipped .project-card {
+    transform: rotateY(180deg);
+}
+
+.project-card-front, .project-card-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 16px;
+    border: 1px solid var(--border-glass);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-card-front {
+    z-index: 2;
+    background: #0b111e;
+}
+
+.project-card-back {
+    transform: rotateY(180deg);
+    background: rgba(13, 20, 35, 0.95);
+    backdrop-filter: blur(20px);
+    padding: 30px;
+    justify-content: space-between;
+    z-index: 1;
+}
+
+/* Front Face Previews */
+.preview-frame-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background: #080d16;
+}
+
+.preview-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none; /* Allows click to pass through to flip the card */
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(11, 17, 30, 0.15) 0%, rgba(11, 17, 30, 0.85) 85%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 24px;
+    color: #fff;
+    z-index: 5;
+}
+
+.preview-badge {
+    align-self: flex-start;
+    padding: 6px 12px;
+    border-radius: 50px;
+    background: rgba(6, 182, 212, 0.2);
+    border: 1px solid rgba(6, 182, 212, 0.35);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-color);
+}
+
+.preview-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    font-family: 'Outfit', sans-serif;
+    color: #ffffff;
+}
+
+.preview-action {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Terminal Simulator for KALKI 1.5 */
+.preview-terminal {
+    width: 100%;
+    height: 100%;
+    background: #060910;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.78rem;
+    padding: 20px;
+    color: #34d399;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
+}
+
+.terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+}
+
+.terminal-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.terminal-dot.red { background: #ef4444; }
+.terminal-dot.yellow { background: #f59e0b; }
+.terminal-dot.green { background: #10b981; }
+
+.terminal-title {
+    color: #4b5563;
+    font-size: 0.68rem;
+    margin-left: 4px;
+}
+
+.terminal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+}
+
+.terminal-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.t-prompt { color: #06b6d4; }
+.t-info { color: #60a5fa; }
+.t-success { color: #34d399; }
+.t-warning { color: #fbbf24; }
+
+.t-cursor {
+    animation: terminal-blink 1s step-end infinite;
+}
+
+@keyframes terminal-blink {
+    50% { opacity: 0; }
+}

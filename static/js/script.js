@@ -1003,3 +1003,18 @@ function initAIChatbot() {
         return suggestionsHTML;
     }
 }
+
+
+// Project Card 3D Flip Event Listener
+document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.project-card-container');
+    containers.forEach(container => {
+        container.addEventListener('click', (e) => {
+            // Prevent flipping if clicking links or nested icons inside back face
+            if (e.target.closest('a') || e.target.closest('.project-links')) {
+                return;
+            }
+            container.classList.toggle('flipped');
+        });
+    });
+});

@@ -1877,21 +1877,36 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--accent-color);
 }
 
+.preview-flip-icon {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.25s ease, transform 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-flip-icon:hover {
+    color: var(--accent-color);
+    transform: rotate(180deg);
+}
+
 .preview-frame-container {
     flex-grow: 1;
     position: relative;
     width: 100%;
     height: calc(100% - 49px);
     background: #080d16;
+    overflow: hidden; /* Clips the pushed iframe scrollbar */
 }
 
 .preview-iframe {
-    width: 100%;
+    width: calc(100% + 18px); /* Shoves the default scrollbar 18px to the right outside container */
     height: 100%;
     border: none;
-    pointer-events: none; /* Allows click to pass through to flip the card */
+    pointer-events: auto; /* Allow scrolling and hovering live website */
     opacity: 0.95;
-    overflow: hidden;
 }
 
 .preview-click-indicator {
@@ -1902,11 +1917,12 @@ h1, h2, h3, h4, h5, h6 {
     padding: 10px;
     background: rgba(15, 23, 42, 0.9);
     text-align: center;
-    font-size: 0.76rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
     border-top: 1px solid rgba(255, 255, 255, 0.06);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    z-index: 10;
 }

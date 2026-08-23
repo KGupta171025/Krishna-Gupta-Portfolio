@@ -574,8 +574,8 @@
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const usernameInput = document.getElementById('username').value;
-                const passwordInput = document.getElementById('password').value;
+                const usernameInput = document.getElementById('username').value.trim();
+                const passwordInput = document.getElementById('password').value.trim();
 
                 try {
                     const response = await fetch('/api/admin/login', {

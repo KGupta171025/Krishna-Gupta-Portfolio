@@ -1,1719 +1,1719 @@
-<!DOCTYPE html>
-
-<html lang="en">
-
-<head>
-
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Krishna Gupta | Data Scientist & Full-Stack Developer</title>
-
-    <meta name="description" content="Portfolio of Krishna Gupta - B.Tech Data Science student skilled in Data Engineering, AI/ML, and Software Development. Explore interactive 3D elements, projects, and downloads.">
-
-    <!-- Google Fonts -->
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-    <!-- FontAwesome for Icons -->
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Custom CSS -->
-
-    <link rel="stylesheet" href="static/css/styles.css">
-
-</head>
-
-<body class="dark-theme">
-
-    
-
-
-
-    <!-- Full-Page 3D WebGL Background Canvas -->
-
-    <canvas id="three-bg"></canvas>
-
-
-
-    <!-- Header & Navigation -->
-
-    <header class="navbar" id="navbar">
-
-        <div class="nav-container">
-
-            <a href="#" class="nav-logo">
-
-                <span class="logo-accent">&lt;</span>Krishna<span class="logo-accent">.G /&gt;</span>
-
-            </a>
-
-            <nav class="nav-menu" id="navMenu">
-
-                <a href="#hero" class="nav-link active">Home</a>
-
-                <a href="#about" class="nav-link">About</a>
-
-                <a href="#skills" class="nav-link">Skills</a>
-
-                <a href="#experience" class="nav-link">Experience</a>
-
-                <a href="#projects" class="nav-link">Projects</a>
-
-                <a href="#certifications" class="nav-link">Certifications</a>
-
-                <a href="#contact" class="nav-link">Contact</a>
-
-            </nav>
-
-            <div class="nav-hamburger" id="navHamburger">
-
-                <i class="fas fa-bars"></i>
-
-            </div>
-
-        </div>
-
-    </header>
-
-
-
-    <!-- Hero Section -->
-
-    <section class="hero-section" id="hero">
-
-        <div class="container hero-container">
-
-            <div class="hero-content reveal">
-
-                <div class="hero-badge">
-
-                    <span class="pulse-dot"></span> Available for Opportunities
-
-                </div>
-
-                <h1 class="hero-title">
-
-                    Hi, I'm <span class="text-gradient">Krishna Gupta</span>
-
-                </h1>
-
-                <p class="hero-tagline">B.Tech Data Science Student | Data Engineer | AI/ML Developer</p>
-
-                <p class="hero-description">
-
-                    I build end-to-end data pipelines, optimize relational databases, deploy scalable AI/ML solutions, and construct interactive full-stack applications.
-
-                </p>
-
-                
-
-                <div class="hero-actions">
-
-                    <a href="static/assets/KG__Resume.pdf" class="btn btn-primary" download>
-
-                        <i class="fas fa-file-download"></i> Download Resume
-
-                    </a>
-
-                    <a href="#contact" class="btn btn-secondary">
-
-                        <i class="fas fa-paper-plane"></i> Get In Touch
-
-                    </a>
-
-                </div>
-
-
-
-                <!-- Featured Credentials (Quick Spotlight) -->
-
-                <div class="featured-certs">
-
-                    <p class="featured-certs-title">Featured Credentials</p>
-
-                    <div class="featured-certs-grid">
-
-                        <div class="featured-cert-card" data-tilt data-brand="aws">
-
-                            <i class="fab fa-aws cert-icon-aws"></i>
-
-                            <div class="featured-cert-info">
-
-                                <h4>AWS Certified Developer</h4>
-
-                                <p>Infosys Springboard</p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="featured-cert-card" data-tilt data-brand="ibm">
-
-                            <i class="fab fa-python cert-icon-ibm"></i>
-
-                            <div class="featured-cert-info">
-
-                                <h4>ML with Python</h4>
-
-                                <p>IBM SkillsBuild</p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="featured-cert-card" data-tilt data-brand="hp">
-
-                            <i class="fas fa-chart-line cert-icon-hp"></i>
-
-                            <div class="featured-cert-info">
-
-                                <h4>Data Science & Analytics</h4>
-
-                                <p>HP LIFE</p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            
-
-            <div class="hero-visual reveal delay-2">
-
-                <div class="visual-card" data-tilt>
-
-                    <div class="code-header">
-
-                        <span class="code-dot red"></span>
-
-                        <span class="code-dot yellow"></span>
-
-                        <span class="code-dot green"></span>
-
-                        <span class="code-title">krishna_profile.py</span>
-
-                    </div>
-
-                    <div class="code-body">
-
-                        <pre><code><span class="code-keyword">class</span> <span class="code-class">DataScientist</span>:
-
-    <span class="code-keyword">def</span> <span class="code-method">__init__</span>(self):
-
-        self.name = <span class="code-str">"Krishna Gupta"</span>
-
-        self.role = <span class="code-str">"Data & AI Developer"</span>
-
-        self.education = <span class="code-str">"B.Tech Data Science (2027)"</span>
-
-        self.skills = [
-
-            <span class="code-str">"Python"</span>, <span class="code-str">"SQL"</span>, <span class="code-str">"AI/ML"</span>, 
-
-            <span class="code-str">"Data Pipelines"</span>, <span class="code-str">"Full-Stack"</span>
-
-        ]
-
-        
-
-    <span class="code-keyword">def</span> <span class="code-method">get_objective</span>(self):
-
-        <span class="code-keyword">return</span> <span class="code-str">"Build scalable intelligent systems"</span>
-
-
-
-<span class="code-comment"># Instantiate profiles</span>
-
-me = DataScientist()
-
-print(me.get_objective())</code></pre>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- About Section -->
-
-    <section class="about-section" id="about">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">About Me</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <div class="about-grid">
-
-                <div class="about-text reveal">
-
-                    <p class="about-p">
-
-                        I am currently pursuing a <strong>Bachelor of Technology (B.Tech) in Data Science</strong> at the <strong>Oriental Institute of Science and Technology, Bhopal (2023 - 2027)</strong>. I combine deep analytical data skills with robust software engineering practices.
-
-                    </p>
-
-                    <p class="about-p">
-
-                        My expertise spans designing clean ETL pipelines, implementing machine learning models (both supervised and unsupervised), fine-tuning and post-training Large Language Models (LLMs), and developing functional full-stack web applications. I have practical experience working remotely on high-impact AI outputs validation and building database-driven applications for enterprise workloads.
-
-                    </p>
-
-                    
-
-                    <div class="about-info-grid">
-
-                        <div class="about-info-item">
-
-                            <span class="info-label">Email:</span>
-
-                            <span class="info-value"><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></span>
-
-                        </div>
-
-                        <div class="about-info-item">
-
-                            <span class="info-label">Phone:</span>
-
-                            <span class="info-value"><a href="tel:+919993153109">+91-9993153109</a></span>
-
-                        </div>
-
-                        <div class="about-info-item">
-
-                            <span class="info-label">Location:</span>
-
-                            <span class="info-value">Bhopal, India (Open to Remote)</span>
-
-                        </div>
-
-                        <div class="about-info-item">
-
-                            <span class="info-label">Education:</span>
-
-                            <span class="info-value">B.Tech (Data Science)</span>
-
-                        </div>
-
-                    </div>
-
-                    
-
-                    <div class="about-socials">
-
-                        <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-
-                        <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-
-                        <a href="mailto:hg497kg@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
-
-                    </div>
-
-                </div>
-
-                
-
-                <div class="about-stats reveal delay-2">
-
-                    <div class="stat-card" data-tilt>
-
-                        <div class="stat-icon"><i class="fas fa-cogs"></i></div>
-
-                        <div class="stat-number" data-target="50" data-suffix="K+">0</div>
-
-                        <div class="stat-text">LLM Outputs Evaluated</div>
-
-                    </div>
-
-                    <div class="stat-card" data-tilt>
-
-                        <div class="stat-icon"><i class="fas fa-database"></i></div>
-
-                        <div class="stat-number" data-target="2" data-suffix="+">0</div>
-
-                        <div class="stat-text">Paid Internships</div>
-
-                    </div>
-
-                    <div class="stat-card" data-tilt>
-
-                        <div class="stat-icon"><i class="fas fa-code-branch"></i></div>
-
-                        <div class="stat-number" data-target="7" data-suffix="+">0</div>
-
-                        <div class="stat-text">Certifications</div>
-
-                    </div>
-
-                    <div class="stat-card" data-tilt>
-
-                        <div class="stat-icon"><i class="fas fa-rocket"></i></div>
-
-                        <div class="stat-number" data-target="100" data-suffix="%">0</div>
-
-                        <div class="stat-text">Commitment to Quality</div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- Skills Section -->
-
-    <section class="skills-section" id="skills">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">Technical Expertise</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <div class="skills-tabs reveal">
-
-                <button class="tab-btn active" data-tab="ds-ml">AI & Data Science</button>
-
-                <button class="tab-btn" data-tab="data-eng">Data Engineering</button>
-
-                <button class="tab-btn" data-tab="web-dev">Web Development</button>
-
-                <button class="tab-btn" data-tab="tools">Databases & Tools</button>
-
-            </div>
-
-            
-
-            <div class="skills-tab-content reveal delay-2">
-
-                <!-- AI & Data Science -->
-
-                <div class="tab-pane active" id="ds-ml">
-
-                    <div class="skills-grid">
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-brain"></i></span>
-
-                            <h3>Machine Learning</h3>
-
-                            <p>Supervised and unsupervised learning techniques, predictive modeling, data mining.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Scikit-learn</span><span>Pandas</span><span>NumPy</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-robot"></i></span>
-
-                            <h3>Generative AI & LLMs</h3>
-
-                            <p>LLM evaluation, LLM post-training workflows, validation, and GenAI automation.</p>
-
-                            <div class="tech-tags">
-
-                                <span>LLM Post-Training</span><span>GenAI APIs</span><span>Model Validation</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fab fa-python"></i></span>
-
-                            <h3>Languages</h3>
-
-                            <p>Core development logic, scripting, analysis pipelines, algorithms.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Python</span><span>C++</span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                
-
-                <!-- Data Engineering -->
-
-                <div class="tab-pane" id="data-eng">
-
-                    <div class="skills-grid">
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-project-diagram"></i></span>
-
-                            <h3>ETL Pipelines</h3>
-
-                            <p>Designing structures to extract, transform, and load datasets reliably.</p>
-
-                            <div class="tech-tags">
-
-                                <span>ETL</span><span>Data Loading</span><span>Pipelines</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-check-circle"></i></span>
-
-                            <h3>Data Validation</h3>
-
-                            <p>Automated validation checks, quality assurance, anomaly detection in raw datasets.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Data QA</span><span>Validation Scripts</span><span>Automation</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-network-wired"></i></span>
-
-                            <h3>Workflow Automation</h3>
-
-                            <p>Replacing manual routines with secure background worker processes.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Python Workflows</span><span>Logging</span><span>Robust Exception Handling</span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                
-
-                <!-- Web Development -->
-
-                <div class="tab-pane" id="web-dev">
-
-                    <div class="skills-grid">
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fab fa-react"></i></span>
-
-                            <h3>Frontend Development</h3>
-
-                            <p>Building responsive, component-based single page web applications.</p>
-
-                            <div class="tech-tags">
-
-                                <span>React</span><span>HTML5</span><span>CSS3</span><span>ES6+ JS</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fab fa-node-js"></i></span>
-
-                            <h3>Backend Architecture</h3>
-
-                            <p>RESTful APIs, routing logic, server-side data operations.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Node.js</span><span>ExpressJS</span><span>Flask (Python)</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-cloud"></i></span>
-
-                            <h3>Cloud & Hosting</h3>
-
-                            <p>Deploying applications, configuring file hosting and database storage.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Amazon Web Services (AWS)</span><span>Supabase</span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                
-
-                <!-- Databases & Tools -->
-
-                <div class="tab-pane" id="tools">
-
-                    <div class="skills-grid">
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-database"></i></span>
-
-                            <h3>Database Systems</h3>
-
-                            <p>Optimizing relational schemas, indexing, writing complex queries.</p>
-
-                            <div class="tech-tags">
-
-                                <span>PostgreSQL</span><span>MySQL</span><span>Supabase DB</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fab fa-git-alt"></i></span>
-
-                            <h3>Development Tools</h3>
-
-                            <p>Version control, modern terminal, editor setup, agile practices.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Git</span><span>GitHub</span><span>VS Code</span><span>Linux Command Line</span>
-
-                            </div>
-
-                        </div>
-
-                        <div class="skill-card" data-tilt>
-
-                            <span class="skill-icon"><i class="fas fa-sync-alt"></i></span>
-
-                            <h3>Query Optimization</h3>
-
-                            <p>Diagnosing bottlenecks, tuning queries, schema design.</p>
-
-                            <div class="tech-tags">
-
-                                <span>Relational Schemas</span><span>Database Design</span><span>SQL Optimization</span>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- Experience Section -->
-
-    <section class="experience-section" id="experience">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">Work Experience</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <div class="timeline reveal">
-
-                <!-- Timeline Item 1 -->
-
-                <div class="timeline-item">
-
-                    <div class="timeline-dot"></div>
-
-                    <div class="timeline-date">Feb 2026 – May 2026</div>
-
-                    <div class="timeline-content" data-tilt>
-
-                        <div class="timeline-header">
-
-                            <h3>LLM Post Training Intern</h3>
-
-                            <span class="company-badge">Ethara AI</span>
-
-                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
-
-                        </div>
-
-                        <p class="timeline-role">Paid Internship</p>
-
-                        <ul class="timeline-bullets">
-
-                            <li>Processed and evaluated <strong>50,000+ Large Language Model (LLM) outputs</strong>, enhancing response quality, data consistency, and overall AI system performance.</li>
-
-                            <li>Developed Python-based data processing and validation workflows to automate anomaly detection and text preprocessing, significantly reducing manual verification cycles.</li>
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-                
-
-                <!-- Timeline Item 2 -->
-
-                <div class="timeline-item">
-
-                    <div class="timeline-dot"></div>
-
-                    <div class="timeline-date">Oct 2025 – Feb 2026</div>
-
-                    <div class="timeline-content" data-tilt>
-
-                        <div class="timeline-header">
-
-                            <h3>Full Stack Development Intern</h3>
-
-                            <span class="company-badge">Kanchan Pvt Ltd (Sapphire Web Wing)</span>
-
-                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
-
-                        </div>
-
-                        <p class="timeline-role">Paid Internship</p>
-
-                        <ul class="timeline-bullets">
-
-                            <li>Designed and developed scalable full-stack web applications, REST APIs, and database-driven solutions using MySQL and PostgreSQL.</li>
-
-                            <li>Built and deployed the <strong>RevU Social</strong> platform (revu.social), utilizing GenAI-assisted development to accelerate features delivery.</li>
-
-                        </ul>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- Projects Section -->
-
-    <section class="projects-section" id="projects">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">Projects</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <div class="projects-grid reveal">
-                <!-- Project 1: RevU Social -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">RevU Social</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://www.revu.social/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Full-Stack Application</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/srohatgi01/opinion-play-earn" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://www.revu.social/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">RevU Social</h3>
-                            <p class="project-desc">
-                                A full-stack social review and analytics platform utilizing React, Node.js, and relational databases. Offers secure storage, analytics workflows, and query optimization for high performance.
-                            </p>
-                            <div class="project-stack">
-                                <span>React</span><span>Node.js</span><span>MySQL</span><span>REST APIs</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Project 2: KALKI 1.5 -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">KALKI 1.5 IOS</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://kgupta171025.github.io/KALKI-1.5/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">AI & Workflow Automation</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025/KALKI-1.5" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://kgupta171025.github.io/KALKI-1.5/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">KALKI 1.5 - Enterprise Intelligence Operating System (IOS)</h3>
-                            <p class="project-desc">
-                                An Enterprise Intelligence Operating System integrating LLMs, Vision Language Models (VLMs), and autonomous multi-agent workflows. Implements a hybrid RAG pipeline for optimized data search and agentic safety protocols.
-                            </p>
-                            <div class="project-stack">
-                                <span>Python</span><span>LLMs</span><span>Multi-Agents</span><span>Hybrid RAG</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 3: ShelfScanner -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">ShelfScanner</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://kgupta171025.github.io/SHELF-SCANNER/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Computer Vision & AI Recommender</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025/SHELF-SCANNER" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://kgupta171025.github.io/SHELF-SCANNER/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">ShelfScanner</h3>
-                            <p class="project-desc">
-                                An AI-powered bookshelf scanner and personalized book recommender. Users can scan or upload a photo of any bookshelf, automatically extract book spines, and receive instant reviews and tailored reading suggestions based on customized preference models.
-                            </p>
-                            <div class="project-stack">
-                                <span>Gemini Vision API</span><span>WebRTC Camera</span><span>JavaScript</span><span>Tailored Recs</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-    <!-- Certifications Section -->
-
-    <section class="certifications-section" id="certifications">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">Certifications & Credentials</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <p class="section-subtitle reveal">Browse and download official credentials and course completions.</p>
-
-            
-
-            <div class="certifications-grid reveal">
-
-                <!-- IBM -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fab fa-python cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">IBM SkillsBuild</span>
-
-                                <h3 class="cert-name">Machine Learning with Python</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">Machine Learning with Python</h3>
-
-                                <p class="cert-description">
-
-                                    Completed course ML0101EN focusing on predictive modeling, regression models, classification metrics, hierarchical and density-based clustering, and writing recommender systems with Python libraries.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-
-                                    <a href="static/assets/certificates/IBM_ML0101EN_Certificate.pdf" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PDF
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- AWS -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fab fa-aws cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">Infosys Springboard</span>
-
-                                <h3 class="cert-name">AWS Certified Developer - Associate</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">AWS Certified Developer</h3>
-
-                                <p class="cert-description">
-
-                                    Comprehensive preparation and validation on deploying applications, monitoring logs, provisioning infrastructure, securing cloud access, serverless design patterns, and utilizing AWS SDK.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-
-                                    <a href="static/assets/certificates/AWS_Certified_Developer.pdf" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PDF
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- HP LIFE -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fas fa-chart-line cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">HP LIFE (HP Foundation)</span>
-
-                                <h3 class="cert-name">Data Science & Analytics</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">Data Science & Analytics</h3>
-
-                                <p class="cert-description">
-
-                                    Focused on leveraging analytic techniques to drive business value, collecting quality data, executing ETL, analyzing metrics, and telling stories through visualization.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-
-                                    <a href="static/assets/certificates/HP_LIFE_Data_Science_Analytics.pdf" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PDF
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Gemini -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fas fa-wand-magic-sparkles cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">Google</span>
-
-                                <h3 class="cert-name">Gemini for Google Workspace</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">Gemini for Workspace</h3>
-
-                                <p class="cert-description">
-
-                                    Hands-on workshop focused on prompt engineering, generative workflow automations, scripting, and code assistance utilizing Gemini AI systems.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Workshop</span>
-
-                                    <a href="static/assets/certificates/Gemini_for_Google_Workshop.png" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PNG
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- SQL LinkedIn -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fas fa-database cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">LinkedIn Learning</span>
-
-                                <h3 class="cert-name">Learning SQL Programming</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">SQL Programming</h3>
-
-                                <p class="cert-description">
-
-                                    Covers relational database constructs, complex schema joins, writing subqueries, aggregations, database views, and query optimizations.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Course</span>
-
-                                    <a href="static/assets/certificates/Learning_SQL_Programming.pdf" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PDF
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- CNN LinkedIn -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fas fa-brain cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">LinkedIn Learning</span>
-
-                                <h3 class="cert-name">Neural Networks and CNNs</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">Neural Networks & CNNs</h3>
-
-                                <p class="cert-description">
-
-                                    Covers dense layers, convolutional kernels, backpropagation math, activation functions, pooling operations, and basic computer vision deep architectures.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Course</span>
-
-                                    <a href="static/assets/certificates/Neural_Networks_CNN_Essential_Training.pdf" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PDF
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-
-                <!-- Internship -->
-
-                <div class="cert-card-container">
-
-                    <div class="cert-card-flipper">
-
-                        <div class="cert-card-front">
-
-                            <div class="cert-media">
-
-                                <i class="fas fa-file-contract cert-badge-icon"></i>
-
-                            </div>
-
-                            <div class="cert-front-content">
-
-                                <span class="cert-issuer">Professional Internship</span>
-
-                                <h3 class="cert-name">Internship Certificate</h3>
-
-                            </div>
-
-                        </div>
-
-                        <div class="cert-card-back">
-
-                            <div class="cert-back-content">
-
-                                <h3 class="cert-name-back">Internship Verified</h3>
-
-                                <p class="cert-description">
-
-                                    Official certificate validating core developer accomplishments, demonstrating successful execution of duties and engineering capabilities.
-
-                                </p>
-
-                                <div class="cert-footer">
-
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Verified</span>
-
-                                    <a href="static/assets/certificates/Internship_Completion_Certificate.pdf" class="btn btn-download-sm" download>
-
-                                        <i class="fas fa-download"></i> Download PDF
-
-                                    </a>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- Education Section -->
-
-    <section class="education-section" id="education">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">Education & Coursework</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <div class="edu-course-grid">
-
-                <div class="education-list reveal">
-
-                    <h3>Academic Timeline</h3>
-
-                    
-
-                    <div class="edu-card">
-
-                        <div class="edu-dot"></div>
-
-                        <span class="edu-period">2023 - 2027</span>
-
-                        <h4>Oriental Institute of Science and Technology, Bhopal</h4>
-
-                        <p class="edu-degree">Bachelor of Technology (B.Tech) in Data Science</p>
-
-                        <p class="edu-desc">Focusing on algorithms, advanced data schemas, data warehousing, and AI modeling.</p>
-
-                    </div>
-
-
-
-                    <div class="edu-card">
-
-                        <div class="edu-dot"></div>
-
-                        <span class="edu-period">2021 - 2023</span>
-
-                        <h4>Bardsley English Medium Senior Secondary School, Katni</h4>
-
-                        <p class="edu-degree">Higher Secondary Education (Class X & XII)</p>
-
-                        <p class="edu-desc">Strengthened analytical capabilities in Mathematics, Physics, and Computer Science.</p>
-
-                    </div>
-
-                </div>
-
-                
-
-                <div class="coursework-list reveal delay-2">
-
-                    <h3>Core Coursework</h3>
-
-                    <div class="course-tags">
-
-                        <span>Data Structures & Algorithms (DSA)</span>
-
-                        <span>Database Management Systems (DBMS)</span>
-
-                        <span>Data Mining & Analytics</span>
-
-                        <span>Machine Learning</span>
-
-                        <span>Software Engineering (SDLC)</span>
-
-                        <span>Operating Systems (OS)</span>
-
-                    </div>
-
-                    
-
-                    <div class="profile-card" data-tilt>
-
-                        <i class="fas fa-quote-left quote-icon"></i>
-
-                        <p class="quote-text">
-
-                            "Krishna adapts exceptionally fast to modern technical landscapes, bridging data analytics with scalable interface architectures seamlessly."
-
-                        </p>
-
-                        <p class="quote-author">- Ethara AI & Kanchan Feedback</p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- Contact Section -->
-
-    <section class="contact-section" id="contact">
-
-        <div class="container">
-
-            <div class="section-header reveal">
-
-                <h2 class="section-title">Get In Touch</h2>
-
-                <div class="section-bar"></div>
-
-            </div>
-
-            
-
-            <div class="contact-grid">
-
-                <div class="contact-info reveal">
-
-                    <h3>Let's collaborate on data and code.</h3>
-
-                    <p>I am actively seeking internships, entry-level, or remote roles in Data Engineering, AI/ML development, and Software Engineering.</p>
-
-                    
-
-                    <div class="contact-details-list">
-
-                        <div class="contact-detail-item">
-
-                            <i class="fas fa-envelope"></i>
-
-                            <div>
-
-                                <h4>Email</h4>
-
-                                <p><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="contact-detail-item">
-
-                            <i class="fas fa-phone-alt"></i>
-
-                            <div>
-
-                                <h4>Phone</h4>
-
-                                <p><a href="tel:+919993153109">+91-9993153109</a></p>
-
-                            </div>
-
-                        </div>
-
-                        <div class="contact-detail-item">
-
-                            <i class="fas fa-map-marker-alt"></i>
-
-                            <div>
-
-                                <h4>Location</h4>
-
-                                <p>Bhopal, Madhya Pradesh, India (Open to remote & relocation)</p>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-                
-
-                <div class="contact-form-container reveal delay-2">
-
-                    <form id="contactForm" class="contact-form">
-
-                        <div class="form-group">
-
-                            <label for="name">Full Name</label>
-
-                            <input type="text" id="name" name="name" required placeholder="Krishna Gupta">
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="email">Email Address</label>
-
-                            <input type="email" id="email" name="email" required placeholder="hg497kg@gmail.com">
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="message">Message</label>
-
-                            <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, let's talk about a role..."></textarea>
-
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-block">
-
-                            <span id="btnText">Send Message</span> <i class="fas fa-paper-plane"></i>
-
-                        </button>
-
-                    </form>
-
-                    <div id="formFeedback" class="form-feedback hidden"></div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- Footer -->
-
-    <footer class="footer">
-
-        <div class="container footer-container">
-
-            <p>&copy; 2026 Krishna Gupta. All Rights Reserved.</p>
-
-            <div class="footer-socials">
-
-                <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank"><i class="fab fa-linkedin"></i></a>
-
-                <a href="https://github.com/KGupta171025" target="_blank"><i class="fab fa-github"></i></a>
-
-                <a href="mailto:hg497kg@gmail.com"><i class="fas fa-envelope"></i></a>
-
-            </div>
-
-        </div>
-
-    </footer>
-
-
-
-    <!-- AI Chatbot Widget -->
-
-    <div id="ai-chat-widget" class="ai-chat-widget">
-
-        <!-- Floating Toggle Button -->
-
-        <button id="ai-chat-toggle" class="ai-chat-toggle" aria-label="Open AI Assistant">
-
-            <i class="fas fa-robot"></i>
-
-            <span class="chat-badge hidden">1</span>
-
-        </button>
-
-
-
-        <!-- Chat Window Container -->
-
-        <div id="ai-chat-window" class="ai-chat-window hidden">
-
-            <!-- Header -->
-
-            <div class="chat-header">
-
-                <div class="chat-header-info">
-
-                    <div class="chat-avatar">
-
-                        <i class="fas fa-robot"></i>
-
-                        <span class="online-indicator"></span>
-
-                    </div>
-
-                    <div>
-
-                        <h4>KG Assistant</h4>
-
-                        <p>Ask about Krishna</p>
-
-                    </div>
-
-                </div>
-
-                <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
-
-            </div>
-
-
-
-            <!-- Messages Stream -->
-
-            <div id="chat-messages" class="chat-messages">
-
-                <div class="chat-message bot">
-
-                    <p>Hello! I am Krishna's AI assistant. 🤖</p>
-
-                </div>
-
-                <div class="chat-message bot">
-
-                    <p>You can ask me questions about his experience, projects, skills, or certifications. How can I help you today?</p>
-
-                </div>
-
-                <div class="chat-quick-replies">
-
-                    <button class="quick-reply-btn" data-query="Who is Krishna Gupta?">Who is Krishna?</button>
-
-                    <button class="quick-reply-btn" data-query="Tell me about KALKI 1.5">KALKI 1.5 Project</button>
-
-                    <button class="quick-reply-btn" data-query="What are his core technical skills?">Technical Skills</button>
-
-                    <button class="quick-reply-btn" data-query="Show professional experience">Experience</button>
-
-                    <button class="quick-reply-btn" data-query="How can I contact Krishna?">Contact Details</button>
-
-                </div>
-
-            </div>
-
-
-
-            <!-- Input Bar -->
-
-            <div class="chat-input-bar">
-
-                <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
-
-                <button id="chat-send" class="chat-send-btn" aria-label="Send Message">
-
-                    <i class="fas fa-paper-plane"></i>
-
-                </button>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-
-
-    <!-- Firebase SDK (Compat Version) -->
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-    <!-- EmailJS SDK -->
-
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-    <!-- Three.js from CDN -->
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- Custom JS -->
-
-    <script src="static/js/script.js"></script>
-
-</body>
-
-</html>
-
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Krishna Gupta | Data Scientist & Full-Stack Developer</title>
+
+    <meta name="description" content="Portfolio of Krishna Gupta - B.Tech Data Science student skilled in Data Engineering, AI/ML, and Software Development. Explore interactive 3D elements, projects, and downloads.">
+
+    <!-- Google Fonts -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome for Icons -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+
+    <link rel="stylesheet" href="static/css/styles.css">
+
+</head>
+
+<body class="dark-theme">
+
+    
+
+
+
+    <!-- Full-Page 3D WebGL Background Canvas -->
+
+    <canvas id="three-bg"></canvas>
+
+
+
+    <!-- Header & Navigation -->
+
+    <header class="navbar" id="navbar">
+
+        <div class="nav-container">
+
+            <a href="#" class="nav-logo">
+
+                <span class="logo-accent">&lt;</span>Krishna<span class="logo-accent">.G /&gt;</span>
+
+            </a>
+
+            <nav class="nav-menu" id="navMenu">
+
+                <a href="#hero" class="nav-link active">Home</a>
+
+                <a href="#about" class="nav-link">About</a>
+
+                <a href="#skills" class="nav-link">Skills</a>
+
+                <a href="#experience" class="nav-link">Experience</a>
+
+                <a href="#projects" class="nav-link">Projects</a>
+
+                <a href="#certifications" class="nav-link">Certifications</a>
+
+                <a href="#contact" class="nav-link">Contact</a>
+
+            </nav>
+
+            <div class="nav-hamburger" id="navHamburger">
+
+                <i class="fas fa-bars"></i>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- Hero Section -->
+
+    <section class="hero-section" id="hero">
+
+        <div class="container hero-container">
+
+            <div class="hero-content reveal">
+
+                <div class="hero-badge">
+
+                    <span class="pulse-dot"></span> Available for Opportunities
+
+                </div>
+
+                <h1 class="hero-title">
+
+                    Hi, I'm <span class="text-gradient">Krishna Gupta</span>
+
+                </h1>
+
+                <p class="hero-tagline">B.Tech Data Science Student | Data Engineer | AI/ML Developer</p>
+
+                <p class="hero-description">
+
+                    I build end-to-end data pipelines, optimize relational databases, deploy scalable AI/ML solutions, and construct interactive full-stack applications.
+
+                </p>
+
+                
+
+                <div class="hero-actions">
+
+                    <a href="static/assets/KG__Resume.pdf" class="btn btn-primary" download>
+
+                        <i class="fas fa-file-download"></i> Download Resume
+
+                    </a>
+
+                    <a href="#contact" class="btn btn-secondary">
+
+                        <i class="fas fa-paper-plane"></i> Get In Touch
+
+                    </a>
+
+                </div>
+
+
+
+                <!-- Featured Credentials (Quick Spotlight) -->
+
+                <div class="featured-certs">
+
+                    <p class="featured-certs-title">Featured Credentials</p>
+
+                    <div class="featured-certs-grid">
+
+                        <div class="featured-cert-card" data-tilt data-brand="aws">
+
+                            <i class="fab fa-aws cert-icon-aws"></i>
+
+                            <div class="featured-cert-info">
+
+                                <h4>AWS Certified Developer</h4>
+
+                                <p>Infosys Springboard</p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="featured-cert-card" data-tilt data-brand="ibm">
+
+                            <i class="fab fa-python cert-icon-ibm"></i>
+
+                            <div class="featured-cert-info">
+
+                                <h4>ML with Python</h4>
+
+                                <p>IBM SkillsBuild</p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="featured-cert-card" data-tilt data-brand="hp">
+
+                            <i class="fas fa-chart-line cert-icon-hp"></i>
+
+                            <div class="featured-cert-info">
+
+                                <h4>Data Science & Analytics</h4>
+
+                                <p>HP LIFE</p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            
+
+            <div class="hero-visual reveal delay-2">
+
+                <div class="visual-card" data-tilt>
+
+                    <div class="code-header">
+
+                        <span class="code-dot red"></span>
+
+                        <span class="code-dot yellow"></span>
+
+                        <span class="code-dot green"></span>
+
+                        <span class="code-title">krishna_profile.py</span>
+
+                    </div>
+
+                    <div class="code-body">
+
+                        <pre><code><span class="code-keyword">class</span> <span class="code-class">DataScientist</span>:
+
+    <span class="code-keyword">def</span> <span class="code-method">__init__</span>(self):
+
+        self.name = <span class="code-str">"Krishna Gupta"</span>
+
+        self.role = <span class="code-str">"Data & AI Developer"</span>
+
+        self.education = <span class="code-str">"B.Tech Data Science (2027)"</span>
+
+        self.skills = [
+
+            <span class="code-str">"Python"</span>, <span class="code-str">"SQL"</span>, <span class="code-str">"AI/ML"</span>, 
+
+            <span class="code-str">"Data Pipelines"</span>, <span class="code-str">"Full-Stack"</span>
+
+        ]
+
+        
+
+    <span class="code-keyword">def</span> <span class="code-method">get_objective</span>(self):
+
+        <span class="code-keyword">return</span> <span class="code-str">"Build scalable intelligent systems"</span>
+
+
+
+<span class="code-comment"># Instantiate profiles</span>
+
+me = DataScientist()
+
+print(me.get_objective())</code></pre>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- About Section -->
+
+    <section class="about-section" id="about">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">About Me</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="about-grid">
+
+                <div class="about-text reveal">
+
+                    <p class="about-p">
+
+                        I am currently pursuing a <strong>Bachelor of Technology (B.Tech) in Data Science</strong> at the <strong>Oriental Institute of Science and Technology, Bhopal (2023 - 2027)</strong>. I combine deep analytical data skills with robust software engineering practices.
+
+                    </p>
+
+                    <p class="about-p">
+
+                        My expertise spans designing clean ETL pipelines, implementing machine learning models (both supervised and unsupervised), fine-tuning and post-training Large Language Models (LLMs), and developing functional full-stack web applications. I have practical experience working remotely on high-impact AI outputs validation and building database-driven applications for enterprise workloads.
+
+                    </p>
+
+                    
+
+                    <div class="about-info-grid">
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Email:</span>
+
+                            <span class="info-value"><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Phone:</span>
+
+                            <span class="info-value"><a href="tel:+919993153109">+91-9993153109</a></span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Location:</span>
+
+                            <span class="info-value">Bhopal, India (Open to Remote)</span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Education:</span>
+
+                            <span class="info-value">B.Tech (Data Science)</span>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <div class="about-socials">
+
+                        <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+
+                        <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                        <a href="mailto:hg497kg@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="about-stats reveal delay-2">
+
+                    <div class="stat-card" data-tilt>
+
+                        <div class="stat-icon"><i class="fas fa-cogs"></i></div>
+
+                        <div class="stat-number" data-target="50" data-suffix="K+">0</div>
+
+                        <div class="stat-text">LLM Outputs Evaluated</div>
+
+                    </div>
+
+                    <div class="stat-card" data-tilt>
+
+                        <div class="stat-icon"><i class="fas fa-database"></i></div>
+
+                        <div class="stat-number" data-target="2" data-suffix="+">0</div>
+
+                        <div class="stat-text">Paid Internships</div>
+
+                    </div>
+
+                    <div class="stat-card" data-tilt>
+
+                        <div class="stat-icon"><i class="fas fa-code-branch"></i></div>
+
+                        <div class="stat-number" data-target="7" data-suffix="+">0</div>
+
+                        <div class="stat-text">Certifications</div>
+
+                    </div>
+
+                    <div class="stat-card" data-tilt>
+
+                        <div class="stat-icon"><i class="fas fa-rocket"></i></div>
+
+                        <div class="stat-number" data-target="100" data-suffix="%">0</div>
+
+                        <div class="stat-text">Commitment to Quality</div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Skills Section -->
+
+    <section class="skills-section" id="skills">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Technical Expertise</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="skills-tabs reveal">
+
+                <button class="tab-btn active" data-tab="ds-ml">AI & Data Science</button>
+
+                <button class="tab-btn" data-tab="data-eng">Data Engineering</button>
+
+                <button class="tab-btn" data-tab="web-dev">Web Development</button>
+
+                <button class="tab-btn" data-tab="tools">Databases & Tools</button>
+
+            </div>
+
+            
+
+            <div class="skills-tab-content reveal delay-2">
+
+                <!-- AI & Data Science -->
+
+                <div class="tab-pane active" id="ds-ml">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-brain"></i></span>
+
+                            <h3>Machine Learning</h3>
+
+                            <p>Supervised and unsupervised learning techniques, predictive modeling, data mining.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Scikit-learn</span><span>Pandas</span><span>NumPy</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-robot"></i></span>
+
+                            <h3>Generative AI & LLMs</h3>
+
+                            <p>LLM evaluation, LLM post-training workflows, validation, and GenAI automation.</p>
+
+                            <div class="tech-tags">
+
+                                <span>LLM Post-Training</span><span>GenAI APIs</span><span>Model Validation</span><span>LangChain</span><span>LangGraph</span><span>Hybrid RAG</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fab fa-python"></i></span>
+
+                            <h3>Languages</h3>
+
+                            <p>Core development logic, scripting, analysis pipelines, algorithms.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Python</span><span>C++</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Data Engineering -->
+
+                <div class="tab-pane" id="data-eng">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-project-diagram"></i></span>
+
+                            <h3>ETL Pipelines</h3>
+
+                            <p>Designing structures to extract, transform, and load datasets reliably.</p>
+
+                            <div class="tech-tags">
+
+                                <span>ETL</span><span>PySpark</span><span>Data Loading</span><span>Pipelines</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-check-circle"></i></span>
+
+                            <h3>Data Validation</h3>
+
+                            <p>Automated validation checks, quality assurance, anomaly detection in raw datasets.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Data QA</span><span>Validation Scripts</span><span>Automation</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-network-wired"></i></span>
+
+                            <h3>Workflow Automation</h3>
+
+                            <p>Replacing manual routines with secure background worker processes.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Python Workflows</span><span>Logging</span><span>Robust Exception Handling</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Web Development -->
+
+                <div class="tab-pane" id="web-dev">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fab fa-react"></i></span>
+
+                            <h3>Frontend Development</h3>
+
+                            <p>Building responsive, component-based single page web applications.</p>
+
+                            <div class="tech-tags">
+
+                                <span>React</span><span>HTML5</span><span>CSS3</span><span>ES6+ JS</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fab fa-node-js"></i></span>
+
+                            <h3>Backend Architecture</h3>
+
+                            <p>RESTful APIs, routing logic, server-side data operations.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Node.js</span><span>ExpressJS</span><span>Flask (Python)</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-cloud"></i></span>
+
+                            <h3>Cloud & Hosting</h3>
+
+                            <p>Deploying applications, configuring file hosting and database storage.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Amazon Web Services (AWS)</span><span>Supabase</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Databases & Tools -->
+
+                <div class="tab-pane" id="tools">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-database"></i></span>
+
+                            <h3>Database Systems</h3>
+
+                            <p>Optimizing relational schemas, indexing, writing complex queries.</p>
+
+                            <div class="tech-tags">
+
+                                <span>PostgreSQL</span><span>MySQL</span><span>Supabase DB</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fab fa-git-alt"></i></span>
+
+                            <h3>Development Tools</h3>
+
+                            <p>Version control, modern terminal, editor setup, agile practices.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Git</span><span>GitHub</span><span>VS Code</span><span>Linux Command Line</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-sync-alt"></i></span>
+
+                            <h3>Query Optimization</h3>
+
+                            <p>Diagnosing bottlenecks, tuning queries, schema design.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Relational Schemas</span><span>Database Design</span><span>SQL Optimization</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Experience Section -->
+
+    <section class="experience-section" id="experience">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Work Experience</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="timeline reveal">
+
+                <!-- Timeline Item 1 -->
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-date">Feb 2026 – May 2026</div>
+
+                    <div class="timeline-content" data-tilt>
+
+                        <div class="timeline-header">
+
+                            <h3>LLM Post Training Intern</h3>
+
+                            <span class="company-badge">Ethara AI</span>
+
+                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
+
+                        </div>
+
+                        <p class="timeline-role">Paid Internship</p>
+
+                        <ul class="timeline-bullets">
+
+                            <li>Processed and evaluated <strong>50,000+ Large Language Model (LLM) outputs</strong>, enhancing response quality, data consistency, and overall AI system performance.</li>
+
+                            <li>Developed Python-based data processing and validation workflows to automate anomaly detection and text preprocessing, significantly reducing manual verification cycles.</li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Timeline Item 2 -->
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-date">Oct 2025 – Feb 2026</div>
+
+                    <div class="timeline-content" data-tilt>
+
+                        <div class="timeline-header">
+
+                            <h3>Full Stack Development Intern</h3>
+
+                            <span class="company-badge">Kanchan Pvt Ltd (Sapphire Web Wing)</span>
+
+                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
+
+                        </div>
+
+                        <p class="timeline-role">Paid Internship</p>
+
+                        <ul class="timeline-bullets">
+
+                            <li>Designed and developed scalable full-stack web applications, REST APIs, and database-driven solutions using MySQL and PostgreSQL.</li>
+
+                            <li>Built and deployed the <strong>RevU Social</strong> platform (revu.social), utilizing GenAI-assisted development to accelerate features delivery.</li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Projects Section -->
+
+    <section class="projects-section" id="projects">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Projects</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="projects-grid reveal">
+                <!-- Project 1: RevU Social -->
+                <div class="project-card-container">
+                    <div class="project-card">
+                        <!-- Front Face (Live Preview) -->
+                        <div class="project-card-front">
+                            <div class="preview-header">
+                                <h4 class="preview-title">RevU Social</h4>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+                                </div>
+                            </div>
+                            <div class="preview-frame-container">
+                                <iframe src="https://www.revu.social/" class="preview-iframe" loading="lazy"></iframe>
+                                <div class="preview-click-indicator">
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Back Face (Details) -->
+                        <div class="project-card-back">
+                            <div class="project-header">
+                                <span class="project-type">Full-Stack Application</span>
+                                <div class="project-links">
+                                    <a href="https://github.com/srohatgi01/opinion-play-earn" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                                    <a href="https://www.revu.social/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+                                </div>
+                            </div>
+                            <h3 class="project-title">RevU Social</h3>
+                            <p class="project-desc">
+                                A full-stack social review and analytics platform utilizing React, Node.js, and relational databases. Offers secure storage, analytics workflows, and query optimization for high performance.
+                            </p>
+                            <div class="project-stack">
+                                <span>React</span><span>Node.js</span><span>MySQL</span><span>REST APIs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project 2: KALKI 1.5 -->
+                <div class="project-card-container">
+                    <div class="project-card">
+                        <!-- Front Face (Live Preview) -->
+                        <div class="project-card-front">
+                            <div class="preview-header">
+                                <h4 class="preview-title">KALKI 1.5 IOS</h4>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+                                </div>
+                            </div>
+                            <div class="preview-frame-container">
+                                <iframe src="https://kgupta171025.github.io/KALKI-1.5/" class="preview-iframe" loading="lazy"></iframe>
+                                <div class="preview-click-indicator">
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Back Face (Details) -->
+                        <div class="project-card-back">
+                            <div class="project-header">
+                                <span class="project-type">AI & Workflow Automation</span>
+                                <div class="project-links">
+                                    <a href="https://github.com/KGupta171025/KALKI-1.5" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                                    <a href="https://kgupta171025.github.io/KALKI-1.5/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+                                </div>
+                            </div>
+                            <h3 class="project-title">KALKI 1.5 - Enterprise Intelligence Operating System (IOS)</h3>
+                            <p class="project-desc">
+                                An Enterprise Intelligence Operating System integrating LLMs, Vision Language Models (VLMs), and autonomous multi-agent workflows. Implements a hybrid RAG pipeline for optimized data search and agentic safety protocols.
+                            </p>
+                            <div class="project-stack">
+                                <span>Python</span><span>LLMs</span><span>Multi-Agents</span><span>Hybrid RAG</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3: ShelfScanner -->
+                <div class="project-card-container">
+                    <div class="project-card">
+                        <!-- Front Face (Live Preview) -->
+                        <div class="project-card-front">
+                            <div class="preview-header">
+                                <h4 class="preview-title">ShelfScanner</h4>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+                                </div>
+                            </div>
+                            <div class="preview-frame-container">
+                                <iframe src="https://kgupta171025.github.io/SHELF-SCANNER/" class="preview-iframe" loading="lazy"></iframe>
+                                <div class="preview-click-indicator">
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Back Face (Details) -->
+                        <div class="project-card-back">
+                            <div class="project-header">
+                                <span class="project-type">Computer Vision & AI Recommender</span>
+                                <div class="project-links">
+                                    <a href="https://github.com/KGupta171025/SHELF-SCANNER" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+                                    <a href="https://kgupta171025.github.io/SHELF-SCANNER/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+                                </div>
+                            </div>
+                            <h3 class="project-title">ShelfScanner</h3>
+                            <p class="project-desc">
+                                An AI-powered bookshelf scanner and personalized book recommender. Users can scan or upload a photo of any bookshelf, automatically extract book spines, and receive instant reviews and tailored reading suggestions based on customized preference models.
+                            </p>
+                            <div class="project-stack">
+                                <span>Gemini Vision API</span><span>WebRTC Camera</span><span>JavaScript</span><span>Tailored Recs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Certifications Section -->
+
+    <section class="certifications-section" id="certifications">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Certifications & Credentials</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <p class="section-subtitle reveal">Browse and download official credentials and course completions.</p>
+
+            
+
+            <div class="certifications-grid reveal">
+
+                <!-- IBM -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fab fa-python cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">IBM SkillsBuild</span>
+
+                                <h3 class="cert-name">Machine Learning with Python</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Machine Learning with Python</h3>
+
+                                <p class="cert-description">
+
+                                    Completed course ML0101EN focusing on predictive modeling, regression models, classification metrics, hierarchical and density-based clustering, and writing recommender systems with Python libraries.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/IBM_ML0101EN_Certificate.pdf" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- AWS -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fab fa-aws cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Infosys Springboard</span>
+
+                                <h3 class="cert-name">AWS Certified Developer - Associate</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">AWS Certified Developer</h3>
+
+                                <p class="cert-description">
+
+                                    Comprehensive preparation and validation on deploying applications, monitoring logs, provisioning infrastructure, securing cloud access, serverless design patterns, and utilizing AWS SDK.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/AWS_Certified_Developer.pdf" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- HP LIFE -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-chart-line cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">HP LIFE (HP Foundation)</span>
+
+                                <h3 class="cert-name">Data Science & Analytics</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Data Science & Analytics</h3>
+
+                                <p class="cert-description">
+
+                                    Focused on leveraging analytic techniques to drive business value, collecting quality data, executing ETL, analyzing metrics, and telling stories through visualization.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/HP_LIFE_Data_Science_Analytics.pdf" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Gemini -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-wand-magic-sparkles cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Google</span>
+
+                                <h3 class="cert-name">Gemini for Google Workspace</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Gemini for Workspace</h3>
+
+                                <p class="cert-description">
+
+                                    Hands-on workshop focused on prompt engineering, generative workflow automations, scripting, and code assistance utilizing Gemini AI systems.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Workshop</span>
+
+                                    <a href="static/assets/certificates/Gemini_for_Google_Workshop.png" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PNG
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SQL LinkedIn -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-database cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">LinkedIn Learning</span>
+
+                                <h3 class="cert-name">Learning SQL Programming</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">SQL Programming</h3>
+
+                                <p class="cert-description">
+
+                                    Covers relational database constructs, complex schema joins, writing subqueries, aggregations, database views, and query optimizations.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Course</span>
+
+                                    <a href="static/assets/certificates/Learning_SQL_Programming.pdf" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- CNN LinkedIn -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-brain cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">LinkedIn Learning</span>
+
+                                <h3 class="cert-name">Neural Networks and CNNs</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Neural Networks & CNNs</h3>
+
+                                <p class="cert-description">
+
+                                    Covers dense layers, convolutional kernels, backpropagation math, activation functions, pooling operations, and basic computer vision deep architectures.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Course</span>
+
+                                    <a href="static/assets/certificates/Neural_Networks_CNN_Essential_Training.pdf" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Internship -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-file-contract cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Professional Internship</span>
+
+                                <h3 class="cert-name">Internship Certificate</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Internship Verified</h3>
+
+                                <p class="cert-description">
+
+                                    Official certificate validating core developer accomplishments, demonstrating successful execution of duties and engineering capabilities.
+
+                                </p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> Verified</span>
+
+                                    <a href="static/assets/certificates/Internship_Completion_Certificate.pdf" class="btn btn-download-sm" download>
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Education Section -->
+
+    <section class="education-section" id="education">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Education & Coursework</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="edu-course-grid">
+
+                <div class="education-list reveal">
+
+                    <h3>Academic Timeline</h3>
+
+                    
+
+                    <div class="edu-card">
+
+                        <div class="edu-dot"></div>
+
+                        <span class="edu-period">2023 - 2027</span>
+
+                        <h4>Oriental Institute of Science and Technology, Bhopal</h4>
+
+                        <p class="edu-degree">Bachelor of Technology (B.Tech) in Data Science</p>
+
+                        <p class="edu-desc">Focusing on algorithms, advanced data schemas, data warehousing, and AI modeling.</p>
+
+                    </div>
+
+
+
+                    <div class="edu-card">
+
+                        <div class="edu-dot"></div>
+
+                        <span class="edu-period">2021 - 2023</span>
+
+                        <h4>Bardsley English Medium Senior Secondary School, Katni</h4>
+
+                        <p class="edu-degree">Higher Secondary Education (Class X & XII)</p>
+
+                        <p class="edu-desc">Strengthened analytical capabilities in Mathematics, Physics, and Computer Science.</p>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="coursework-list reveal delay-2">
+
+                    <h3>Core Coursework</h3>
+
+                    <div class="course-tags">
+
+                        <span>Data Structures & Algorithms (DSA)</span>
+
+                        <span>Database Management Systems (DBMS)</span>
+
+                        <span>Data Mining & Analytics</span>
+
+                        <span>Machine Learning</span>
+
+                        <span>Software Engineering (SDLC)</span>
+
+                        <span>Operating Systems (OS)</span>
+
+                    </div>
+
+                    
+
+                    <div class="profile-card" data-tilt>
+
+                        <i class="fas fa-quote-left quote-icon"></i>
+
+                        <p class="quote-text">
+
+                            "Krishna adapts exceptionally fast to modern technical landscapes, bridging data analytics with scalable interface architectures seamlessly."
+
+                        </p>
+
+                        <p class="quote-author">- Ethara AI & Kanchan Feedback</p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Contact Section -->
+
+    <section class="contact-section" id="contact">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Get In Touch</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="contact-grid">
+
+                <div class="contact-info reveal">
+
+                    <h3>Let's collaborate on data and code.</h3>
+
+                    <p>I am actively seeking internships, entry-level, or remote roles in Data Engineering, AI/ML development, and Software Engineering.</p>
+
+                    
+
+                    <div class="contact-details-list">
+
+                        <div class="contact-detail-item">
+
+                            <i class="fas fa-envelope"></i>
+
+                            <div>
+
+                                <h4>Email</h4>
+
+                                <p><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="contact-detail-item">
+
+                            <i class="fas fa-phone-alt"></i>
+
+                            <div>
+
+                                <h4>Phone</h4>
+
+                                <p><a href="tel:+919993153109">+91-9993153109</a></p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="contact-detail-item">
+
+                            <i class="fas fa-map-marker-alt"></i>
+
+                            <div>
+
+                                <h4>Location</h4>
+
+                                <p>Bhopal, Madhya Pradesh, India (Open to remote & relocation)</p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="contact-form-container reveal delay-2">
+
+                    <form id="contactForm" class="contact-form">
+
+                        <div class="form-group">
+
+                            <label for="name">Full Name</label>
+
+                            <input type="text" id="name" name="name" required placeholder="Krishna Gupta">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="email">Email Address</label>
+
+                            <input type="email" id="email" name="email" required placeholder="hg497kg@gmail.com">
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="message">Message</label>
+
+                            <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, let's talk about a role..."></textarea>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">
+
+                            <span id="btnText">Send Message</span> <i class="fas fa-paper-plane"></i>
+
+                        </button>
+
+                    </form>
+
+                    <div id="formFeedback" class="form-feedback hidden"></div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- Footer -->
+
+    <footer class="footer">
+
+        <div class="container footer-container">
+
+            <p>&copy; 2026 Krishna Gupta. All Rights Reserved.</p>
+
+            <div class="footer-socials">
+
+                <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank"><i class="fab fa-linkedin"></i></a>
+
+                <a href="https://github.com/KGupta171025" target="_blank"><i class="fab fa-github"></i></a>
+
+                <a href="mailto:hg497kg@gmail.com"><i class="fas fa-envelope"></i></a>
+
+            </div>
+
+        </div>
+
+    </footer>
+
+
+
+    <!-- AI Chatbot Widget -->
+
+    <div id="ai-chat-widget" class="ai-chat-widget">
+
+        <!-- Floating Toggle Button -->
+
+        <button id="ai-chat-toggle" class="ai-chat-toggle" aria-label="Open AI Assistant">
+
+            <i class="fas fa-robot"></i>
+
+            <span class="chat-badge hidden">1</span>
+
+        </button>
+
+
+
+        <!-- Chat Window Container -->
+
+        <div id="ai-chat-window" class="ai-chat-window hidden">
+
+            <!-- Header -->
+
+            <div class="chat-header">
+
+                <div class="chat-header-info">
+
+                    <div class="chat-avatar">
+
+                        <i class="fas fa-robot"></i>
+
+                        <span class="online-indicator"></span>
+
+                    </div>
+
+                    <div>
+
+                        <h4>KG Assistant</h4>
+
+                        <p>Ask about Krishna</p>
+
+                    </div>
+
+                </div>
+
+                <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
+
+            </div>
+
+
+
+            <!-- Messages Stream -->
+
+            <div id="chat-messages" class="chat-messages">
+
+                <div class="chat-message bot">
+
+                    <p>Hello! I am Krishna's AI assistant. 🤖</p>
+
+                </div>
+
+                <div class="chat-message bot">
+
+                    <p>You can ask me questions about his experience, projects, skills, or certifications. How can I help you today?</p>
+
+                </div>
+
+                <div class="chat-quick-replies">
+
+                    <button class="quick-reply-btn" data-query="Who is Krishna Gupta?">Who is Krishna?</button>
+
+                    <button class="quick-reply-btn" data-query="Tell me about KALKI 1.5">KALKI 1.5 Project</button>
+
+                    <button class="quick-reply-btn" data-query="What are his core technical skills?">Technical Skills</button>
+
+                    <button class="quick-reply-btn" data-query="Show professional experience">Experience</button>
+
+                    <button class="quick-reply-btn" data-query="How can I contact Krishna?">Contact Details</button>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- Input Bar -->
+
+            <div class="chat-input-bar">
+
+                <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+
+                <button id="chat-send" class="chat-send-btn" aria-label="Send Message">
+
+                    <i class="fas fa-paper-plane"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+
+
+    <!-- Firebase SDK (Compat Version) -->
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- EmailJS SDK -->
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- Three.js from CDN -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Custom JS -->
+
+    <script src="static/js/script.js"></script>
+
+</body>
+
+</html>
+

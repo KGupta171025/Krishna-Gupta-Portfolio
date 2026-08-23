@@ -1826,13 +1826,12 @@ h1, h2, h3, h4, h5, h6 {
     left: 0;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
     border-radius: 16px;
     border: 1px solid var(--border-glass);
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    color: #ffffff; /* Explicitly force white text color for all contents */
 }
 
 .project-card-front {

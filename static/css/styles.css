@@ -1835,10 +1835,10 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column;
 }
 
-/* NO backdrop-filter here to avoid breaking 3D context in Chrome */
 .project-card-front {
     z-index: 2;
     background: #0f172a;
+    transform: rotateY(0deg);
 }
 
 .project-card-back {
@@ -1847,6 +1847,31 @@ h1, h2, h3, h4, h5, h6 {
     padding: 30px;
     justify-content: space-between;
     z-index: 1;
+}
+
+/* Explicit visibility and opacity toggling to fix Chrome/WebKit iframe 3D bleed-through */
+.project-card-container.flipped .project-card-front {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.4s, opacity 0.4s ease;
+}
+
+.project-card-container:not(.flipped) .project-card-front {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+.project-card-container.flipped .project-card-back {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.4s ease 0.2s;
+}
+
+.project-card-container:not(.flipped) .project-card-back {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s 0.4s, opacity 0.4s ease;
 }
 
 /* Front Face Previews */
@@ -1898,14 +1923,14 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     height: calc(100% - 49px);
     background: #080d16;
-    overflow: hidden; /* Clips the pushed iframe scrollbar */
+    overflow: hidden;
 }
 
 .preview-iframe {
-    width: calc(100% + 18px); /* Shoves the default scrollbar 18px to the right outside container */
+    width: calc(100% + 18px);
     height: 100%;
     border: none;
-    pointer-events: auto; /* Allow scrolling and hovering live website */
+    pointer-events: auto;
     opacity: 0.95;
 }
 

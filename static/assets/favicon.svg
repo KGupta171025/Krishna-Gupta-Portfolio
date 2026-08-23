@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background Circle with Neon Cyan Stroke -->
+  <circle cx="32" cy="32" r="30" fill="#090d16" stroke="#00f0ff" stroke-width="2.5"/>
+  <!-- Glowing Neon K.G. Text -->
+  <text x="32" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Outfit', 'Segoe UI', sans-serif" font-size="15" font-weight="900" fill="#00f0ff" text-anchor="middle" filter="url(#neon-glow)">
+    &lt;K.G.&gt;
+  </text>
+</svg>

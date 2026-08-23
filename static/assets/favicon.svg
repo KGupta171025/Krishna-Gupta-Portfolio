@@ -1,17 +1,26 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
-    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
+    <filter id="neon-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="1.8" result="blur" />
+      <feComponentTransfer in="blur" result="bright-blur">
+        <feFuncA type="linear" slope="1.5"/>
+      </feComponentTransfer>
       <feMerge>
-        <feMergeNode in="blur" />
+        <feMergeNode in="bright-blur" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
   </defs>
-  <!-- Background Circle with Neon Cyan Stroke -->
-  <circle cx="32" cy="32" r="30" fill="#090d16" stroke="#00f0ff" stroke-width="2.5"/>
-  <!-- Glowing Neon K.G. Text -->
-  <text x="32" y="38" font-family="-apple-system, BlinkMacSystemFont, 'Outfit', 'Segoe UI', sans-serif" font-size="15" font-weight="900" fill="#00f0ff" text-anchor="middle" filter="url(#neon-glow)">
+  
+  <!-- Clear crisp high-visibility neon text -->
+  <text x="32" y="41" 
+        font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Outfit', sans-serif" 
+        font-size="17" 
+        font-weight="900" 
+        fill="#06b6d4" 
+        text-anchor="middle" 
+        filter="url(#neon-glow)"
+        letter-spacing="-0.5">
     &lt;K.G.&gt;
   </text>
 </svg>

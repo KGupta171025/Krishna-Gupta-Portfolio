@@ -731,7 +731,7 @@
                 const passwordInput = document.getElementById('password').value.trim();
 
                 try {
-                    const response = await fetch('/api/admin/login', {
+                    const response = await fetch('/api/v1/admin/login', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ username: usernameInput, password: passwordInput })
@@ -791,7 +791,7 @@
                     document.getElementById('login-panel').style.display = 'block';
                     return;
                 }
-                fetch('/api/admin/logout', { method: 'POST' })
+                fetch('/api/v1/admin/logout', { method: 'POST' })
                 .then(() => {
                     showToast("Session terminated.", "success");
                     document.getElementById('dashboard-panel').style.display = 'none';
@@ -868,7 +868,7 @@
                 return;
             }
 
-            fetch('/api/admin/documents')
+            fetch('/api/v1/admin/documents')
             .then(res => {
                 if (!res.ok) throw new Error("Could not load catalog");
                 return res.json();
@@ -964,7 +964,7 @@
                 formData.append('file', fileInput.files[0]);
                 formData.append('category', document.getElementById('category-select').value);
 
-                fetch('/api/admin/documents/upload', {
+                fetch('/api/v1/admin/documents/upload', {
                     method: 'POST',
                     body: formData
                 })
@@ -998,7 +998,7 @@
 
             if (!confirm("Are you sure you want to delete this document from disk and unregister it from PySpark catalog?")) return;
 
-            fetch('/api/admin/documents/delete', {
+            fetch('/api/v1/admin/documents/delete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: id })
@@ -1053,7 +1053,7 @@
 
             showToast(`Uploading replacement for ${originalFilename}...`, "info");
 
-            fetch('/api/admin/documents/upload', {
+            fetch('/api/v1/admin/documents/upload', {
                 method: 'POST',
                 body: formData
             })
@@ -1097,7 +1097,7 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing & Generating...';
 
                 try {
-                    const response = await fetch('/api/admin/projects/add', {
+                    const response = await fetch('/api/v1/admin/projects/add', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1152,7 +1152,7 @@
                 return;
             }
 
-            fetch('/api/admin/projects')
+            fetch('/api/v1/admin/projects')
             .then(res => {
                 if (!res.ok) throw new Error("Could not load projects");
                 return res.json();
@@ -1255,7 +1255,7 @@
                     showToast(`Updating links for ${activeEditProjectName}...`, "info");
 
                     try {
-                        const response = await fetch('/api/admin/projects/update', {
+                        const response = await fetch('/api/v1/admin/projects/update', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1288,7 +1288,7 @@
             
             showToast(`Removing project ${projectName}...`, "info");
             try {
-                const response = await fetch('/api/admin/projects/delete', {
+                const response = await fetch('/api/v1/admin/projects/delete', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1316,7 +1316,7 @@
             document.getElementById('login-panel').style.display = 'block';
 
             // Check if server session is active
-            fetch('/api/admin/documents')
+            fetch('/api/v1/admin/documents')
             .then(res => {
                 if (res.ok) {
                     isStaticMode = false;

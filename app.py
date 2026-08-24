@@ -3,6 +3,8 @@ import time
 import requests
 import smtplib
 import threading
+import re
+import json
 from collections import defaultdict
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -15,43 +17,196 @@ from argon2 import PasswordHasher
 from cryptography.fernet import Fernet
 import pandas as pd
 
-# Load local environment variables from .env if present
+# Load environment
 load_dotenv()
 
 app = Flask(__name__, template_folder='.')
 app.secret_key = os.environ.get("FLASK_SECRET", "super-secure-fallback-key-ralk-gupta")
 
-# --- DEFENSIVE CYBERSECURITY MODULES ---
+# Secure Session Cookie Settings (XSS & CSRF Mitigation)
+app.config.update(
+    SESSION_COOKIE_SECURE=os.environ.get("FLASK_ENV") == "production",
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+    PERMANENT_SESSION_LIFETIME=1800  # 30-minute absolute lifetime limit
+)
 
-# 1. Thread-safe In-Memory Rate Limiter (IP-based)
+# Global locks and caches for thread safety & performance
+git_lock = threading.Lock()
+idempotency_cache = {}
+idempotency_lock = threading.Lock()
+
+_spark_session = None
+_spark_lock = threading.Lock()
+
+_catalog_cache = None
+_catalog_cache_mtime = 0
+_catalog_cache_lock = threading.Lock()
+
+# Define strict regular expressions for URL validation (SSRF & Injection mitigation)
+GITHUB_URL_REGEX = re.compile(r'^https?://(?:www\.)?github\.com/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_.-]+)/?$')
+LIVE_URL_REGEX = re.compile(r'^https?://[a-zA-Z0-9_.-]+(?::\d+)?(?:/[a-zA-Z0-9_.-]*)*\/?$')
+
+# --- 1. PYSPARK SINGLETON INITIALIZER ---
+def get_spark_session():
+    global _spark_session
+    if _spark_session is None:
+        with _spark_lock:
+            if _spark_session is None:
+                try:
+                    from pyspark.sql import SparkSession
+                    _spark_session = SparkSession.builder \
+                        .appName("AdminDocumentCatalog") \
+                        .master("local[*]") \
+                        .config("spark.sql.warehouse.dir", "/tmp/spark-warehouse") \
+                        .getOrCreate()
+                    _spark_session.sparkContext.setLogLevel("ERROR")
+                except Exception as e:
+                    print(f"[PySpark Engine] Offline or unconfigured: {e}")
+    return _spark_session
+
+# --- 2. DEFENSIVE CYBERSECURITY MODULES ---
 ip_requests = defaultdict(list)
 rate_limiter_lock = threading.Lock()
 
 def is_rate_limited(ip_address, limit=3, period=60):
-    """
-    Checks if an IP address has exceeded the rate limit.
-    Default limit: maximum of 3 requests per 60 seconds.
-    """
     now = time.time()
     with rate_limiter_lock:
-        # Keep only timestamps within the current active period window
         ip_requests[ip_address] = [t for t in ip_requests[ip_address] if now - t < period]
         if len(ip_requests[ip_address]) >= limit:
             return True
         ip_requests[ip_address].append(now)
         return False
 
-# 2. Asynchronous Notification Processor
 def send_async_notifications(name, email_address, message):
-    """
-    Executes SMTP and Twilio requests inside a background thread
-    to prevent synchronous worker thread exhaustion (DoS defense).
-    """
     send_email_notification(name, email_address, message)
     send_sms_notification(name, email_address)
 
-# --- END OF SECURITY MODULES ---
+# --- 3. UNIFIED ERROR HANDLER & STATUS CODES ---
+def make_error_response(error_code, message, status_code):
+    return jsonify({
+        'success': False,
+        'error': {
+            'code': error_code,
+            'message': message
+        }
+    }), status_code
 
+# --- 4. IDEMPOTENCY KEY CHECKER ---
+def check_idempotency_key(key):
+    now = time.time()
+    with idempotency_lock:
+        # Clean cached keys older than 10 minutes (600 seconds)
+        for k in list(idempotency_cache.keys()):
+            if now - idempotency_cache[k]['timestamp'] > 600:
+                del idempotency_cache[k]
+        
+        if key in idempotency_cache:
+            return idempotency_cache[key]['response']
+    return None
+
+def save_idempotency_key(key, response):
+    with idempotency_lock:
+        idempotency_cache[key] = {
+            'timestamp': time.time(),
+            'response': response
+        }
+
+# --- 5. ENCRYPTED DATASET MANAGER (WITH THREAD LOCKS & DISK CACHING) ---
+class EncryptedDocumentCatalog:
+    def __init__(self, file_path, encryption_key):
+        self.file_path = file_path
+        self.fernet = Fernet(encryption_key.encode('utf-8')) if encryption_key else None
+        self.lock = threading.Lock()
+
+    def read_catalog(self):
+        """Reads and decrypts the Parquet catalog metadata into a Pandas DataFrame."""
+        with self.lock:
+            if not os.path.exists(self.file_path):
+                return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
+
+            try:
+                with open(self.file_path, 'rb') as f:
+                    encrypted_data = f.read()
+
+                if self.fernet:
+                    decrypted_data = self.fernet.decrypt(encrypted_data)
+                else:
+                    decrypted_data = encrypted_data
+
+                return pd.read_parquet(io.BytesIO(decrypted_data))
+            except Exception as e:
+                print(f"Error reading/decrypting catalog: {e}")
+                return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
+
+    def write_catalog(self, df):
+        """Encrypts and writes the Pandas DataFrame as a Parquet dataset to disk."""
+        with self.lock:
+            try:
+                buffer = io.BytesIO()
+                df.to_parquet(buffer, index=False)
+                parquet_bytes = buffer.getvalue()
+
+                if self.fernet:
+                    encrypted_data = self.fernet.encrypt(parquet_bytes)
+                else:
+                    encrypted_data = parquet_bytes
+
+                with open(self.file_path, 'wb') as f:
+                    f.write(encrypted_data)
+                
+                # Invalidate cache on write
+                global _catalog_cache
+                _catalog_cache = None
+                return True
+            except Exception as e:
+                print(f"Error writing/encrypting catalog: {e}")
+                return False
+
+    def load_with_pyspark(self):
+        """Loads the decrypted catalog into PySpark using singleton Session context."""
+        try:
+            spark = get_spark_session()
+            if spark is None:
+                return None
+            
+            df_pd = get_cached_catalog(self)
+            if df_pd.empty:
+                from pyspark.sql.types import StructType, StructField, StringType, LongType
+                schema = StructType([
+                    StructField("id", StringType(), True),
+                    StructField("filename", StringType(), True),
+                    StructField("path", StringType(), True),
+                    StructField("category", StringType(), True),
+                    StructField("size_bytes", LongType(), True),
+                    StructField("uploaded_at", StringType(), True),
+                ])
+                return spark.createDataFrame([], schema)
+            
+            return spark.createDataFrame(df_pd)
+        except Exception as e:
+            print(f"[PySpark Engine] Catalog conversion failed: {e}")
+            return None
+
+def get_cached_catalog(catalog_manager):
+    global _catalog_cache, _catalog_cache_mtime
+    filepath = catalog_manager.file_path
+    if not os.path.exists(filepath):
+        return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
+    
+    mtime = os.path.getmtime(filepath)
+    with _catalog_cache_lock:
+        if _catalog_cache is None or mtime > _catalog_cache_mtime:
+            _catalog_cache = catalog_manager.read_catalog()
+            _catalog_cache_mtime = mtime
+        return _catalog_cache.copy()
+
+CATALOG_PATH = os.path.join(app.root_path, "static", "assets", "document_catalog.parquet.enc")
+DB_KEY = os.environ.get("DB_ENCRYPTION_KEY")
+
+catalog_manager = EncryptedDocumentCatalog(CATALOG_PATH, DB_KEY)
+
+# --- 6. STANDARD TEMPLATE RENDERING ---
 @app.route('/')
 @app.route('/about')
 @app.route('/skills')
@@ -62,16 +217,12 @@ def send_async_notifications(name, email_address, message):
 def home():
     return render_template('index.html')
 
-# Endpoint to handle downloads of resume and certifications
 @app.route('/download/<path:filename>')
 def download_file(filename):
     directory = os.path.join(app.root_path, 'static', 'assets')
-    
-    # Path Traversal Defense: Ensure requested filename is strictly a base filename (no directory nesting/traversals)
     safe_filename = os.path.basename(filename)
     if safe_filename != filename or ".." in filename:
-        return jsonify({'success': False, 'message': 'Access denied.'}), 403
-        
+        return make_error_response("ACCESS_DENIED", "Access denied to parent files.", 403)
     return send_from_directory(directory, safe_filename, as_attachment=True)
 
 # Helper function to send email notification
@@ -83,10 +234,8 @@ def send_email_notification(name, email_address, message):
     recipient_email = 'krishna.official.gupta@gmail.com'
 
     if not sender_email or not sender_password:
-        print("SMTP Credentials not configured in environment. Skipping email sending.")
         return False
 
-    # CRLF Header Injection Defense: Strip carriage return and line feed characters
     clean_name = "".join(c for c in name if c not in "\r\n")
     clean_email = "".join(c for c in email_address if c not in "\r\n")
 
@@ -117,10 +266,8 @@ def send_sms_notification(name, email_address):
     recipient_number = os.environ.get('MY_PHONE_NUMBER')
 
     if not all([account_sid, auth_token, twilio_number, recipient_number]):
-        print("Twilio Credentials not configured in environment. Skipping SMS sending.")
         return False
 
-    # CRLF Injection Defense
     clean_name = "".join(c for c in name if c not in "\r\n")
     clean_email = "".join(c for c in email_address if c not in "\r\n")
 
@@ -132,12 +279,8 @@ def send_sms_notification(name, email_address):
     }
     
     try:
-        response = requests.post(url, data=data, auth=(account_sid, auth_token))
-        if response.status_code in [200, 201]:
-            return True
-        else:
-            print(f"Twilio API Response Code {response.status_code}: {response.text}")
-            return False
+        response = requests.post(url, data=data, auth=(account_sid, auth_token), timeout=5)
+        return response.status_code in [200, 201]
     except Exception as e:
         print(f"Error sending SMS: {e}")
         return False
@@ -145,32 +288,28 @@ def send_sms_notification(name, email_address):
 # API Endpoint to handle contact form submissions
 @app.route('/api/contact', methods=['POST'])
 def contact():
-    # 1. Rate Limiting Check
     client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     if client_ip and ',' in client_ip:
         client_ip = client_ip.split(',')[0].strip()
 
     if is_rate_limited(client_ip, limit=3, period=60):
-        return jsonify({'success': False, 'message': 'Too many requests. Please try again after 60 seconds.'}), 429
+        return make_error_response("RATE_LIMIT_EXCEEDED", "Too many contact submissions. Slow down.", 429)
 
     try:
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'message': 'No data provided.'}), 400
+            return make_error_response("INVALID_REQUEST", "No payload provided.", 400)
 
         name = data.get('name')
         email = data.get('email')
         message = data.get('message')
 
         if not all([name, email, message]):
-            return jsonify({'success': False, 'message': 'Please fill in all fields.'}), 400
+            return make_error_response("VALIDATION_ERROR", "All fields are required.", 400)
 
-        # Input Length Attack Defense: Restrict character lengths to prevent resource exhaustion
         if len(name) > 100 or len(email) > 100 or len(message) > 5000:
-            return jsonify({'success': False, 'message': 'Input length limits exceeded.'}), 400
+            return make_error_response("VALIDATION_ERROR", "Payload size limit exceeded.", 400)
 
-        # 2. Async Execution: Spawn a background thread to process notifications
-        # This returns a 200 OK instantly and blocks slow resource exhaustion attacks
         notification_thread = threading.Thread(
             target=send_async_notifications, 
             args=(name, email, message)
@@ -180,22 +319,18 @@ def contact():
 
         return jsonify({
             'success': True,
-            'message': 'Message received! Notifications are processing in the background.'
+            'message': 'Message received! Processing in the background.'
         }), 200
-
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
-# --- BACKEND AI AGENT ENDPOINT ---
-
-# Try importing google-generativeai for the real Gemini AI model
+# --- 7. BACKEND CHATBOT API ENGINE ---
 try:
     import google.generativeai as genai
     HAS_GEMINI = True
 except ImportError:
     HAS_GEMINI = False
 
-# Setup Gemini API key securely from environment
 if HAS_GEMINI:
     gemini_key = os.environ.get("GEMINI_API_KEY")
     if gemini_key:
@@ -203,69 +338,27 @@ if HAS_GEMINI:
     else:
         HAS_GEMINI = False
 
-# Krishna's Profile Knowledge Base
 KRISHNA_KNOWLEDGE = {
     "summary": """
     Krishna Gupta is a Data Science B.Tech student at the Oriental Institute of Science and Technology, Bhopal (Class of 2027).
-    He is an aspiring Data Scientist, AI/ML Engineer, LLM Engineer, Data Engineer, and Software Engineer.
-    Experienced in Full Stack Development, REST APIs, and workflow automation.
-    He has hands-on expertise in LLM post-training evaluation, prompt engineering, and data quality assurance.
+    Aspiring Data Scientist, AI/ML Engineer, LLM Engineer, Data Engineer, and Software Engineer.
     """,
-    "personal": """
-    • Date of Birth (DOB): 17th October, 2005
-    • Age: 20 years old (turns 21 on October 17, 2026)
-    """,
-    "education": """
-    • Oriental Institute of Science and Technology, Bhopal, Madhya Pradesh, India.
-      Bachelor of Technology (B.Tech) in Data Science (2023 - 2027).
-    """,
+    "personal": "DOB: 17th October, 2005. Age: 20 years old (turns 21 on October 17, 2026).",
+    "education": "B.Tech Data Science (2023 - 2027) at Oriental Institute of Science and Technology, Bhopal.",
     "experience": """
-    • Ethara AI (Feb 2026 - May 2026) | LLM Post Training Intern (Paid Internship, Remote):
-      - Evaluated 50,000+ Large Language Model (LLM) outputs via prompt/model evaluation, improving AI quality and data validation.
-      - Developed Python automation scripts and workflow pipelines for post-training LLM evaluation, enhancing QA.
-    • Kanchan Pvt Ltd - Web Development Wing (Sapphire) (Oct 2025 - Feb 2026) | Full Stack Development Intern (Paid Internship, Remote):
-      - Engineered and deployed the full-stack architecture of "RevU Social" (revu.social) using React.js, Node.js, Express.js, and REST APIs with secure JWT authentication.
-      - Designed and optimized relational databases in MySQL and PostgreSQL, utilizing GenAI-assisted development to accelerate design.
+    Ethara AI (Feb 2026 - May 2026) | LLM Post Training Intern (Remote): Evaluated 50,000+ LLM outputs, built python scripts.
+    Kanchan Pvt Ltd (Oct 2025 - Feb 2026) | Full Stack Development Intern: Developed RevU Social.
     """,
     "projects": """
-    • KALKI 1.5 - Enterprise Intelligence Operating System (IOS) [2024 - Present]:
-      - Technologies: Python, PyTorch, LLMs, VLMs, Autonomous Multi-Agents, Hybrid RAG, Defensive Cybersecurity.
-      - Description: An Enterprise Intelligence Operating System integrating LLMs, Vision Language Models (VLMs), and autonomous multi-agent workflows. Implements a hybrid RAG pipeline to optimize search accuracy and speed. Contains agentic safety protocols and defensive cybersecurity mechanisms.
-      - Repository: github.com/KGupta171025/KALKI-1.5
-    • RevU Social - Full-Stack Review & Analytics Platform [Oct 2025 - Feb 2026]:
-      - Technologies: React, Node.js, REST APIs, MySQL, PostgreSQL.
-      - Live: www.revu.social / Repository: github.com/srohatgi01/opinion-play-earn
-      - Description: A responsive full-stack review management app with secure REST APIs and JWT session authentication.
-    • RNN Poetry Generation:
-      - Technologies: Python, PyTorch, RNN, Text Generation, Sequence Modeling.
-      - Description: A character-level text generation model implementing Recurrent Neural Networks to output coherent poetry.
-      - Repository: github.com/KGupta171025/RNN_Poetry_Generation
+    KALKI 1.5 (Python, PyTorch, Multi-Agents, Hybrid RAG)
+    RevU Social (React, Node.js, Express, MySQL, PostgreSQL)
+    ShelfScanner (Gemini Vision API, WebRTC, PySpark, Argon2id, Fernet)
     """,
-    "skills": """
-    • Programming: Python, SQL, JavaScript, C++.
-    • AI & Machine Learning: PyTorch, TensorFlow, Scikit-learn, Deep Learning, Natural Language Processing (NLP), LLMs, LLM Evaluation, Prompt Engineering, Feature Engineering.
-    • Data Engineering: Pandas, NumPy, ETL Concepts, Data Validation, Data Processing, Workflow Automation.
-    • Web & APIs: FastAPI, Flask, React.js, Node.js, Express.js, REST APIs, JWT Authentication.
-    • Databases & Tools: PostgreSQL, MySQL, Supabase, Git, GitHub, Docker, Postman, Linux, AWS.
-    • Development & AI Tools: SDLC, Agile Methodology, OOP, ChatGPT, Gemini, Claude, Perplexity, Antigravity.
-    """,
-    "certifications": """
-    • AWS Certified Developer Associate (Infosys Springboard, Jun 2026)
-    • Machine Learning with Python (IBM SkillsBuild, Jun 2026)
-    • Data Science & Analytics (HP LIFE, Jun 2026)
-    • Tata Data Visualisation: Empowering Business with Effective Insights (Forage, Sep 2025)
-    • Deloitte Australia Data Analytics Job Simulation (Forage, Sep 2025)
-    """,
-    "contact": """
-    • Email: hg497kg@gmail.com / krishna.official.gupta@gmail.com
-    • LinkedIn: linkedin.com/in/krishnaofficialgupta
-    • GitHub: github.com/KGupta171025
-    • Phone: +91-9993153109
-    • Portfolio: kgupta171025.github.io/Krishna-Gupta-Portfolio
-    """
+    "skills": "Python, SQL, JavaScript, C++, PySpark, LangChain, LangGraph, RAG, React.js, Flask, PostgreSQL.",
+    "certifications": "AWS Certified Developer Associate (2026), IBM Machine Learning (2026), HP LIFE Data Science (2026).",
+    "contact": "Email: krishna.official.gupta@gmail.com | Phone: +91-9993153109 | GitHub: KGupta171025"
 }
 
-# Rule-based NLP fallback engine
 class LocalAIAgent:
     def __init__(self, knowledge):
         self.knowledge = knowledge
@@ -273,97 +366,60 @@ class LocalAIAgent:
     def get_response(self, user_message):
         msg = user_message.lower().strip()
         if any(w in msg for w in ["dob", "birth", "born", "age", "how old"]):
-            return "Krishna Gupta was born on 17th October, 2005, and is currently 20 years old (turning 21 on October 17, 2026)."
-        elif any(w in msg for w in ["who is", "about", "profile", "summary", "krishna"]):
-            return f"<strong>Krishna Gupta Summary:</strong><br>{self.knowledge['summary']}"
-        elif any(w in msg for w in ["skill", "tech", "languages", "programming", "python", "javascript", "frameworks"]):
-            return f"<strong>Technical Skills:</strong><br>{self.knowledge['skills']}"
-        elif any(w in msg for w in ["work", "experience", "job", "intern", "ethara", "kanchan"]):
-            return f"<strong>Professional Experience:</strong><br>{self.knowledge['experience']}"
-        elif any(w in msg for w in ["project", "kalki", "revu", "poetry", "rnn"]):
-            return f"<strong>Key Projects:</strong><br>{self.knowledge['projects']}"
+            return self.knowledge['personal']
+        elif any(w in msg for w in ["who is", "about", "profile", "summary"]):
+            return self.knowledge['summary']
+        elif any(w in msg for w in ["skill", "tech", "languages", "programming"]):
+            return self.knowledge['skills']
+        elif any(w in msg for w in ["work", "experience", "job", "intern"]):
+            return self.knowledge['experience']
+        elif any(w in msg for w in ["project", "kalki", "revu", "scanner"]):
+            return self.knowledge['projects']
         elif any(w in msg for w in ["certificat", "credential", "aws", "ibm"]):
-            return f"<strong>Certifications & Credentials:</strong><br>{self.knowledge['certifications']}"
-        elif any(w in msg for w in ["contact", "email", "phone", "linkedin", "social", "address"]):
-            return f"<strong>Contact Details:</strong><br>{self.knowledge['contact']}"
-        return """
-        I am Krishna's AI agent. I can answer questions about his summary, skills, experience, projects, certifications, or contact details. 
-        <br><br>Please ask something like "What are his skills?" or "Tell me about the KALKI 1.5 project!".
-        """
+            return self.knowledge['certifications']
+        elif any(w in msg for w in ["contact", "email", "phone", "linkedin"]):
+            return self.knowledge['contact']
+        return "I am Krishna's portfolio assistant. You can ask me about his skills, experience, projects, or certifications."
 
 local_agent = LocalAIAgent(KRISHNA_KNOWLEDGE)
 
 def query_gemini_model(prompt):
-    """Queries Gemini 1.5 Pro/Flash if available, otherwise returns None."""
     if not HAS_GEMINI:
         return None
     try:
         system_instruction = f"""
         You are Krishna Gupta's personal Portfolio AI Agent.
-        Your task is to answer visitors' questions about Krishna's profile, skills, professional experience, projects, certifications, and contact details.
+        Answer visitors' questions about Krishna's profile, skills, experience, projects, certifications, and contact details.
         
-        Here is Krishna's official profile details:
-        
-        SUMMARY:
-        {KRISHNA_KNOWLEDGE['summary']}
-        
-        PERSONAL INFO (DOB & AGE):
-        {KRISHNA_KNOWLEDGE['personal']}
-        
-        EDUCATION:
-        {KRISHNA_KNOWLEDGE['education']}
-        
-        EXPERIENCE:
-        {KRISHNA_KNOWLEDGE['experience']}
-        
-        PROJECTS:
-        {KRISHNA_KNOWLEDGE['projects']}
-        
-        SKILLS:
-        {KRISHNA_KNOWLEDGE['skills']}
-        
-        CERTIFICATIONS:
-        {KRISHNA_KNOWLEDGE['certifications']}
-        
-        CONTACT:
-        {KRISHNA_KNOWLEDGE['contact']}
-        
-        Guidelines:
-        1. Always be professional, helpful, and friendly.
-        2. Keep your answers concise, clear, and easy to read. Use HTML linebreaks (<br>) and list formatting for structure.
-        3. Do not invent details. If you don't know the answer, politely guide the user to the contact form or give them Krishna's email.
+        Details:
+        {KRISHNA_KNOWLEDGE}
         """
-        model = genai.GenerativeModel('gemini-3.5-flash', system_instruction=system_instruction)
+        model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction)
         response = model.generate_content(prompt)
         return response.text
     except Exception as e:
         print(f"Error querying Gemini API: {e}")
         return None
 
-# API route for AI Chatbot Agent
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    # Rate limiter check for anti-DoS
     client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     if client_ip and ',' in client_ip:
         client_ip = client_ip.split(',')[0].strip()
 
     if is_rate_limited(client_ip, limit=10, period=60):
-        return jsonify({'success': False, 'message': 'Too many chat requests. Please slow down.'}), 429
+        return make_error_response("RATE_LIMIT_EXCEEDED", "Too many chat requests. Slow down.", 429)
 
     try:
         data = request.get_json()
         if not data or 'message' not in data:
-            return jsonify({'success': False, 'message': 'No message provided.'}), 400
+            return make_error_response("INVALID_REQUEST", "No query provided.", 400)
 
         user_message = data.get('message')
         if len(user_message) > 500:
-            return jsonify({'success': False, 'message': 'Message is too long.'}), 400
+            return make_error_response("VALIDATION_ERROR", "Message query exceeds character limits.", 400)
 
-        # Try to get response from Gemini
         ai_response = query_gemini_model(user_message)
-        
-        # If Gemini is not available or fails, fall back to our local Python NLP matcher
         if not ai_response:
             ai_response = local_agent.get_response(user_message)
 
@@ -371,196 +427,135 @@ def chat():
             'success': True,
             'message': ai_response
         }), 200
-
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
-# --- SECURE DOCUMENT MANAGEMENT ENGINE (PYSPARK + ENCRYPTION AT REST) ---
+# --- 8. SECURE ADMIN ROUTINGS & VERSIONED API CONTROLLERS ---
 
-class EncryptedDocumentCatalog:
-    def __init__(self, file_path, encryption_key):
-        self.file_path = file_path
-        # Use Fernet key for encrypting data at rest. Fall back to plaintext if no key.
-        self.fernet = Fernet(encryption_key.encode('utf-8')) if encryption_key else None
-
-    def read_catalog(self):
-        """Reads and decrypts the Parquet catalog metadata into a Pandas DataFrame."""
-        if not os.path.exists(self.file_path):
-            return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
-
-        try:
-            with open(self.file_path, 'rb') as f:
-                encrypted_data = f.read()
-
-            if self.fernet:
-                decrypted_data = self.fernet.decrypt(encrypted_data)
-            else:
-                decrypted_data = encrypted_data
-
-            return pd.read_parquet(io.BytesIO(decrypted_data))
-        except Exception as e:
-            print(f"Error reading/decrypting catalog: {e}")
-            return pd.DataFrame(columns=["id", "filename", "path", "category", "size_bytes", "uploaded_at"])
-
-    def write_catalog(self, df):
-        """Encrypts and writes the Pandas DataFrame as a Parquet dataset to disk."""
-        try:
-            buffer = io.BytesIO()
-            df.to_parquet(buffer, index=False)
-            parquet_bytes = buffer.getvalue()
-
-            if self.fernet:
-                encrypted_data = self.fernet.encrypt(parquet_bytes)
-            else:
-                encrypted_data = parquet_bytes
-
-            with open(self.file_path, 'wb') as f:
-                f.write(encrypted_data)
-            return True
-        except Exception as e:
-            print(f"Error writing/encrypting catalog: {e}")
-            return False
-
-    def load_with_pyspark(self):
-        """Loads the decrypted catalog into PySpark for big-data operations (e.g. tracking logs/stats)."""
-        try:
-            from pyspark.sql import SparkSession
-            # Create local Spark Session (silence Spark log levels to prevent spam)
-            spark = SparkSession.builder \
-                .appName("AdminDocumentCatalog") \
-                .master("local[*]") \
-                .config("spark.sql.warehouse.dir", "/tmp/spark-warehouse") \
-                .getOrCreate()
-            spark.sparkContext.setLogLevel("ERROR")
-            
-            df_pd = self.read_catalog()
-            if df_pd.empty:
-                # Create empty spark schema
-                from pyspark.sql.types import StructType, StructField, StringType, LongType
-                schema = StructType([
-                    StructField("id", StringType(), True),
-                    StructField("filename", StringType(), True),
-                    StructField("path", StringType(), True),
-                    StructField("category", StringType(), True),
-                    StructField("size_bytes", LongType(), True),
-                    StructField("uploaded_at", StringType(), True),
-                ])
-                return spark.createDataFrame([], schema)
-            
-            # Spark session reads catalog DataFrame
-            return spark.createDataFrame(df_pd)
-        except Exception as e:
-            print(f"[PySpark Engine] Offline or unconfigured: {e}")
-            return None
-
-CATALOG_PATH = os.path.join(app.root_path, "static", "assets", "document_catalog.parquet.enc")
-DB_KEY = os.environ.get("DB_ENCRYPTION_KEY")
-
-catalog_manager = EncryptedDocumentCatalog(CATALOG_PATH, DB_KEY)
-
-# --- SECURE ADMIN DASHBOARD ROUTING ---
-
-# 1. Private Dashboard Route
 @app.route('/private')
 def private_dashboard():
-    # If authenticated, render private.html. Otherwise, render with login flag.
     logged_in = session.get('admin_logged_in') is True
     return render_template('private.html', logged_in=logged_in)
 
-# 2. Authentication API Endpoint (Argon2id + unique salt + SHA-256 Username Hashing)
+# Aliases for V1 API login & authentication
+@app.route('/api/admin/login', methods=['POST'])
+def old_login():
+    return admin_login()
+
+@app.route('/api/admin/logout', methods=['POST'])
+def old_logout():
+    return admin_logout()
+
+@app.route('/api/v1/admin/login', methods=['POST'])
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
     try:
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'message': 'Invalid request parameters.'}), 400
+            return make_error_response("INVALID_REQUEST", "Username and password required.", 400)
 
         username = data.get('username')
         password = data.get('password')
 
         if not username or not password:
-            return jsonify({'success': False, 'message': 'Username and password required.'}), 400
+            return make_error_response("VALIDATION_ERROR", "Username and password required.", 400)
 
-        # Verify Username SHA-256 Hash
         stored_user_hash = os.environ.get("ADMIN_USERNAME_HASH")
         input_user_hash = hashlib.sha256(username.encode('utf-8')).hexdigest()
 
         if input_user_hash != stored_user_hash:
-            # Constant-time mitigation: run standard verification check anyway to avoid timing leaks
-            PasswordHasher().hash("dummy_password")
-            return jsonify({'success': False, 'message': 'Invalid credentials.'}), 401
+            PasswordHasher().hash("dummy_password")  # Defend against timing leaks
+            return make_error_response("UNAUTHORIZED", "Invalid admin credentials.", 401)
 
-        # Verify Password Argon2id Hash
         stored_pass_hash = os.environ.get("ADMIN_PASSWORD_HASH")
         ph = PasswordHasher()
         try:
             ph.verify(stored_pass_hash, password)
-            # Rehash if parameters have changed (best practice)
-            if ph.check_needs_rehash(stored_pass_hash):
-                pass
         except Exception:
-            return jsonify({'success': False, 'message': 'Invalid credentials.'}), 401
+            return make_error_response("UNAUTHORIZED", "Invalid admin credentials.", 401)
 
-        # Establish Admin Session
         session['admin_logged_in'] = True
         return jsonify({'success': True, 'message': 'Access granted.'}), 200
-
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
-# 3. Logout API Endpoint
-@app.route('/api/admin/logout', methods=['POST'])
+@app.route('/api/v1/admin/logout', methods=['POST'])
 def admin_logout():
     session.pop('admin_logged_in', None)
     return jsonify({'success': True, 'message': 'Session terminated.'}), 200
 
-# 4. List Documents (API Endpoint)
+# V1 Document Catalog API (with support for Pagination and Disk Cache)
+@app.route('/api/v1/admin/documents', methods=['GET'])
 @app.route('/api/admin/documents', methods=['GET'])
 def admin_list_documents():
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
 
     try:
-        # Load catalog (tries PySpark loading, falls back to Pandas)
+        # Load catalog metadata
         spark_df = catalog_manager.load_with_pyspark()
         
         if spark_df is not None:
-            print("[PySpark Engine] Successfully cataloged document DataFrame in Spark session context.")
-            # Retrieve rows from Spark context
             rows = [r.asDict() for r in spark_df.collect()]
-            engine = "PySpark Session Active"
+            engine = "PySpark Session Singleton Active"
         else:
-            df = catalog_manager.read_catalog()
+            df = get_cached_catalog(catalog_manager)
             rows = df.to_dict(orient='records')
             engine = "Pandas Native Decryption (Spark offline)"
+
+        # Implement pagination (GET /api/v1/admin/documents?page=1&limit=10)
+        try:
+            page = int(request.args.get('page', 1))
+            limit = int(request.args.get('limit', 50))
+        except ValueError:
+            page = 1
+            limit = 50
+
+        total_records = len(rows)
+        start_idx = (page - 1) * limit
+        end_idx = start_idx + limit
+        paginated_rows = rows[start_idx:end_idx]
 
         return jsonify({
             'success': True,
             'engine': engine,
-            'documents': rows
+            'pagination': {
+                'page': page,
+                'limit': limit,
+                'total': total_records,
+                'pages': (total_records + limit - 1) // limit
+            },
+            'documents': paginated_rows
         }), 200
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
-# 5. Upload/Replace Document (API Endpoint)
+# V1 Document Upload API (incorporating Idempotency verification)
+@app.route('/api/v1/admin/documents/upload', methods=['POST'])
 @app.route('/api/admin/documents/upload', methods=['POST'])
 def admin_upload_document():
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
+
+    # Idempotency Verification via HTTP Header
+    idempotency_key = request.headers.get('X-Idempotency-Key')
+    if idempotency_key:
+        cached_res = check_idempotency_key(idempotency_key)
+        if cached_res:
+            return jsonify(cached_res), 200
 
     try:
         if 'file' not in request.files:
-            return jsonify({'success': False, 'message': 'No file segment found.'}), 400
+            return make_error_response("INVALID_REQUEST", "No file segment found.", 400)
 
         file = request.files['file']
         category = request.form.get('category', 'Other')
 
         if file.filename == '':
-            return jsonify({'success': False, 'message': 'No selected file.'}), 400
+            return make_error_response("VALIDATION_ERROR", "No selected file.", 400)
 
         filename = secure_filename(file.filename)
         
-        # Determine Destination folder and paths
         if category == 'Resume':
             dest_dir = os.path.join(app.root_path, 'static', 'assets')
         elif category == 'Certificate':
@@ -570,14 +565,10 @@ def admin_upload_document():
 
         os.makedirs(dest_dir, exist_ok=True)
         file_path = os.path.join(dest_dir, filename)
-
-        # Save file to disk
         file.save(file_path)
 
-        # Update metadata in Parquet catalog
+        # Update Parquet Catalog
         df = catalog_manager.read_catalog()
-        
-        # Check if file is already cataloged (Replacement)
         rel_path = os.path.relpath(file_path, app.root_path).replace('\\', '/')
         existing_idx = df[df['path'] == rel_path].index
 
@@ -591,120 +582,145 @@ def admin_upload_document():
         }
 
         if len(existing_idx) > 0:
-            # Replace record
             for col in df.columns:
                 df.at[existing_idx[0], col] = new_record[col]
             action = "Replaced"
         else:
-            # Append new record
             df = pd.concat([df, pd.DataFrame([new_record])], ignore_index=True)
             action = "Added"
 
-        # Encrypt and save catalog to disk
         catalog_manager.write_catalog(df)
 
-        return jsonify({
+        response_payload = {
             'success': True,
             'message': f"Document successfully {action.lower()} and cataloged.",
             'document': new_record
-        }), 200
+        }
+
+        if idempotency_key:
+            save_idempotency_key(idempotency_key, response_payload)
+
+        return jsonify(response_payload), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
-# 6. Delete Document (API Endpoint)
+# V1 Document Deletion API
+@app.route('/api/v1/admin/documents/delete', methods=['POST'])
 @app.route('/api/admin/documents/delete', methods=['POST'])
 def admin_delete_document():
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
 
     try:
         data = request.get_json()
         if not data or 'id' not in data:
-            return jsonify({'success': False, 'message': 'Document ID is required.'}), 400
+            return make_error_response("VALIDATION_ERROR", "Document ID is required.", 400)
 
         doc_id = data.get('id')
-
-        # Read catalog
         df = catalog_manager.read_catalog()
         doc_record = df[df['id'] == doc_id]
 
         if doc_record.empty:
-            return jsonify({'success': False, 'message': 'Document not found in catalog.'}), 404
+            return make_error_response("RESOURCE_NOT_FOUND", "Document not found in catalog.", 404)
 
         rel_path = doc_record.iloc[0]['path']
         abs_path = os.path.join(app.root_path, rel_path.replace('/', os.path.sep))
 
-        # Delete file from local disk if it exists
         if os.path.exists(abs_path):
             os.remove(abs_path)
 
-        # Remove row from catalog
         df = df[df['id'] != doc_id]
-
-        # Encrypt and save updated catalog to disk
         catalog_manager.write_catalog(df)
 
-        return jsonify({'success': True, 'message': 'Document successfully removed from system and catalog.'}), 200
-
+        return jsonify({'success': True, 'message': 'Document successfully removed.'}), 200
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
-# 7. Add & Auto-Generate Project Card (API Endpoint)
+# V1 List Showcase Projects
+@app.route('/api/v1/admin/projects', methods=['GET'])
+@app.route('/api/admin/projects', methods=['GET'])
+def admin_list_projects():
+    if not session.get('admin_logged_in'):
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
+    try:
+        projects = get_existing_projects()
+        response_data = []
+        for p in projects:
+            response_data.append({
+                "id": p["id"],
+                "name": p["name"],
+                "github_link": p["github_link"],
+                "live_link": p["live_link"]
+            })
+        return jsonify({'success': True, 'projects': response_data}), 200
+    except Exception as e:
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
+
+# V1 Add & Auto-Generate Project Card (incorporating SSRF validation, Caching, and Git Locks)
+@app.route('/api/v1/admin/projects/add', methods=['POST'])
 @app.route('/api/admin/projects/add', methods=['POST'])
 def admin_add_project():
     if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
+
+    idempotency_key = request.headers.get('X-Idempotency-Key')
+    if idempotency_key:
+        cached_res = check_idempotency_key(idempotency_key)
+        if cached_res:
+            return jsonify(cached_res), 200
 
     try:
         data = request.get_json()
         if not data:
-            return jsonify({'success': False, 'message': 'No data provided.'}), 400
+            return make_error_response("INVALID_REQUEST", "No payload provided.", 400)
 
-        github_link = data.get('github_link')
-        live_link = data.get('live_link')
+        github_link = data.get('github_link', '').strip()
+        live_link = data.get('live_link', '').strip()
 
         if not github_link or not live_link:
-            return jsonify({'success': False, 'message': 'Both GitHub link and live link are required.'}), 400
+            return make_error_response("VALIDATION_ERROR", "GitHub link and Live link are required.", 400)
 
-        url = github_link.strip().rstrip('/')
-        if "github.com/" not in url:
-            return jsonify({'success': False, 'message': 'Invalid GitHub repository URL.'}), 400
-            
-        parts = url.split("github.com/")[-1].split('/')
-        if len(parts) < 2:
-            return jsonify({'success': False, 'message': 'Could not parse owner and repository name.'}), 400
-            
-        owner = parts[0]
-        repo = parts[1].replace(".git", "")
+        # Secure URL Formatting & SSRF Validation Check
+        github_match = GITHUB_URL_REGEX.match(github_link)
+        if not github_match:
+            return make_error_response("VALIDATION_ERROR", "Invalid GitHub link. Must match format 'https://github.com/owner/repo'.", 400)
+        
+        if not LIVE_URL_REGEX.match(live_link):
+            return make_error_response("VALIDATION_ERROR", "Invalid Live Demo link. Must be a valid HTTP/HTTPS URL.", 400)
 
-        # Fetch GitHub repository metadata and README
+        owner = github_match.group(1)
+        repo = github_match.group(2)
+
+        # Query GitHub with strict request timeout
         headers = {'User-Agent': 'Krishna-Portfolio-Server'}
         meta_url = f"https://api.github.com/repos/{owner}/{repo}"
-        meta_res = requests.get(meta_url, headers=headers)
         
-        repo_desc = ""
-        if meta_res.status_code == 200:
-            repo_desc = meta_res.json().get('description', '')
+        try:
+            meta_res = requests.get(meta_url, headers=headers, timeout=5)
+            repo_desc = meta_res.json().get('description', '') if meta_res.status_code == 200 else ""
+        except Exception:
+            repo_desc = ""
 
         readme_url = f"https://raw.githubusercontent.com/{owner}/{repo}/main/README.md"
-        readme_res = requests.get(readme_url, headers=headers)
-        if readme_res.status_code != 200:
-            readme_url = f"https://raw.githubusercontent.com/{owner}/{repo}/master/README.md"
-            readme_res = requests.get(readme_url, headers=headers)
-        
-        readme_content = readme_res.text if readme_res.status_code == 200 else ""
+        try:
+            readme_res = requests.get(readme_url, headers=headers, timeout=5)
+            if readme_res.status_code != 200:
+                readme_url = f"https://raw.githubusercontent.com/{owner}/{repo}/master/README.md"
+                readme_res = requests.get(readme_url, headers=headers, timeout=5)
+            readme_content = readme_res.text if readme_res.status_code == 200 else ""
+        except Exception:
+            readme_content = ""
 
-        # Default fallback values
+        # Default fallbacks
         proj_name = repo.replace('-', ' ').title()
         proj_category = "Software Engineering"
         proj_desc = repo_desc if repo_desc else "A software project hosted on GitHub."
         proj_stack = ["GitHub", "Git", "Software", "Python"]
 
-        # Call Gemini API to extract details if available
+        # Call Gemini model
         if HAS_GEMINI:
             try:
-                import json
                 prompt = f"""
                 You are an expert software portfolio architect.
                 Analyze the following GitHub repository details:
@@ -714,12 +730,12 @@ def admin_add_project():
                 
                 Create a professional structured project card details in JSON format.
                 The JSON must contain the exact keys:
-                1. "name": A clean, concise title for the project card (e.g. "ShelfScanner", "KALKI 1.5", "OpinionPlay"). Max 30 chars.
-                2. "category": A professional portfolio category (e.g. "Full-Stack Application", "AI & Workflow Automation", "Computer Vision & AI Recommender"). Max 40 chars.
-                3. "description": A highly engaging 2-3 sentence overview description of what the project does, key features, and achievements. Keep it professional. Max 250 chars.
-                4. "stack": An array of exactly 4 relevant technologies or libraries used in this project (e.g. ["React", "Python", "MySQL", "NLP"]).
+                1. "name": A clean, concise title for the project card. Max 30 chars.
+                2. "category": A professional portfolio category. Max 40 chars.
+                3. "description": A highly engaging 2-3 sentence overview description. Max 250 chars.
+                4. "stack": An array of exactly 4 relevant technologies.
                 
-                Return ONLY the raw JSON string with no markdown formatting or other text.
+                Return ONLY the raw JSON string with no markdown formatting.
                 """
                 model = genai.GenerativeModel('gemini-1.5-flash')
                 response = model.generate_content(prompt)
@@ -737,12 +753,11 @@ def admin_add_project():
                 proj_desc = parsed_data.get("description", proj_desc)
                 proj_stack = parsed_data.get("stack", proj_stack)
             except Exception as gem_err:
-                print(f"Gemini generation failed, using fallbacks: {gem_err}")
+                print(f"Gemini API failure: {gem_err}")
 
-        # Format technology stack tags
+        # Render HTML block
         stack_spans = "".join([f"<span>{tech}</span>" for tech in proj_stack])
 
-        # Generate HTML project card container markup
         project_card_markup = f"""                <!-- Project: {proj_name} -->
                 <div class="project-card-container">
                     <div class="project-card">
@@ -783,7 +798,7 @@ def admin_add_project():
                 </div>
 """
 
-        # Read and inject into all 7 HTML files
+        # Update all 7 HTML pages
         html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
         for filename in html_files:
             filepath = os.path.join(app.root_path, filename)
@@ -796,27 +811,26 @@ def admin_add_project():
                     new_content = content.replace(target_str, f"{target_str}\n{project_card_markup}")
                     with open(filepath, 'w', encoding='utf-8') as f:
                         f.write(new_content)
-                else:
-                    print(f"Target projects-grid not found in {filename}!")
 
-        # Trigger automatic Git commit & push
+        # Trigger Git push serialized by global lock
         git_success = False
-        try:
-            import subprocess
-            subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
-            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Add {proj_name}"], cwd=app.root_path, check=True)
-            subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
-            git_success = True
-        except Exception as git_err:
-            print(f"Failed to auto-push changes to origin main: {git_err}")
+        with git_lock:
+            try:
+                import subprocess
+                subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
+                subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Add {proj_name}"], cwd=app.root_path, check=True)
+                subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
+                git_success = True
+            except Exception as git_err:
+                print(f"Git auto-push failure: {git_err}")
 
-        status_msg = f"Project '{proj_name}' card successfully generated and added."
+        status_msg = f"Project '{proj_name}' successfully added."
         if git_success:
-            status_msg += " Git changes pushed live to GitHub Pages!"
+            status_msg += " Pushed live on GitHub Pages!"
         else:
             status_msg += " (Local files updated; Git push failed/skipped)."
 
-        return jsonify({
+        response_payload = {
             'success': True,
             'message': status_msg,
             'project': {
@@ -825,12 +839,175 @@ def admin_add_project():
                 'description': proj_desc,
                 'stack': proj_stack
             }
-        }), 200
+        }
+
+        if idempotency_key:
+            save_idempotency_key(idempotency_key, response_payload)
+
+        return jsonify(response_payload), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
 
+# V1 Delete Showcase Project (with Git Locks)
+@app.route('/api/v1/admin/projects/delete', methods=['POST'])
+@app.route('/api/admin/projects/delete', methods=['POST'])
+def admin_delete_project():
+    if not session.get('admin_logged_in'):
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
+    try:
+        data = request.get_json()
+        if not data or 'name' not in data:
+            return make_error_response("VALIDATION_ERROR", "Project name is required.", 400)
+        
+        proj_name = data.get('name')
+        
+        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
+        removed_count = 0
+        for filename in html_files:
+            filepath = os.path.join(app.root_path, filename)
+            if os.path.exists(filepath):
+                if remove_project_from_file(filepath, proj_name):
+                    removed_count += 1
+        
+        if removed_count == 0:
+            return make_error_response("RESOURCE_NOT_FOUND", f"Project '{proj_name}' not found.", 404)
 
+        # Trigger Git push serialized by global lock
+        git_success = False
+        with git_lock:
+            try:
+                import subprocess
+                subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
+                subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Delete {proj_name}"], cwd=app.root_path, check=True)
+                subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
+                git_success = True
+            except Exception as git_err:
+                print(f"Git auto-push failure: {git_err}")
+
+        msg = f"Project '{proj_name}' removed from all {removed_count} pages."
+        if git_success:
+            msg += " Changes pushed live!"
+        else:
+            msg += " (Local files updated; Git push failed/skipped)."
+
+        return jsonify({'success': True, 'message': msg}), 200
+    except Exception as e:
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
+
+# V1 Update Showcase Project Links (with Git Locks)
+@app.route('/api/v1/admin/projects/update', methods=['POST'])
+@app.route('/api/admin/projects/update', methods=['POST'])
+def admin_update_project():
+    if not session.get('admin_logged_in'):
+        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
+    try:
+        data = request.get_json()
+        if not data or not all(k in data for k in ['name', 'github_link', 'live_link']):
+            return make_error_response("VALIDATION_ERROR", "Project name, github_link, and live_link are required.", 400)
+        
+        proj_name = data.get('name')
+        new_github = data.get('github_link').strip()
+        new_live = data.get('live_link').strip()
+
+        # Validate URL formats
+        github_match = GITHUB_URL_REGEX.match(new_github)
+        if not github_match:
+            return make_error_response("VALIDATION_ERROR", "Invalid GitHub link. Must match format 'https://github.com/owner/repo'.", 400)
+        
+        if not LIVE_URL_REGEX.match(new_live):
+            return make_error_response("VALIDATION_ERROR", "Invalid Live Demo link. Must be a valid HTTP/HTTPS URL.", 400)
+        
+        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
+        updated_count = 0
+        for filename in html_files:
+            filepath = os.path.join(app.root_path, filename)
+            if os.path.exists(filepath):
+                if update_project_links_in_file(filepath, proj_name, new_github, new_live):
+                    updated_count += 1
+                    
+        if updated_count == 0:
+            return make_error_response("RESOURCE_NOT_FOUND", f"Project '{proj_name}' not found.", 404)
+
+        # Trigger Git push serialized by global lock
+        git_success = False
+        with git_lock:
+            try:
+                import subprocess
+                subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
+                subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Update links for {proj_name}"], cwd=app.root_path, check=True)
+                subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
+                git_success = True
+            except Exception as git_err:
+                print(f"Git auto-push failure: {git_err}")
+
+        msg = f"Project '{proj_name}' links successfully updated in all {updated_count} pages."
+        if git_success:
+            msg += " Changes pushed live!"
+        else:
+            msg += " (Local files updated; Git push failed/skipped)."
+
+        return jsonify({'success': True, 'message': msg}), 200
+    except Exception as e:
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
+
+# --- 9. OPENAPI SPECIFICATION ENDPOINT (API Self-Documentation) ---
+@app.route('/api/openapi.json', methods=['GET'])
+@app.route('/api/v1/openapi.json', methods=['GET'])
+def get_openapi_spec():
+    openapi_spec = {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "Krishna Gupta Portfolio Admin API",
+            "version": "1.0.0",
+            "description": "Expert REST API endpoints for secure portfolio document cataloging and showcase project card generation."
+        },
+        "servers": [
+            {"url": "http://127.0.0.1:5000", "description": "Local Development Server"}
+        ],
+        "paths": {
+            "/api/v1/admin/login": {
+                "post": {
+                    "summary": "Authenticate admin session",
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "username": {"type": "string"},
+                                        "password": {"type": "string"}
+                                    },
+                                    "required": ["username", "password"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {"description": "Authentication successful"},
+                        "401": {"description": "Invalid credentials"}
+                    }
+                }
+            },
+            "/api/v1/admin/documents": {
+                "get": {
+                    "summary": "Retrieve document catalog (Paginated)",
+                    "parameters": [
+                        {"name": "page", "in": "query", "schema": {"type": "integer"}, "description": "Page offset index"},
+                        {"name": "limit", "in": "query", "schema": {"type": "integer"}, "description": "Total records per page"}
+                    ],
+                    "responses": {
+                        "200": {"description": "List of documents returned"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            }
+        }
+    }
+    return jsonify(openapi_spec), 200
+
+# Helpers to read/write templates (same logic as get_existing_projects but robust for class replacement)
 # Helper function to parse all projects from projects.html
 def get_existing_projects():
     filepath = os.path.join(app.root_path, "projects.html")
@@ -924,115 +1101,6 @@ def update_project_links_in_file(filepath, project_name, new_github, new_live):
             f.write(content)
         return True
     return False
-
-# 8. List Projects (API Endpoint)
-@app.route('/api/admin/projects', methods=['GET'])
-def admin_list_projects():
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
-    try:
-        projects = get_existing_projects()
-        response_data = []
-        for p in projects:
-            response_data.append({
-                "id": p["id"],
-                "name": p["name"],
-                "github_link": p["github_link"],
-                "live_link": p["live_link"]
-            })
-        return jsonify({'success': True, 'projects': response_data}), 200
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# 9. Delete Project (API Endpoint)
-@app.route('/api/admin/projects/delete', methods=['POST'])
-def admin_delete_project():
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
-    try:
-        data = request.get_json()
-        if not data or 'name' not in data:
-            return jsonify({'success': False, 'message': 'Project name is required.'}), 400
-        
-        proj_name = data.get('name')
-        
-        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
-        removed_count = 0
-        for filename in html_files:
-            filepath = os.path.join(app.root_path, filename)
-            if os.path.exists(filepath):
-                if remove_project_from_file(filepath, proj_name):
-                    removed_count += 1
-        
-        if removed_count == 0:
-            return jsonify({'success': False, 'message': f"Project '{proj_name}' was not found in any portfolio page."}), 404
-
-        # Trigger automatic Git commit & push
-        git_success = False
-        try:
-            import subprocess
-            subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
-            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Delete {proj_name}"], cwd=app.root_path, check=True)
-            subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
-            git_success = True
-        except Exception as git_err:
-            print(f"Failed to auto-push deletions to origin main: {git_err}")
-
-        msg = f"Project '{proj_name}' removed from all {removed_count} portfolio pages."
-        if git_success:
-            msg += " Git changes pushed live!"
-        else:
-            msg += " (Local files updated; Git push failed/skipped)."
-
-        return jsonify({'success': True, 'message': msg}), 200
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-# 10. Update Project Links (API Endpoint)
-@app.route('/api/admin/projects/update', methods=['POST'])
-def admin_update_project():
-    if not session.get('admin_logged_in'):
-        return jsonify({'success': False, 'message': 'Access denied.'}), 401
-    try:
-        data = request.get_json()
-        if not data or not all(k in data for k in ['name', 'github_link', 'live_link']):
-            return jsonify({'success': False, 'message': 'Project name, github_link, and live_link are required.'}), 400
-        
-        proj_name = data.get('name')
-        new_github = data.get('github_link')
-        new_live = data.get('live_link')
-        
-        html_files = ["index.html", "about.html", "projects.html", "skills.html", "experience.html", "certifications.html", "contact.html"]
-        updated_count = 0
-        for filename in html_files:
-            filepath = os.path.join(app.root_path, filename)
-            if os.path.exists(filepath):
-                if update_project_links_in_file(filepath, proj_name, new_github, new_live):
-                    updated_count += 1
-                    
-        if updated_count == 0:
-            return jsonify({'success': False, 'message': f"Project '{proj_name}' was not found in any portfolio page."}), 404
-
-        # Trigger automatic Git commit & push
-        git_success = False
-        try:
-            import subprocess
-            subprocess.run(["git", "add", "."], cwd=app.root_path, check=True)
-            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", f"Automated project card: Update links for {proj_name}"], cwd=app.root_path, check=True)
-            subprocess.run(["git", "push", "origin", "main"], cwd=app.root_path, check=True)
-            git_success = True
-        except Exception as git_err:
-            print(f"Failed to auto-push updates to origin main: {git_err}")
-
-        msg = f"Project '{proj_name}' links successfully updated in all {updated_count} pages."
-        if git_success:
-            msg += " Git changes pushed live!"
-        else:
-            msg += " (Local files updated; Git push failed/skipped)."
-
-        return jsonify({'success': True, 'message': msg}), 200
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=False, host='127.0.0.1', port=5000)

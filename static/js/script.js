@@ -2366,7 +2366,7 @@ function initLenisScroll() {
 
 
 
-        duration: 1.2,
+        duration: 0.8, // Snappier duration for instant responsiveness
 
 
 
@@ -2454,7 +2454,7 @@ function initLenisScroll() {
 
 
 
-    gsap.ticker.add((time) => {
+    function raf(time) {
 
 
 
@@ -2462,7 +2462,7 @@ function initLenisScroll() {
 
 
 
-        lenis.raf(time * 1000);
+        lenis.raf(time);
 
 
 
@@ -2470,7 +2470,7 @@ function initLenisScroll() {
 
 
 
-    });
+        requestAnimationFrame(raf);
 
 
 
@@ -2478,7 +2478,15 @@ function initLenisScroll() {
 
 
 
-    gsap.ticker.lagSmoothing(0);
+    }
+
+
+
+
+
+
+
+    requestAnimationFrame(raf);
 
 
 

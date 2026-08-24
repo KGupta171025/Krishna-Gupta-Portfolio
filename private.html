@@ -1,1332 +1,2964 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Private Document Manager | Krishna Gupta</title>
+
     <!-- Google Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- FontAwesome Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     
+
     <style>
+
         :root {
+
             --bg-dark: #0b0f19;
+
             --bg-card: rgba(17, 24, 39, 0.75);
+
             --primary: #06b6d4;
+
             --primary-glow: rgba(6, 182, 212, 0.35);
+
             --accent: #8b5cf6;
+
             --text-main: #f3f4f6;
+
             --text-muted: #9ca3af;
+
             --border-glass: rgba(255, 255, 255, 0.08);
+
             --red: #ef4444;
+
             --green: #10b981;
+
         }
+
+
 
         * {
+
             box-sizing: border-box;
+
             margin: 0;
+
             padding: 0;
+
             font-family: 'Outfit', sans-serif;
+
         }
+
+
 
         body {
+
             background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, var(--bg-dark) 80%);
+
             color: var(--text-main);
+
             min-height: 100vh;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             overflow-x: hidden;
+
             padding: 20px;
+
         }
+
+
 
         /* Glassmorphism Styles */
+
         .glass-card {
+
             background: var(--bg-card);
+
             backdrop-filter: blur(16px);
+
             -webkit-backdrop-filter: blur(16px);
+
             border: 1px solid var(--border-glass);
+
             border-radius: 20px;
+
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
             padding: 40px;
+
             width: 100%;
+
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+
         }
+
+
 
         /* 1. Login Card Panel */
+
         .login-container {
+
             max-width: 420px;
+
             text-align: center;
+
         }
+
+
 
         .login-logo {
+
             font-size: 2.5rem;
+
             font-weight: 700;
+
             color: #fff;
+
             margin-bottom: 10px;
+
         }
+
+
 
         .login-logo span {
+
             color: var(--primary);
+
         }
+
+
 
         .login-subtitle {
+
             color: var(--text-muted);
+
             margin-bottom: 30px;
+
             font-size: 0.95rem;
+
         }
+
+
 
         .form-group {
+
             margin-bottom: 20px;
+
             position: relative;
+
             text-align: left;
+
         }
+
+
 
         .form-group label {
+
             display: block;
+
             font-size: 0.85rem;
+
             color: var(--text-muted);
+
             margin-bottom: 6px;
+
             text-transform: uppercase;
+
             letter-spacing: 1px;
+
             font-weight: 500;
+
         }
+
+
 
         .input-wrapper {
+
             position: relative;
+
         }
+
+
 
         .input-wrapper i {
+
             position: absolute;
+
             left: 15px;
+
             top: 50%;
+
             transform: translateY(-50%);
+
             color: var(--text-muted);
+
         }
+
+
 
         .form-control {
+
             width: 100%;
+
             background: rgba(0, 0, 0, 0.4);
+
             border: 1px solid var(--border-glass);
+
             border-radius: 12px;
+
             padding: 14px 15px 14px 45px;
+
             color: #fff;
+
             font-size: 0.95rem;
+
             outline: none;
+
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
         }
+
+
 
         .form-control:focus {
+
             border-color: var(--primary);
+
             box-shadow: 0 0 10px var(--primary-glow);
+
         }
+
+
 
         .btn-submit {
+
             width: 100%;
+
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+
             border: none;
+
             border-radius: 12px;
+
             padding: 14px;
+
             color: #fff;
+
             font-weight: 600;
+
             font-size: 1rem;
+
             cursor: pointer;
+
             transition: transform 0.2s ease, box-shadow 0.3s ease;
+
             margin-top: 10px;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             gap: 10px;
+
         }
+
+
 
         .btn-submit:hover {
+
             transform: translateY(-2px);
+
             box-shadow: 0 5px 15px rgba(6, 182, 212, 0.4);
+
         }
+
+
 
         /* 2. Admin Dashboard Panel */
+
         .dashboard-container {
+
             max-width: 1000px;
+
             width: 100%;
+
             display: flex;
+
             flex-direction: column;
+
             gap: 25px;
+
         }
+
+
 
         .dashboard-header {
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             border-bottom: 1px solid var(--border-glass);
+
             padding-bottom: 20px;
+
         }
+
+
 
         .user-profile {
+
             display: flex;
+
             align-items: center;
+
             gap: 15px;
+
         }
+
+
 
         .user-avatar {
+
             width: 50px;
+
             height: 50px;
+
             border-radius: 50%;
+
             background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             font-size: 1.5rem;
+
             color: #fff;
+
         }
+
+
 
         .db-status {
+
             font-size: 0.8rem;
+
             color: var(--green);
+
             background: rgba(16, 185, 129, 0.15);
+
             padding: 4px 10px;
+
             border-radius: 20px;
+
             display: inline-flex;
+
             align-items: center;
+
             gap: 6px;
+
             margin-top: 4px;
+
         }
+
+
 
         .btn-logout {
+
             background: rgba(239, 68, 68, 0.15);
+
             color: var(--red);
+
             border: 1px solid rgba(239, 68, 68, 0.3);
+
             border-radius: 10px;
+
             padding: 8px 16px;
+
             cursor: pointer;
+
             font-weight: 500;
+
             font-size: 0.9rem;
+
             transition: background 0.3s ease, transform 0.2s ease;
+
         }
+
+
 
         .btn-logout:hover {
+
             background: var(--red);
+
             color: #fff;
+
             transform: translateY(-1px);
+
         }
+
+
 
         /* Dashboard Grid Split Layout */
+
         .dashboard-grid {
+
             display: grid;
+
             grid-template-columns: 1fr;
+
             gap: 25px;
+
         }
+
+
 
         @media (min-width: 768px) {
+
             .dashboard-grid {
+
                 grid-template-columns: 350px 1fr;
+
             }
+
         }
+
+
 
         .upload-section {
+
             height: fit-content;
+
         }
+
+
 
         .section-title {
+
             font-size: 1.2rem;
+
             font-weight: 600;
+
             margin-bottom: 20px;
+
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             color: #fff;
+
         }
+
+
 
         .dropzone {
+
             border: 2px dashed var(--border-glass);
+
             border-radius: 12px;
+
             padding: 30px 20px;
+
             text-align: center;
+
             cursor: pointer;
+
             transition: border-color 0.3s ease, background 0.3s ease;
+
             background: rgba(0, 0, 0, 0.2);
+
             margin-bottom: 20px;
+
         }
+
+
 
         .dropzone:hover {
+
             border-color: var(--primary);
+
             background: rgba(6, 182, 212, 0.05);
+
         }
+
+
 
         .dropzone i {
+
             font-size: 2.5rem;
+
             color: var(--primary);
+
             margin-bottom: 10px;
+
         }
+
+
 
         .dropzone p {
+
             font-size: 0.85rem;
+
             color: var(--text-muted);
+
         }
+
+
 
         #file-input {
+
             display: none;
+
         }
+
+
 
         .file-selected-indicator {
+
             background: rgba(6, 182, 212, 0.1);
+
             border: 1px solid var(--primary);
+
             border-radius: 8px;
+
             padding: 10px;
+
             font-size: 0.85rem;
+
             color: #fff;
+
             margin-top: 10px;
+
             display: none;
+
             justify-content: space-between;
+
             align-items: center;
+
         }
+
+
 
         .file-selected-indicator i {
+
             cursor: pointer;
+
             color: var(--red);
+
         }
+
+
 
         .form-select {
+
             width: 100%;
+
             background: rgba(0, 0, 0, 0.4);
+
             border: 1px solid var(--border-glass);
+
             border-radius: 12px;
+
             padding: 12px;
+
             color: #fff;
+
             font-size: 0.9rem;
+
             outline: none;
+
             cursor: pointer;
+
             margin-bottom: 20px;
+
         }
+
+
 
         /* Document List Table */
+
         .documents-table-container {
+
             overflow-x: auto;
+
             border-radius: 12px;
+
             border: 1px solid var(--border-glass);
+
             background: rgba(0, 0, 0, 0.2);
+
         }
+
+
 
         table {
+
             width: 100%;
+
             border-collapse: collapse;
+
             text-align: left;
+
             font-size: 0.9rem;
+
         }
+
+
 
         th, td {
+
             padding: 16px 20px;
+
             border-bottom: 1px solid var(--border-glass);
+
         }
+
+
 
         th {
+
             background: rgba(0, 0, 0, 0.4);
+
             font-weight: 600;
+
             color: var(--text-muted);
+
             text-transform: uppercase;
+
             font-size: 0.75rem;
+
             letter-spacing: 1px;
+
         }
+
+
 
         tr:last-child td {
+
             border-bottom: none;
+
         }
+
+
 
         .doc-link {
+
             color: #fff;
+
             text-decoration: none;
+
             font-weight: 500;
+
             transition: color 0.2s ease;
+
             display: flex;
+
             align-items: center;
+
             gap: 8px;
+
         }
+
+
 
         .doc-link:hover {
+
             color: var(--primary);
+
         }
+
+
 
         .badge {
+
             display: inline-block;
+
             padding: 4px 10px;
+
             border-radius: 20px;
+
             font-size: 0.75rem;
+
             font-weight: 600;
+
         }
+
+
 
         .badge-resume {
+
             background: rgba(6, 182, 212, 0.15);
+
             color: var(--primary);
+
             border: 1px solid rgba(6, 182, 212, 0.3);
+
         }
+
+
 
         .badge-certificate {
+
             background: rgba(139, 92, 246, 0.15);
+
             color: var(--accent);
+
             border: 1px solid rgba(139, 92, 246, 0.3);
+
         }
+
+
 
         .badge-other {
+
             background: rgba(156, 163, 175, 0.15);
+
             color: var(--text-muted);
+
             border: 1px solid rgba(156, 163, 175, 0.3);
+
         }
+
+
 
         .action-btns {
+
             display: flex;
+
             gap: 10px;
+
         }
+
+
 
         .btn-delete {
+
             background: transparent;
+
             border: none;
+
             color: var(--text-muted);
+
             cursor: pointer;
+
             transition: color 0.2s ease, transform 0.2s ease;
+
             font-size: 1.1rem;
+
         }
+
+
 
         .btn-delete:hover {
+
             color: var(--red);
+
             transform: scale(1.1);
+
         }
+
+
 
         .btn-exchange {
+
             background: transparent;
+
             border: none;
+
             color: var(--text-muted);
+
             cursor: pointer;
+
             transition: color 0.2s ease, transform 0.2s ease;
+
             font-size: 1.1rem;
+
         }
+
+
 
         .btn-exchange:hover {
+
             color: var(--primary);
+
             transform: scale(1.1);
+
         }
+
+
 
         /* Notifications */
+
         .toast-notification {
+
             position: fixed;
+
             bottom: 30px;
+
             right: 30px;
+
             background: rgba(17, 24, 39, 0.95);
+
             border-left: 4px solid var(--primary);
+
             padding: 15px 25px;
+
             border-radius: 8px;
+
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+
             z-index: 2000;
+
             display: flex;
+
             align-items: center;
+
             gap: 12px;
+
             transform: translateY(100px);
+
             opacity: 0;
+
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+
         }
+
+
 
         .toast-notification.show {
+
             transform: translateY(0);
+
             opacity: 1;
+
         }
+
+
 
         .toast-notification.success {
+
             border-left-color: var(--green);
+
         }
+
+
 
         .toast-notification.error {
+
             border-left-color: var(--red);
+
         }
+
+
 
         #dashboard-panel {
+
             display: none;
+
         }
+
+
 
         /* Modal Styles */
+
         .modal-overlay {
+
             position: fixed;
+
             top: 0;
+
             left: 0;
+
             width: 100vw;
+
             height: 100vh;
+
             background: rgba(11, 15, 25, 0.85);
+
             backdrop-filter: blur(8px);
+
             -webkit-backdrop-filter: blur(8px);
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             z-index: 9999;
+
         }
+
+
 
         .modal-content {
+
             max-width: 500px;
+
             width: 100%;
+
             animation: modalFadeIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
         }
+
+
 
         .modal-header {
+
             display: flex;
+
             justify-content: space-between;
+
             align-items: center;
+
             border-bottom: 1px solid var(--border-glass);
+
             padding-bottom: 15px;
+
             margin-bottom: 15px;
+
         }
+
+
 
         .btn-close-modal {
+
             background: transparent;
+
             border: none;
+
             color: var(--text-muted);
+
             font-size: 1.2rem;
+
             cursor: pointer;
+
             transition: color 0.2s ease;
+
         }
+
+
 
         .btn-close-modal:hover {
+
             color: var(--red);
+
         }
+
+
 
         @keyframes modalFadeIn {
+
             from {
+
                 transform: translateY(-30px) scale(0.95);
+
                 opacity: 0;
+
             }
+
             to {
+
                 transform: translateY(0) scale(1);
+
                 opacity: 1;
+
             }
+
         }
+
+
+
+        /* Custom Premium Dropdown */
+
+        .custom-dropdown {
+
+            position: relative;
+
+            width: 100%;
+
+            user-select: none;
+
+            z-index: 100;
+
+        }
+
+
+
+        .custom-dropdown-trigger {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            background: rgba(255, 255, 255, 0.03);
+
+            border: 1px solid var(--border-glass);
+
+            border-radius: 8px;
+
+            padding: 12px 16px;
+
+            color: var(--text-color);
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+
+            font-size: 0.95rem;
+
+        }
+
+
+
+        .custom-dropdown-trigger:hover,
+
+        .custom-dropdown.active .custom-dropdown-trigger {
+
+            background: rgba(255, 255, 255, 0.06);
+
+            border-color: var(--primary);
+
+            box-shadow: 0 0 10px rgba(6, 182, 212, 0.15);
+
+        }
+
+
+
+        .custom-dropdown-trigger i {
+
+            font-size: 0.8rem;
+
+            color: var(--text-muted);
+
+            transition: transform 0.3s ease;
+
+        }
+
+
+
+        .custom-dropdown.active .custom-dropdown-trigger i {
+
+            transform: rotate(180deg);
+
+            color: var(--primary);
+
+        }
+
+
+
+        .custom-dropdown-menu {
+
+            position: absolute;
+
+            top: calc(100% + 8px);
+
+            left: 0;
+
+            width: 100%;
+
+            background: rgba(15, 23, 42, 0.95);
+
+            backdrop-filter: blur(12px);
+
+            -webkit-backdrop-filter: blur(12px);
+
+            border: 1px solid var(--border-glass);
+
+            border-radius: 8px;
+
+            padding: 6px 0;
+
+            margin: 0;
+
+            list-style: none;
+
+            display: none;
+
+            flex-direction: column;
+
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+
+            z-index: 999;
+
+            transform: translateY(-10px);
+
+            opacity: 0;
+
+            transition: transform 0.25s ease, opacity 0.25s ease;
+
+        }
+
+
+
+        .custom-dropdown.active .custom-dropdown-menu {
+
+            display: flex;
+
+            transform: translateY(0);
+
+            opacity: 1;
+
+        }
+
+
+
+        .custom-dropdown-menu li {
+
+            padding: 10px 16px;
+
+            color: var(--text-muted);
+
+            cursor: pointer;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            font-size: 0.9rem;
+
+            transition: all 0.2s ease;
+
+        }
+
+
+
+        .custom-dropdown-menu li i {
+
+            font-size: 0.95rem;
+
+            color: var(--text-muted);
+
+            width: 18px;
+
+            text-align: center;
+
+        }
+
+
+
+        .custom-dropdown-menu li:hover {
+
+            background: rgba(255, 255, 255, 0.05);
+
+            color: var(--text-color);
+
+        }
+
+
+
+        .custom-dropdown-menu li.active {
+
+            background: rgba(6, 182, 212, 0.12);
+
+            color: var(--primary);
+
+            font-weight: 600;
+
+        }
+
+
+
+        .custom-dropdown-menu li.active i {
+
+            color: var(--primary);
+
+        }
+
     </style>
+
     <link rel="icon" type="image/svg+xml" href="static/assets/favicon.svg">
+
 </head>
+
 <body>
 
+
+
     <!-- 1. LOGIN CONTAINER -->
+
     <div id="login-panel" class="glass-card login-container">
+
         <div class="login-logo"><span>&lt;</span>RALK<span>.G /&gt;</span></div>
+
         <p class="login-subtitle">Secure Administration Vault</p>
+
         
+
         <form id="login-form">
+
             <div class="form-group">
+
                 <label for="username">User Identity</label>
+
                 <div class="input-wrapper">
+
                     <i class="fas fa-user-shield"></i>
+
                     <input type="text" id="username" class="form-control" placeholder="Enter username..." autocomplete="off" required>
+
                 </div>
+
             </div>
+
             <div class="form-group">
+
                 <label for="password">Security Passphrase</label>
+
                 <div class="input-wrapper">
+
                     <i class="fas fa-key"></i>
+
                     <input type="password" id="password" class="form-control" placeholder="Enter password..." required>
+
                 </div>
+
             </div>
+
             <button type="submit" class="btn-submit">
+
                 <i class="fas fa-unlock-alt"></i> Authenticate
+
             </button>
+
         </form>
+
     </div>
+
+
 
     <!-- 2. DASHBOARD CONTAINER -->
+
     <div id="dashboard-panel" class="dashboard-container">
+
         <div class="glass-card">
+
             <div class="dashboard-header">
+
                 <div class="user-profile">
+
                     <div class="user-avatar"><i class="fas fa-database"></i></div>
+
                     <div>
+
                         <h2>Document Control Center</h2>
+
                         <span id="pyspark-status" class="db-status">
+
                             <i class="fas fa-sync fa-spin"></i> Initializing PySpark engine...
+
                         </span>
+
                     </div>
+
                 </div>
+
                 <button id="logout-btn" class="btn-logout"><i class="fas fa-power-off"></i> Logout</button>
+
             </div>
+
         </div>
+
+
 
         <div class="dashboard-grid">
+
             <!-- Left Panel: Uploader & Project Manager -->
+
             <div style="display: flex; flex-direction: column; gap: 25px;">
+
                 <div class="glass-card upload-section">
+
                     <h3 class="section-title"><i class="fas fa-file-upload"></i> Upload Asset</h3>
+
                     <form id="upload-form">
+
                         <div class="dropzone" id="dropzone">
+
                             <i class="fas fa-cloud-upload-alt"></i>
+
                             <p>Click or Drag file here to upload</p>
+
                             <input type="file" id="file-input" required>
+
                         </div>
+
                         <div class="file-selected-indicator" id="file-indicator">
+
                             <span id="selected-file-name">filename.pdf</span>
+
                             <i class="fas fa-times-circle" id="remove-file-btn"></i>
+
                         </div>
+
                         
+
                         <div class="form-group" style="margin-top: 15px;">
-                            <label for="category-select">Document Category</label>
-                            <select id="category-select" class="form-select">
-                                <option value="Resume">Resume (static/assets/)</option>
-                                <option value="Certificate">Certificate (static/assets/certificates/)</option>
-                                <option value="Other">Other Document</option>
-                            </select>
+
+                            <label>Document Category</label>
+
+                            <div class="custom-dropdown" id="category-dropdown">
+
+                                <div class="custom-dropdown-trigger" id="dropdown-trigger">
+
+                                    <span id="dropdown-selected-text">Resume (static/assets/)</span>
+
+                                    <i class="fas fa-chevron-down"></i>
+
+                                </div>
+
+                                <ul class="custom-dropdown-menu" id="dropdown-menu">
+
+                                    <li data-value="Resume" class="active"><i class="fas fa-file-pdf"></i> Resume (static/assets/)</li>
+
+                                    <li data-value="Certificate"><i class="fas fa-award"></i> Certificate (static/assets/certificates/)</li>
+
+                                    <li data-value="Other"><i class="fas fa-folder"></i> Other Document</li>
+
+                                </ul>
+
+                                <input type="hidden" id="category-select" value="Resume" required>
+
+                            </div>
+
                         </div>
+
                         
+
                         <button type="submit" class="btn-submit">
+
                             <i class="fas fa-upload"></i> Process & Catalog
+
                         </button>
+
                     </form>
+
                 </div>
 
+
+
                 <div class="glass-card">
+
                     <h3 class="section-title"><i class="fas fa-folder-plus"></i> Add New Project</h3>
+
                     <form id="project-form">
+
                         <div class="form-group">
+
                             <label for="project-github">GitHub Repository Link</label>
+
                             <div class="input-wrapper">
+
                                 <i class="fab fa-github" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 5;"></i>
+
                                 <input type="url" id="project-github" class="form-control" placeholder="https://github.com/owner/repo" required>
+
                             </div>
+
                         </div>
+
                         <div class="form-group" style="margin-top: 15px;">
+
                             <label for="project-live">Live Running Link</label>
+
                             <div class="input-wrapper">
+
                                 <i class="fas fa-external-link-alt" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 5;"></i>
+
                                 <input type="url" id="project-live" class="form-control" placeholder="https://live-link.com" required>
+
                             </div>
+
                         </div>
+
                         <button type="submit" class="btn-submit" id="project-submit-btn" style="margin-top: 15px;">
+
                             <i class="fas fa-magic"></i> Auto-Generate Card
+
                         </button>
+
                     </form>
+
                 </div>
+
             </div>
+
+
 
             <!-- Right Panel: Catalog Manager & Project Manager -->
+
             <div style="display: flex; flex-direction: column; gap: 25px;">
-                <div class="glass-card">
-                    <h3 class="section-title"><i class="fas fa-server"></i> Encrypted PySpark / Parquet Dataset</h3>
-                    <div class="documents-table-container">
-                        <table id="documents-table">
-                            <thead>
-                                <tr>
-                                    <th>Filename</th>
-                                    <th>Category</th>
-                                    <th>File Size</th>
-                                    <th>Registered Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody id="documents-list">
-                                <!-- Populated dynamically via JS -->
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: var(--text-muted);">
-                                        <i class="fas fa-circle-notch fa-spin"></i> Loading encrypted dataset catalog...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
 
                 <div class="glass-card">
-                    <h3 class="section-title"><i class="fas fa-cubes"></i> Manage Showcase Projects</h3>
+
+                    <h3 class="section-title"><i class="fas fa-server"></i> Encrypted PySpark / Parquet Dataset</h3>
+
                     <div class="documents-table-container">
-                        <table>
+
+                        <table id="documents-table">
+
                             <thead>
+
                                 <tr>
-                                    <th>Project Name</th>
-                                    <th>GitHub Link</th>
-                                    <th>Live Demo Link</th>
+
+                                    <th>Filename</th>
+
+                                    <th>Category</th>
+
+                                    <th>File Size</th>
+
+                                    <th>Registered Date</th>
+
                                     <th>Action</th>
+
                                 </tr>
+
                             </thead>
-                            <tbody id="projects-list">
+
+                            <tbody id="documents-list">
+
                                 <!-- Populated dynamically via JS -->
+
                                 <tr>
-                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">
-                                        <i class="fas fa-circle-notch fa-spin"></i> Fetching showcase projects catalog...
+
+                                    <td colspan="5" style="text-align: center; color: var(--text-muted);">
+
+                                        <i class="fas fa-circle-notch fa-spin"></i> Loading encrypted dataset catalog...
+
                                     </td>
+
                                 </tr>
+
                             </tbody>
+
                         </table>
+
                     </div>
+
                 </div>
+
+
+
+                <div class="glass-card">
+
+                    <h3 class="section-title"><i class="fas fa-cubes"></i> Manage Showcase Projects</h3>
+
+                    <div class="documents-table-container">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Project Name</th>
+
+                                    <th>GitHub Link</th>
+
+                                    <th>Live Demo Link</th>
+
+                                    <th>Action</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="projects-list">
+
+                                <!-- Populated dynamically via JS -->
+
+                                <tr>
+
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">
+
+                                        <i class="fas fa-circle-notch fa-spin"></i> Fetching showcase projects catalog...
+
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </div>
+
     </div>
+
+
+
 
 
     <!-- Beautiful Glassmorphic Modal for Editing Project Links -->
+
     <div id="edit-project-modal" class="modal-overlay" style="display: none;">
+
         <div class="glass-card modal-content">
+
             <div class="modal-header">
+
                 <h3><i class="fas fa-edit"></i> Edit Showcase Links</h3>
+
                 <button type="button" class="btn-close-modal" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+
             </div>
+
             <p id="modal-project-name" style="margin-bottom: 20px; font-weight: 600; color: var(--primary);"></p>
+
             <form id="modal-edit-form">
+
                 <div class="form-group">
+
                     <label for="modal-github-input">GitHub Repository Link</label>
+
                     <div class="input-wrapper">
+
                         <i class="fab fa-github" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 5;"></i>
+
                         <input type="url" id="modal-github-input" class="form-control" placeholder="https://github.com/owner/repo" required>
+
                     </div>
+
                 </div>
+
                 <div class="form-group" style="margin-top: 15px;">
+
                     <label for="modal-live-input">Live Demo Link</label>
+
                     <div class="input-wrapper">
+
                         <i class="fas fa-external-link-alt" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); z-index: 5;"></i>
+
                         <input type="url" id="modal-live-input" class="form-control" placeholder="https://live-link.com" required>
+
                     </div>
+
                 </div>
+
                 <div style="display: flex; gap: 15px; margin-top: 25px;">
+
                     <button type="button" class="btn-logout" onclick="closeEditModal()" style="flex: 1; border-color: var(--border-glass); color: var(--text-muted); background: rgba(255,255,255,0.05);"><i class="fas fa-times"></i> Cancel</button>
+
                     <button type="submit" class="btn-submit" style="flex: 2; margin-top: 0;"><i class="fas fa-save"></i> Save Changes</button>
+
                 </div>
+
             </form>
+
         </div>
+
     </div>
+
+
 
     <!-- TOAST NOTIFICATION -->
+
     <div id="toast" class="toast-notification">
+
         <i class="fas fa-check-circle" id="toast-icon"></i>
+
         <span id="toast-msg">Success Message</span>
+
     </div>
 
+
+
     <!-- JS Controllers -->
+
     <script>
+
         let isStaticMode = false;
 
+
+
         // Secure Web Crypto SHA-256 Hashing helper
+
         async function sha256(message) {
+
             const msgBuffer = new TextEncoder().encode(message);
+
             const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+
             const hashArray = Array.from(new Uint8Array(hashBuffer));
+
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
         }
+
+
 
         // UI helper to show toast notifications
+
         function showToast(message, type = 'success') {
+
             const toast = document.getElementById('toast');
+
             const icon = document.getElementById('toast-icon');
+
             const msg = document.getElementById('toast-msg');
 
+
+
             msg.textContent = message;
+
             toast.className = 'toast-notification show ' + type;
+
             
+
             if (type === 'success') {
+
                 icon.className = 'fas fa-check-circle';
+
             } else {
+
                 icon.className = 'fas fa-exclamation-triangle';
+
             }
+
+
 
             setTimeout(() => {
+
                 toast.classList.remove('show');
+
             }, 3500);
+
         }
+
+
 
         // Login Handler
+
         const loginForm = document.getElementById('login-form');
+
         if (loginForm) {
+
             loginForm.addEventListener('submit', async (e) => {
+
                 e.preventDefault();
+
                 const usernameInput = document.getElementById('username').value.trim();
+
                 const passwordInput = document.getElementById('password').value.trim();
 
+
+
                 try {
+
                     const response = await fetch('/api/v1/admin/login', {
+
                         method: 'POST',
+
                         headers: { 'Content-Type': 'application/json' },
+
                         body: JSON.stringify({ username: usernameInput, password: passwordInput })
+
                     });
+
                     
+
                     if (response.status === 404 || response.status === 405) {
+
                         throw new Error("404/405 API Not Found");
+
                     }
+
                     
+
                     if (!response.ok) {
+
                         showToast("Access Denied: Invalid credentials.", "error");
+
                         return;
+
                     }
+
                     
+
                     const data = await response.json();
+
                     if (data.success) {
+
                         isStaticMode = false;
+
                         showToast("Authentication granted!", "success");
+
                         enterDashboard();
+
                     } else {
+
                         showToast(data.message, "error");
+
                     }
+
                 } catch (err) {
+
                     console.log("Backend API offline. Running client-side secure fallback...", err);
+
                     
+
                     const userHash = await sha256(usernameInput);
+
                     const passHash = await sha256(passwordInput);
 
+
+
                     const targetUserHash = "9a75c28caa1fa24bc9ee897058902023aafbac2e5d8ab153e618218a4293ea63";
+
                     const targetPassHash = "c5c51b6039f000953ca1f14cc06986e998e87032360b4690a9b52e3dd3eb5a93";
 
+
+
                     if (userHash === targetUserHash && passHash === targetPassHash) {
+
                         isStaticMode = true;
+
                         showToast("Static Authentication granted (Read-Only Mode)!", "success");
+
                         enterDashboard();
+
                     } else {
+
                         showToast("Access Denied: Invalid credentials.", "error");
+
                     }
+
                 }
+
             });
+
         }
+
+
 
         function enterDashboard() {
+
             document.getElementById('login-panel').style.display = 'none';
+
             document.getElementById('dashboard-panel').style.display = 'flex';
+
             loadCatalog();
+
             loadProjects();
+
         }
+
+
 
         // Logout Handler
+
         const logoutBtn = document.getElementById('logout-btn');
+
         if (logoutBtn) {
+
             logoutBtn.addEventListener('click', () => {
+
                 if (isStaticMode) {
+
                     showToast("Session terminated.", "success");
+
                     document.getElementById('dashboard-panel').style.display = 'none';
+
                     document.getElementById('login-panel').style.display = 'block';
+
                     return;
+
                 }
+
                 fetch('/api/v1/admin/logout', { method: 'POST' })
+
                 .then(() => {
+
                     showToast("Session terminated.", "success");
+
                     document.getElementById('dashboard-panel').style.display = 'none';
+
                     document.getElementById('login-panel').style.display = 'block';
+
                 });
+
             });
+
         }
+
+
 
         // Dropzone drag-and-drop handles
+
         const dropzone = document.getElementById('dropzone');
+
         const fileInput = document.getElementById('file-input');
+
         const fileIndicator = document.getElementById('file-indicator');
+
         const selectedFileName = document.getElementById('selected-file-name');
+
         const removeFileBtn = document.getElementById('remove-file-btn');
 
+
+
         if (dropzone) {
+
             dropzone.addEventListener('click', () => fileInput.click());
+
             dropzone.addEventListener('dragover', (e) => {
+
                 e.preventDefault();
+
                 dropzone.style.borderColor = 'var(--primary)';
+
             });
+
             dropzone.addEventListener('dragleave', () => {
+
                 dropzone.style.borderColor = 'var(--border-glass)';
+
             });
+
             dropzone.addEventListener('drop', (e) => {
+
                 e.preventDefault();
+
                 dropzone.style.borderColor = 'var(--border-glass)';
+
                 if (e.dataTransfer.files.length > 0) {
+
                     fileInput.files = e.dataTransfer.files;
+
                     handleFileSelect();
+
                 }
+
             });
+
+
 
             fileInput.addEventListener('change', handleFileSelect);
+
             removeFileBtn.addEventListener('click', (e) => {
+
                 e.stopPropagation();
+
                 fileInput.value = '';
+
                 fileIndicator.style.display = 'none';
+
                 dropzone.style.display = 'block';
+
             });
+
         }
+
+
 
         function handleFileSelect() {
+
             if (fileInput.files.length > 0) {
+
                 selectedFileName.textContent = fileInput.files[0].name;
+
                 dropzone.style.display = 'none';
+
                 fileIndicator.style.display = 'flex';
+
             }
+
         }
+
+
 
         // Load Parquet Catalog
+
         function loadCatalog() {
+
             const listContainer = document.getElementById('documents-list');
+
             const sparkStatus = document.getElementById('pyspark-status');
 
+
+
             if (isStaticMode) {
+
                 // Static mode - render tracked file paths from direct repository locations
+
                 sparkStatus.innerHTML = `<i class="fas fa-eye"></i> Storage Mode: GitHub Pages Static (Read-Only)`;
+
                 sparkStatus.style.color = "var(--primary)";
+
                 sparkStatus.style.background = "rgba(6, 182, 212, 0.15)";
+
                 
+
                 const staticDocs = [
+
                     { id: '1', filename: 'Krishna-Gupta_Resume.pdf', path: 'static/assets/Krishna-Gupta_Resume.pdf', category: 'Resume', size_bytes: 139325, uploaded_at: '2026-08-18' },
+
                     { id: '2', filename: 'AWS_Certified_Developer.pdf', path: 'static/assets/certificates/AWS_Certified_Developer.pdf', category: 'Certificate', size_bytes: 229927, uploaded_at: '2026-06-10' },
+
                     { id: '3', filename: 'IBM_ML0101EN_Certificate.pdf', path: 'static/assets/certificates/IBM_ML0101EN_Certificate.pdf', category: 'Certificate', size_bytes: 248889, uploaded_at: '2026-06-06' },
+
                     { id: '4', filename: 'HP_LIFE_Data_Science_Analytics.pdf', path: 'static/assets/certificates/HP_LIFE_Data_Science_Analytics.pdf', category: 'Certificate', size_bytes: 147260, uploaded_at: '2026-06-09' },
+
                     { id: '5', filename: 'Gemini_for_Google_Workshop.png', path: 'static/assets/certificates/Gemini_for_Google_Workshop.png', category: 'Certificate', size_bytes: 607582, uploaded_at: '2025-12-20' },
+
                     { id: '6', filename: 'Learning_SQL_Programming.pdf', path: 'static/assets/certificates/Learning_SQL_Programming.pdf', category: 'Certificate', size_bytes: 62625, uploaded_at: '2026-06-20' },
+
                     { id: '7', filename: 'Neural_Networks_CNN_Essential_Training.pdf', path: 'static/assets/certificates/Neural_Networks_CNN_Essential_Training.pdf', category: 'Certificate', size_bytes: 64613, uploaded_at: '2026-06-20' },
+
                     { id: '8', filename: 'Internship_Completion_Certificate.pdf', path: 'static/assets/certificates/Internship_Completion_Certificate.pdf', category: 'Certificate', size_bytes: 449623, uploaded_at: '2026-07-01' }
+
                 ];
+
                 
+
                 renderDocumentsTable(staticDocs);
+
                 return;
+
             }
+
+
 
             fetch('/api/v1/admin/documents')
+
             .then(res => {
+
                 if (!res.ok) throw new Error("Could not load catalog");
+
                 return res.json();
+
             })
+
             .then(data => {
+
                 if (data.success) {
+
                     sparkStatus.innerHTML = `<i class="fas fa-server"></i> Storage Mode: ${data.engine}`;
+
                     if (data.engine.includes("PySpark")) {
+
                         sparkStatus.style.color = "var(--green)";
+
                         sparkStatus.style.background = "rgba(16, 185, 129, 0.15)";
+
                     } else {
+
                         sparkStatus.style.color = "var(--primary)";
+
                         sparkStatus.style.background = "rgba(6, 182, 212, 0.15)";
+
                     }
+
                     renderDocumentsTable(data.documents);
+
                 }
+
             })
+
             .catch(err => {
+
                 listContainer.innerHTML = `
+
                     <tr>
+
                         <td colspan="5" style="text-align: center; color: var(--red);">
+
                             Error loading catalog dataset. Ensure local server is online.
+
                         </td>
+
                     </tr>
+
                 `;
+
             });
+
         }
+
+
 
         function renderDocumentsTable(docs) {
+
             const listContainer = document.getElementById('documents-list');
+
             listContainer.innerHTML = '';
+
             
+
             if (docs.length === 0) {
+
                 listContainer.innerHTML = `
+
                     <tr>
+
                         <td colspan="5" style="text-align: center; color: var(--text-muted);">
+
                             No documents tracked in catalog. Upload one to start!
+
                         </td>
+
                     </tr>
+
                 `;
+
                 return;
+
             }
+
+
 
             docs.forEach(doc => {
+
                 const sizeKB = (doc.size_bytes / 1024).toFixed(1);
+
                 const tr = document.createElement('tr');
+
                 
+
                 let badgeClass = 'badge-other';
+
                 if (doc.category === 'Resume') badgeClass = 'badge-resume';
+
                 else if (doc.category === 'Certificate') badgeClass = 'badge-certificate';
 
+
+
                 tr.innerHTML = `
+
                     <td>
+
                         <a href="${doc.path}" target="_blank" class="doc-link">
+
                             <i class="far fa-file-pdf" style="color: var(--red);"></i> ${doc.filename}
+
                         </a>
+
                     </td>
+
                     <td><span class="badge ${badgeClass}">${doc.category}</span></td>
+
                     <td>${sizeKB} KB</td>
+
                     <td>${doc.uploaded_at}</td>
+
                     <td>
+
                         <div class="action-btns">
+
                             <button class="btn-exchange" onclick="exchangeDocument('${doc.id}', '${doc.category}', '${doc.filename}')" title="Exchange / Replace document">
+
                                 <i class="fas fa-sync-alt"></i>
+
                             </button>
+
                             <button class="btn-delete" onclick="deleteDocument('${doc.id}')" title="Delete document">
+
                                 <i class="far fa-trash-alt"></i>
+
                             </button>
+
                         </div>
+
                     </td>
+
                 `;
+
                 listContainer.appendChild(tr);
+
             });
+
         }
+
+
 
         // Upload Form Handler
+
         const uploadForm = document.getElementById('upload-form');
+
         if (uploadForm) {
+
             uploadForm.addEventListener('submit', (e) => {
+
                 e.preventDefault();
+
                 
+
                 if (isStaticMode) {
+
                     showToast("File uploads require running the local Python backend (python app.py).", "error");
+
                     return;
+
                 }
+
+
 
                 if (fileInput.files.length === 0) {
+
                     showToast("Please choose a file to upload.", "error");
+
                     return;
+
                 }
 
+
+
                 const formData = new FormData();
+
                 formData.append('file', fileInput.files[0]);
+
                 formData.append('category', document.getElementById('category-select').value);
 
+
+
                 fetch('/api/v1/admin/documents/upload', {
+
                     method: 'POST',
+
                     body: formData
+
                 })
+
                 .then(res => {
+
                     if (!res.ok) throw new Error("Upload failed");
+
                     return res.json();
+
                 })
+
                 .then(data => {
+
                     if (data.success) {
+
                         showToast(data.message, "success");
+
                         fileInput.value = '';
+
                         fileIndicator.style.display = 'none';
+
                         dropzone.style.display = 'block';
+
                         loadCatalog();
+
                     } else {
+
                         showToast(data.message, "error");
+
                     }
+
                 })
+
                 .catch(err => {
+
                     showToast("Error processing upload.", "error");
+
                 });
+
             });
+
         }
 
+
+
         // Delete Document Handler
+
         window.deleteDocument = function(id) {
+
             if (isStaticMode) {
+
                 showToast("File deletion requires running the local Python backend (python app.py).", "error");
+
                 return;
+
             }
+
+
 
             if (!confirm("Are you sure you want to delete this document from disk and unregister it from PySpark catalog?")) return;
 
+
+
             fetch('/api/v1/admin/documents/delete', {
+
                 method: 'POST',
+
                 headers: { 'Content-Type': 'application/json' },
+
                 body: JSON.stringify({ id: id })
+
             })
+
             .then(res => {
+
                 if (!res.ok) throw new Error("Delete failed");
+
                 return res.json();
+
             })
+
             .then(data => {
+
                 if (data.success) {
+
                     showToast(data.message, "success");
+
                     loadCatalog();
+
                 } else {
+
                     showToast(data.message, "error");
+
                 }
+
             })
+
             .catch(err => {
+
                 showToast("Error deleting document.", "error");
+
             });
+
         }
 
+
+
         // Hidden file input for document exchange
+
         const exchangeFileInput = document.createElement('input');
+
         exchangeFileInput.type = 'file';
+
         exchangeFileInput.style.display = 'none';
+
         document.body.appendChild(exchangeFileInput);
+
+
 
         let activeExchangeInfo = null;
 
+
+
         window.exchangeDocument = function(id, category, filename) {
+
             if (isStaticMode) {
+
                 showToast("File replacement requires running the local Python backend (python app.py).", "error");
+
                 return;
+
             }
 
+
+
             activeExchangeInfo = { id, category, filename };
+
             exchangeFileInput.click();
+
         }
 
+
+
         exchangeFileInput.addEventListener('change', () => {
+
             if (!activeExchangeInfo || exchangeFileInput.files.length === 0) return;
 
+
+
             const selectedFile = exchangeFileInput.files[0];
+
             const originalFilename = activeExchangeInfo.filename;
+
             
+
             const formData = new FormData();
+
             // Wrap file with original filename to override on disk
+
             const fileToUpload = new File([selectedFile], originalFilename, { type: selectedFile.type });
+
             
+
             formData.append('file', fileToUpload);
+
             formData.append('category', activeExchangeInfo.category);
+
+
 
             showToast(`Uploading replacement for ${originalFilename}...`, "info");
 
+
+
             fetch('/api/v1/admin/documents/upload', {
+
                 method: 'POST',
+
                 body: formData
+
             })
+
             .then(res => {
+
                 if (!res.ok) throw new Error("Replacement failed");
+
                 return res.json();
+
             })
+
             .then(data => {
+
                 if (data.success) {
+
                     showToast(data.message, "success");
+
                     loadCatalog();
+
                 } else {
+
                     showToast(data.message, "error");
+
                 }
+
             })
+
             .catch(err => {
+
                 showToast("Error processing replacement.", "error");
+
             })
+
             .finally(() => {
+
                 exchangeFileInput.value = '';
+
                 activeExchangeInfo = null;
+
             });
+
         });
 
+
+
         // Project form submission controller
+
         const projectForm = document.getElementById('project-form');
+
         if (projectForm) {
+
             projectForm.addEventListener('submit', async (e) => {
+
                 e.preventDefault();
+
                 
+
                 if (isStaticMode) {
+
                     showToast("GitHub Pages static mode cannot run backend code generation. Run locally in dev server!", "error");
+
                     return;
+
                 }
+
+
 
                 const githubLink = document.getElementById('project-github').value.trim();
+
                 const liveLink = document.getElementById('project-live').value.trim();
+
                 const submitBtn = document.getElementById('project-submit-btn');
 
+
+
                 submitBtn.disabled = true;
+
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing & Generating...';
 
+
+
                 try {
+
                     const response = await fetch('/api/v1/admin/projects/add', {
+
                         method: 'POST',
+
                         headers: {
+
                             'Content-Type': 'application/json'
+
                         },
+
                         body: JSON.stringify({
+
                             github_link: githubLink,
+
                             live_link: liveLink
+
                         })
+
                     });
 
+
+
                     const result = await response.json();
+
                     if (response.ok && result.success) {
+
                         showToast(result.message, 'success');
+
                         projectForm.reset();
+
                     } else {
+
                         showToast(result.message || 'Failed to generate project.', 'error');
+
                     }
+
                 } catch (error) {
+
                     showToast('Error connecting to backend API: ' + error.message, 'error');
+
                 } finally {
+
                     submitBtn.disabled = false;
+
                     submitBtn.innerHTML = '<i class="fas fa-magic"></i> Auto-Generate Card';
+
                 }
+
             });
+
         }
+
+
+
 
 
         // Project list manager helpers
+
         function loadProjects() {
+
             const projectsList = document.getElementById('projects-list');
+
             if (!projectsList) return;
+
+
 
             if (isStaticMode) {
+
                 const staticProjects = [
+
                     {
+
                         name: "RevU Social",
+
                         github_link: "https://github.com/srohatgi01/opinion-play-earn",
+
                         live_link: "https://www.revu.social/"
+
                     },
+
                     {
+
                         name: "KALKI 1.5",
+
                         github_link: "https://github.com/KGupta171025/KALKI-1.5",
+
                         live_link: "https://kgupta171025.github.io/KALKI-1.5/"
+
                     },
+
                     {
+
                         name: "ShelfScanner",
+
                         github_link: "https://github.com/KGupta171025/SHELF-SCANNER",
+
                         live_link: "https://kgupta171025.github.io/SHELF-SCANNER/"
+
                     }
+
                 ];
+
                 renderProjectsTable(staticProjects);
+
                 return;
+
             }
+
+
 
             fetch('/api/v1/admin/projects')
+
             .then(res => {
+
                 if (!res.ok) throw new Error("Could not load projects");
+
                 return res.json();
+
             })
+
             .then(data => {
+
                 if (data.success) {
+
                     renderProjectsTable(data.projects);
+
                 } else {
+
                     showToast(data.message, "error");
+
                 }
+
             })
+
             .catch(err => {
+
                 console.error("Failed to load projects: ", err);
+
                 showToast("Error retrieving projects list.", "error");
+
             });
+
         }
+
+
 
         function renderProjectsTable(projects) {
+
             const projectsList = document.getElementById('projects-list');
+
             if (!projectsList) return;
 
+
+
             if (projects.length === 0) {
+
                 projectsList.innerHTML = `
+
                     <tr>
+
                         <td colspan="4" style="text-align: center; color: var(--text-muted);">
+
                             No active showcase projects found.
+
                         </td>
+
                     </tr>
+
                 `;
+
                 return;
+
             }
 
+
+
             projectsList.innerHTML = projects.map(p => {
+
                 const nameEscaped = p.name.replace(/'/g, "\\'");
+
                 const gitEscaped = p.github_link.replace(/'/g, "\\'");
+
                 const liveEscaped = p.live_link.replace(/'/g, "\\'");
+
                 return `
+
                     <tr>
+
                         <td><strong>${escapeHtml(p.name)}</strong></td>
+
                         <td><a href="${escapeHtml(p.github_link)}" target="_blank" class="doc-link"><i class="fab fa-github"></i> Source</a></td>
+
                         <td><a href="${escapeHtml(p.live_link)}" target="_blank" class="doc-link"><i class="fas fa-external-link-alt"></i> Live</a></td>
+
                         <td>
+
                             <div class="action-btns">
+
                                 <button onclick="openEditModal('${nameEscaped}', '${gitEscaped}', '${liveEscaped}')" class="btn-exchange" title="Edit Links">
+
                                     <i class="fas fa-edit"></i>
+
                                 </button>
+
                                 <button onclick="deleteProject('${nameEscaped}')" class="btn-delete" title="Delete Project">
+
                                     <i class="fas fa-trash-alt"></i>
+
                                 </button>
+
                             </div>
+
                         </td>
+
                     </tr>
+
                 `;
+
             }).join('');
+
         }
 
+
+
         function escapeHtml(text) {
+
             return text
+
                 .replace(/&/g, "&amp;")
+
                 .replace(/</g, "&lt;")
+
                 .replace(/>/g, "&gt;")
+
                 .replace(/"/g, "&quot;")
+
                 .replace(/'/g, "&#039;");
+
         }
+
+
+
 
 
         let activeEditProjectName = null;
 
+
+
         function openEditModal(projectName, githubLink, liveLink) {
+
             activeEditProjectName = projectName;
+
             document.getElementById('modal-project-name').innerText = `Project: ${projectName}`;
+
             document.getElementById('modal-github-input').value = githubLink;
+
             document.getElementById('modal-live-input').value = liveLink;
+
             document.getElementById('edit-project-modal').style.display = 'flex';
+
         }
+
+
 
         function closeEditModal() {
+
             document.getElementById('edit-project-modal').style.display = 'none';
+
             document.getElementById('modal-edit-form').reset();
+
             activeEditProjectName = null;
+
         }
 
+
+
         // Project links edit form submit handler
+
         document.addEventListener('DOMContentLoaded', () => {
+
             const modalEditForm = document.getElementById('modal-edit-form');
+
             if (modalEditForm) {
+
                 modalEditForm.addEventListener('submit', async (e) => {
+
                     e.preventDefault();
+
                     if (!activeEditProjectName) return;
 
+
+
                     const newGithub = document.getElementById('modal-github-input').value.trim();
+
                     const newLive = document.getElementById('modal-live-input').value.trim();
 
+
+
                     if (!newGithub || !newLive) {
+
                         showToast("Both links are required.", "error");
+
                         return;
+
                     }
+
+
 
                     closeEditModal();
+
                     showToast(`Updating links for ${activeEditProjectName}...`, "info");
 
+
+
                     try {
+
                         const response = await fetch('/api/v1/admin/projects/update', {
+
                             method: 'POST',
+
                             headers: {
+
                                 'Content-Type': 'application/json'
+
                             },
+
                             body: JSON.stringify({
+
                                 name: activeEditProjectName,
+
                                 github_link: newGithub,
+
                                 live_link: newLive
+
                             })
+
                         });
+
                         const result = await response.json();
+
                         if (response.ok && result.success) {
+
                             showToast(result.message, "success");
+
                             loadProjects();
+
                         } else {
+
                             showToast(result.message || "Failed to update project.", "error");
+
                         }
+
                     } catch (err) {
+
                         showToast("Error updating project: " + err.message, "error");
+
                     }
+
                 });
+
             }
+
         });
+
+
+
 
 
         async function deleteProject(projectName) {
+
             if (!confirm(`Are you absolutely sure you want to remove the project "${projectName}" from your portfolio? This will delete its card from all 7 pages.`)) {
+
                 return;
+
             }
+
             
+
             showToast(`Removing project ${projectName}...`, "info");
+
             try {
+
                 const response = await fetch('/api/v1/admin/projects/delete', {
+
                     method: 'POST',
+
                     headers: {
+
                         'Content-Type': 'application/json'
+
                     },
+
                     body: JSON.stringify({
+
                         name: projectName
+
                     })
+
                 });
+
                 const result = await response.json();
+
                 if (response.ok && result.success) {
+
                     showToast(result.message, "success");
+
                     loadProjects();
+
                 } else {
+
                     showToast(result.message || "Failed to delete project.", "error");
+
                 }
+
             } catch (err) {
+
                 showToast("Error deleting project: " + err.message, "error");
+
             }
+
         }
 
+
+
         // Load catalog on start if session is already active
+
         document.addEventListener('DOMContentLoaded', () => {
+
             // Force strict hidden dashboard on start
+
             document.getElementById('dashboard-panel').style.display = 'none';
+
             document.getElementById('login-panel').style.display = 'block';
 
+
+
             // Check if server session is active
+
             fetch('/api/v1/admin/documents')
+
             .then(res => {
+
                 if (res.ok) {
+
                     isStaticMode = false;
+
                     enterDashboard();
+
                 }
+
             })
+
             .catch(err => {
+
                 console.log("Static mode or offline on start.");
+
             });
+
         });
+
+
+
+        // Custom Category Dropdown UI Controller
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const dropdown = document.getElementById('category-dropdown');
+
+            if (dropdown) {
+
+                const trigger = document.getElementById('dropdown-trigger');
+
+                const menu = document.getElementById('dropdown-menu');
+
+                const selectedText = document.getElementById('dropdown-selected-text');
+
+                const hiddenInput = document.getElementById('category-select');
+
+                const items = menu.querySelectorAll('li');
+
+
+
+                // Toggle dropdown menu
+
+                trigger.addEventListener('click', (e) => {
+
+                    e.stopPropagation();
+
+                    dropdown.classList.toggle('active');
+
+                });
+
+
+
+                // Option select handler
+
+                items.forEach(item => {
+
+                    item.addEventListener('click', (e) => {
+
+                        e.stopPropagation();
+
+                        
+
+                        // Set active class
+
+                        items.forEach(i => i.classList.remove('active'));
+
+                        item.classList.add('active');
+
+
+
+                        // Set values
+
+                        const val = item.getAttribute('data-value');
+
+                        hiddenInput.value = val;
+
+                        selectedText.innerText = item.innerText;
+
+
+
+                        // Close menu
+
+                        dropdown.classList.remove('active');
+
+                    });
+
+                });
+
+
+
+                // Close dropdown if clicking anywhere else in the document
+
+                document.addEventListener('click', () => {
+
+                    dropdown.classList.remove('active');
+
+                });
+
+            }
+
+        });
+
     </script>
+
 </body>
+
 </html>
+

@@ -256,17 +256,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // 0. Initialize Lenis Smooth Scroll Engine
-
+    // 0. Initialize Lenis Smooth Scroll Engine (Disabled for instant scroll response)
+    /*
     try {
-
         initLenisScroll();
-
     } catch (e) {
-
         console.error("Lenis scroll initialization failed:", e);
-
     }
+    */
 
 
 

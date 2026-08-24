@@ -1,26 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <defs>
-    <filter id="neon-glow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="1.8" result="blur" />
-      <feComponentTransfer in="blur" result="bright-blur">
-        <feFuncA type="linear" slope="1.5"/>
-      </feComponentTransfer>
-      <feMerge>
-        <feMergeNode in="bright-blur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-  </defs>
-  
-  <!-- Clear crisp high-visibility neon text -->
-  <text x="32" y="41" 
+  <!-- High-visibility neon blue text with background stroke-contouring for tab clarity -->
+  <text x="32" y="44" 
         font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Outfit', sans-serif" 
-        font-size="17" 
+        font-size="22" 
         font-weight="900" 
-        fill="#06b6d4" 
-        text-anchor="middle" 
-        filter="url(#neon-glow)"
-        letter-spacing="-0.5">
+        fill="#00f0ff" 
+        stroke="#0b0f19" 
+        stroke-width="3.5" 
+        stroke-linejoin="round"
+        paint-order="stroke fill"
+        text-anchor="middle"
+        letter-spacing="-1.5">
     &lt;K.G.&gt;
   </text>
 </svg>

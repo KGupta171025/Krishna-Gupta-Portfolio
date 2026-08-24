@@ -1,5 +1,7 @@
 import os
 import functools
+import uuid
+import threading
 import time
 import requests
 import smtplib
@@ -496,19 +498,52 @@ class LocalAIAgent:
 
 local_agent = LocalAIAgent(KRISHNA_KNOWLEDGE)
 
-def query_gemini_model(prompt):
+# Server-side conversation history tracking (thread-safe context memory)
+chat_histories = {}
+chat_histories_lock = threading.Lock()
+
+def query_gemini_model(prompt, chat_id):
     if not HAS_GEMINI:
         return None
     try:
         system_instruction = f"""
-        You are Krishna Gupta's personal Portfolio AI Agent.
-        Answer visitors' questions about Krishna's profile, skills, experience, projects, certifications, and contact details.
+        You are Krishna Gupta's personal Portfolio AI Agent, a sophisticated and helpful assistant.
+        Your goal is to answer visitors' queries about Krishna's background, education, projects, skills, experience, and certifications.
         
-        Details:
+        Krishna's Profile Context:
         {KRISHNA_KNOWLEDGE}
+        
+        Response Rules:
+        1. Tone & Style: Be enthusiastic, professional, and clear.
+        2. Markdown Formatting: Use bolding, bullet points, and clean lists to make responses highly readable.
+        3. Accurate & Factual: Answer strictly based on the profile context. If asked about something not present in the context, politely mention that you do not have that information but can assist with his projects, skills, or experience.
+        4. Structured Output: Keep responses concise (under 150 words) unless the user asks for deep technical details.
         """
+        
+        # Reconstruct historical conversation turns for Gemini Chat API
+        formatted_history = []
+        with chat_histories_lock:
+            history = chat_histories.get(chat_id, [])
+            for msg in history:
+                formatted_history.append({
+                    "role": "user" if msg["role"] == "user" else "model",
+                    "parts": [msg["text"]]
+                })
+        
         model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=system_instruction)
-        response = model.generate_content(prompt)
+        chat = model.start_chat(history=formatted_history)
+        response = chat.send_message(prompt)
+        
+        # Append latest turn to history
+        with chat_histories_lock:
+            if chat_id not in chat_histories:
+                chat_histories[chat_id] = []
+            chat_histories[chat_id].append({"role": "user", "text": prompt})
+            chat_histories[chat_id].append({"role": "model", "text": response.text})
+            # Bound history to last 12 turns (6 Q&A pairs) to limit context size
+            if len(chat_histories[chat_id]) > 12:
+                chat_histories[chat_id] = chat_histories[chat_id][-12:]
+                
         return response.text
     except Exception as e:
         print(f"Error querying Gemini API: {e}")
@@ -517,7 +552,6 @@ def query_gemini_model(prompt):
 @app.route('/api/chat', methods=['POST'])
 @rate_limit(limit=10, period=60)
 def chat():
-
     try:
         data = request.get_json()
         if not data or 'message' not in data:
@@ -527,7 +561,12 @@ def chat():
         if len(user_message) > 500:
             return make_error_response("VALIDATION_ERROR", "Message query exceeds character limits.", 400)
 
-        ai_response = query_gemini_model(user_message)
+        # Generate unique thread session ID for memory context
+        if 'chat_id' not in session:
+            session['chat_id'] = str(uuid.uuid4())
+        chat_id = session['chat_id']
+
+        ai_response = query_gemini_model(user_message, chat_id)
         if not ai_response:
             ai_response = local_agent.get_response(user_message)
 
@@ -1043,13 +1082,22 @@ def get_openapi_spec():
     openapi_spec = {
         "openapi": "3.0.0",
         "info": {
-            "title": "Krishna Gupta Portfolio Admin API",
+            "title": "Krishna Gupta Portfolio Advanced API",
             "version": "1.0.0",
-            "description": "Expert REST API endpoints for secure portfolio document cataloging and showcase project card generation."
+            "description": "Expert REST APIs with Token-Based Auth, Throttling, Idempotency keys, and Auto-Generation pipelines."
         },
         "servers": [
             {"url": "http://127.0.0.1:5000", "description": "Local Development Server"}
         ],
+        "components": {
+            "securitySchemes": {
+                "BearerAuth": {
+                    "type": "http",
+                    "scheme": "bearer",
+                    "bearerFormat": "JWT/API-Token"
+                }
+            }
+        },
         "paths": {
             "/api/v1/admin/login": {
                 "post": {
@@ -1078,12 +1126,79 @@ def get_openapi_spec():
             "/api/v1/admin/documents": {
                 "get": {
                     "summary": "Retrieve document catalog (Paginated)",
+                    "security": [{"BearerAuth": []}],
                     "parameters": [
                         {"name": "page", "in": "query", "schema": {"type": "integer"}, "description": "Page offset index"},
                         {"name": "limit", "in": "query", "schema": {"type": "integer"}, "description": "Total records per page"}
                     ],
                     "responses": {
                         "200": {"description": "List of documents returned"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            },
+            "/api/v1/admin/documents/upload": {
+                "post": {
+                    "summary": "Upload and register document",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {"name": "X-Idempotency-Key", "in": "header", "schema": {"type": "string"}, "required": False}
+                    ],
+                    "responses": {
+                        "200": {"description": "File cataloged successfully"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            },
+            "/api/v1/admin/documents/delete": {
+                "post": {
+                    "summary": "Delete registered document",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "File deleted successfully"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            },
+            "/api/v1/admin/projects": {
+                "get": {
+                    "summary": "List all portfolio showcase projects",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "Projects returned successfully"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            },
+            "/api/v1/admin/projects/add": {
+                "post": {
+                    "summary": "Auto-generate a new showcase project card",
+                    "security": [{"BearerAuth": []}],
+                    "parameters": [
+                        {"name": "X-Idempotency-Key", "in": "header", "schema": {"type": "string"}, "required": False}
+                    ],
+                    "responses": {
+                        "200": {"description": "Showcase card auto-generated"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            },
+            "/api/v1/admin/projects/delete": {
+                "post": {
+                    "summary": "Delete portfolio showcase project card",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "Project removed successfully"},
+                        "401": {"description": "Access denied"}
+                    }
+                }
+            },
+            "/api/v1/admin/projects/update": {
+                "post": {
+                    "summary": "Update portfolio showcase project links",
+                    "security": [{"BearerAuth": []}],
+                    "responses": {
+                        "200": {"description": "Project links updated successfully"},
                         "401": {"description": "Access denied"}
                     }
                 }

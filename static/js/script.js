@@ -1100,670 +1100,32 @@ function initThreeBackground() {
 
 
     function animate() {
-
-
-
-
-
-
-
-        requestAnimationFrame(animate);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Smooth camera damping/inertia
-
-
-
-
-
-
-
-        targetX += (mouseX - targetX) * 0.05;
-
-
-
-
-
-
-
-        targetY += (mouseY - targetY) * 0.05;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Upgraded cursor repulsion + elastic restoring physics
-
-
-
-
-
-
-
-        const cx = targetX * 9.2;
-
-
-
-
-
-
-
-        const cy = -targetY * 5.6;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        const posAttr = points.geometry.attributes.position;
-
-
-
-
-
-
-
-        const posArray = posAttr.array;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        for (let i = 0; i < count * 3; i += 3) {
-
-
-
-
-
-
-
-            let px = posArray[i];
-
-
-
-
-
-
-
-            let py = posArray[i + 1];
-
-
-
-
-
-
-
-            let pz = posArray[i + 2];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            let ix = initialPositions[i];
-
-
-
-
-
-
-
-            let iy = initialPositions[i + 1];
-
-
-
-
-
-
-
-            let iz = initialPositions[i + 2];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            let vx = particleVelocities[i];
-
-
-
-
-
-
-
-            let vy = particleVelocities[i + 1];
-
-
-
-
-
-
-
-            let vz = particleVelocities[i + 2];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // 1. Calculate repulsion from mouse on X-Y plane
-
-
-
-
-
-
-
-            let dx = px - cx;
-
-
-
-
-
-
-
-            let dy = py - cy;
-
-
-
-
-
-
-
-            let dist = Math.sqrt(dx * dx + dy * dy);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            let ax = 0;
-
-
-
-
-
-
-
-            let ay = 0;
-
-
-
-
-
-
-
-            let az = 0;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            if (dist < 2.0) {
-
-
-
-
-
-
-
-                // Repulsion force falls off linearly
-
-
-
-
-
-
-
-                let force = (2.0 - dist) * 0.002;
-
-
-
-
-
-
-
-                ax += (dx / dist) * force;
-
-
-
-
-
-
-
-                ay += (dy / dist) * force;
-
-
-
-
-
-
-
-            }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // 2. Elastic restoring force towards initial coordinate
-
-
-
-
-
-
-
-            ax += (ix - px) * 0.012;
-
-
-
-
-
-
-
-            ay += (iy - py) * 0.012;
-
-
-
-
-
-
-
-            az += (iz - pz) * 0.012;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // 3. Friction damping
-
-
-
-
-
-
-
-            vx = (vx + ax) * 0.88;
-
-
-
-
-
-
-
-            vy = (vy + ay) * 0.88;
-
-
-
-
-
-
-
-            vz = (vz + az) * 0.88;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // 4. Save values
-
-
-
-
-
-
-
-            posArray[i] += vx;
-
-
-
-
-
-
-
-            posArray[i + 1] += vy;
-
-
-
-
-
-
-
-            posArray[i + 2] += vz;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            particleVelocities[i] = vx;
-
-
-
-
-
-
-
-            particleVelocities[i + 1] = vy;
-
-
-
-
-
-
-
-            particleVelocities[i + 2] = vz;
-
-
-
-
-
-
-
-        }
-
-
-
-
-
-
-
-        posAttr.needsUpdate = true;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Slow background orbital rotation
-
-
-
-
-
-
-
-        points.rotation.y += 0.0004;
-
-
-
-
-
-
-
-        points.rotation.x += 0.0002;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Move camera slightly to warp the perspective
-
-
-
-
-
-
-
-        camera.position.x = targetX * 3.5;
-
-
-
-
-
-
-
-        camera.position.y = -targetY * 3.5;
-
-
-
-
-
-
-
-        camera.lookAt(scene.position);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Adjust mesh Y position based on document scroll (3D parallax)
-
-
-
-
-
-
-
-        const scrollFraction = window.scrollY / window.innerHeight;
-
-
-
-
-
-
-
-        const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
-
-
-
-
-
-
-
-        shapeMesh.position.y = initialY - (scrollFraction * visibleHeight);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Spin the Torus Knot mesh with cursor parallax inertia
-
-
-
-
-
-
-
-        shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
-
-
-
-
-
-
-
-        shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        renderer.render(scene, camera);
-
-
-
-
-
-
-
-    }
+    requestAnimationFrame(animate);
+
+    // Smooth camera damping/inertia
+    targetX += (mouseX - targetX) * 0.05;
+    targetY += (mouseY - targetY) * 0.05;
+
+    // Slow background orbital rotation (handled entirely by GPU)
+    points.rotation.y += 0.0004;
+    points.rotation.x += 0.0002;
+
+    // Move camera slightly to warp the perspective
+    camera.position.x = targetX * 3.5;
+    camera.position.y = -targetY * 3.5;
+    camera.lookAt(scene.position);
+
+    // Adjust mesh Y position based on document scroll (3D parallax)
+    const scrollFraction = window.scrollY / window.innerHeight;
+    const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
+    shapeMesh.position.y = initialY - (scrollFraction * visibleHeight);
+
+    // Spin the Torus Knot mesh with cursor parallax inertia
+    shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
+    shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
+
+    renderer.render(scene, camera);
+}
 
 
 
@@ -2508,959 +1870,141 @@ function initLenisScroll() {
 
 
 function initGSAPAnimations() {
-
-
-
-
-
-
-
     gsap.registerPlugin(ScrollTrigger);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // A. Hero text elements entrance
-
-
-
-
-
-
-
     gsap.fromTo(".hero-content > *", 
-
-
-
-
-
-
-
-        { opacity: 0, y: 40 },
-
-
-
-
-
-
-
-        { opacity: 1, y: 0, duration: 0.8, stagger: 0.12, ease: "power2.out" }
-
-
-
-
-
-
-
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.35, stagger: 0.05, ease: "power1.out" }
     );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // B. Hero visual layout code terminal
-
-
-
-
-
-
-
     gsap.fromTo(".hero-visual", 
-
-
-
-
-
-
-
-        { opacity: 0, scale: 0.93 },
-
-
-
-
-
-
-
-        { opacity: 1, scale: 1, duration: 0.9, ease: "back.out(1.5)", delay: 0.3 }
-
-
-
-
-
-
-
+        { opacity: 0, scale: 0.96 },
+        { opacity: 1, scale: 1, duration: 0.4, ease: "power1.out", delay: 0.15 }
     );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // C. Section Headers on scroll
-
-
-
-
-
-
-
     gsap.utils.toArray('.section-header').forEach(header => {
-
-
-
-
-
-
-
         gsap.fromTo(header, 
-
-
-
-
-
-
-
-            { opacity: 0, y: 35 },
-
-
-
-
-
-
-
+            { opacity: 0, y: 15 },
             { 
-
-
-
-
-
-
-
                 opacity: 1, 
-
-
-
-
-
-
-
                 y: 0, 
-
-
-
-
-
-
-
-                duration: 0.7, 
-
-
-
-
-
-
-
+                duration: 0.3, 
                 scrollTrigger: {
-
-
-
-
-
-
-
                     trigger: header,
-
-
-
-
-
-
-
-                    start: "top 88%",
-
-
-
-
-
-
-
-                    toggleActions: "play none none reverse"
-
-
-
-
-
-
-
+                    start: "top 95%",
+                    toggleActions: "play none none none"
                 }
-
-
-
-
-
-
-
             }
-
-
-
-
-
-
-
         );
-
-
-
-
-
-
-
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // D. Project Grid Cards entrance
-
-
-
-
-
-
-
     if (document.querySelector('.projects-grid')) {
-
-
-
-
-
-
-
         gsap.fromTo(".projects-grid .project-card-container", 
-
-
-
-
-
-
-
-            { opacity: 0, y: 50, scale: 0.96 },
-
-
-
-
-
-
-
+            { opacity: 0, y: 25 },
             { 
-
-
-
-
-
-
-
                 opacity: 1, 
-
-
-
-
-
-
-
                 y: 0, 
-
-
-
-
-
-
-
-                scale: 1, 
-
-
-
-
-
-
-
-                duration: 0.8, 
-
-
-
-
-
-
-
-                stagger: 0.15, 
-
-
-
-
-
-
-
-                ease: "power2.out", 
-
-
-
-
-
-
-
+                duration: 0.35, 
+                stagger: 0.05, 
+                ease: "power1.out", 
                 scrollTrigger: {
-
-
-
-
-
-
-
                     trigger: ".projects-grid",
-
-
-
-
-
-
-
-                    start: "top 85%",
-
-
-
-
-
-
-
-                    toggleActions: "play none none reverse"
-
-
-
-
-
-
-
+                    start: "top 95%",
+                    toggleActions: "play none none none"
                 }
-
-
-
-
-
-
-
             }
-
-
-
-
-
-
-
         );
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // E. Timeline Items entrance
-
-
-
-
-
-
-
     gsap.utils.toArray('.timeline-item').forEach(item => {
-
-
-
-
-
-
-
         const content = item.querySelector('.timeline-content');
-
-
-
-
-
-
-
         if (content) {
-
-
-
-
-
-
-
             gsap.fromTo(content, 
-
-
-
-
-
-
-
-                { opacity: 0, x: item.classList.contains('left') ? -50 : 50 },
-
-
-
-
-
-
-
+                { opacity: 0, x: item.classList.contains('left') ? -25 : 25 },
                 { 
-
-
-
-
-
-
-
                     opacity: 1, 
-
-
-
-
-
-
-
                     x: 0, 
-
-
-
-
-
-
-
-                    duration: 0.8, 
-
-
-
-
-
-
-
-                    ease: "power2.out", 
-
-
-
-
-
-
-
+                    duration: 0.35, 
+                    ease: "power1.out", 
                     scrollTrigger: {
-
-
-
-
-
-
-
                         trigger: item,
-
-
-
-
-
-
-
-                        start: "top 80%",
-
-
-
-
-
-
-
-                        toggleActions: "play none none reverse"
-
-
-
-
-
-
-
+                        start: "top 95%",
+                        toggleActions: "play none none none"
                     }
-
-
-
-
-
-
-
                 }
-
-
-
-
-
-
-
             );
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
     });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // F. Skills Grid Cards entrance
-
-
-
-
-
-
-
     if (document.querySelector('.skills-grid')) {
-
-
-
-
-
-
-
         gsap.fromTo(".skills-grid .skill-card", 
-
-
-
-
-
-
-
-            { opacity: 0, y: 40, scale: 0.95 },
-
-
-
-
-
-
-
+            { opacity: 0, y: 20 },
             { 
-
-
-
-
-
-
-
                 opacity: 1, 
-
-
-
-
-
-
-
                 y: 0, 
-
-
-
-
-
-
-
-                scale: 1, 
-
-
-
-
-
-
-
-                duration: 0.6, 
-
-
-
-
-
-
-
-                stagger: 0.08, 
-
-
-
-
-
-
-
-                ease: "power2.out", 
-
-
-
-
-
-
-
+                duration: 0.3, 
+                stagger: 0.03, 
+                ease: "power1.out", 
                 scrollTrigger: {
-
-
-
-
-
-
-
                     trigger: ".skills-grid",
-
-
-
-
-
-
-
-                    start: "top 85%",
-
-
-
-
-
-
-
-                    toggleActions: "play none none reverse"
-
-
-
-
-
-
-
+                    start: "top 95%",
+                    toggleActions: "play none none none"
                 }
-
-
-
-
-
-
-
             }
-
-
-
-
-
-
-
         );
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // G. Certifications Grid Cards entrance
-
-
-
-
-
-
-
     if (document.querySelector('.certifications-grid')) {
-
-
-
-
-
-
-
         gsap.fromTo(".certifications-grid .cert-card-container", 
-
-
-
-
-
-
-
-            { opacity: 0, y: 40, scale: 0.97 },
-
-
-
-
-
-
-
+            { opacity: 0, y: 20 },
             { 
-
-
-
-
-
-
-
                 opacity: 1, 
-
-
-
-
-
-
-
                 y: 0, 
-
-
-
-
-
-
-
-                scale: 1, 
-
-
-
-
-
-
-
-                duration: 0.7, 
-
-
-
-
-
-
-
-                stagger: 0.12, 
-
-
-
-
-
-
-
-                ease: "power2.out", 
-
-
-
-
-
-
-
+                duration: 0.3, 
+                stagger: 0.04, 
+                ease: "power1.out", 
                 scrollTrigger: {
-
-
-
-
-
-
-
                     trigger: ".certifications-grid",
-
-
-
-
-
-
-
-                    start: "top 85%",
-
-
-
-
-
-
-
-                    toggleActions: "play none none reverse"
-
-
-
-
-
-
-
+                    start: "top 95%",
+                    toggleActions: "play none none none"
                 }
-
-
-
-
-
-
-
             }
-
-
-
-
-
-
-
         );
-
-
-
-
-
-
-
     }
 
-
-
-
-
-
-
-
-
     // H. Universal Scroll Reveal for general containers with .reveal class
-
     gsap.utils.toArray('.reveal').forEach(el => {
-
-        // Skip grids or elements already animated via custom staggered children to prevent flicker
-
         if (el.classList.contains('projects-grid') || 
-
             el.classList.contains('certifications-grid') || 
-
             el.classList.contains('skills-tab-content') ||
-
             el.classList.contains('skills-tabs')) {
-
             gsap.set(el, { opacity: 1, y: 0, scale: 1 });
-
             return;
-
         }
 
-
-
         const isHero = el.classList.contains('hero-content') || el.classList.contains('hero-visual');
-
         gsap.fromTo(el, 
-
-            { opacity: 0, y: 30, scale: 0.98 },
-
+            { opacity: 0, y: 15 },
             { 
-
                 opacity: 1, 
-
                 y: 0, 
-
-                scale: 1,
-
-                duration: 0.8, 
-
-                ease: "power2.out", 
-
+                duration: 0.35, 
+                ease: "power1.out", 
                 scrollTrigger: isHero ? null : {
-
                     trigger: el,
-
-                    start: "top 88%",
-
-                    toggleActions: "play none none reverse"
-
+                    start: "top 95%",
+                    toggleActions: "play none none none"
                 }
-
             }
-
         );
-
     });
-
 }
 
 

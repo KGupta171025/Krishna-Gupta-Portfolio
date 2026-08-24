@@ -1,4 +1,5 @@
 import os
+import functools
 import time
 import requests
 import smtplib
@@ -91,6 +92,123 @@ def make_error_response(error_code, message, status_code):
             'message': message
         }
     }), status_code
+
+# --- 3b. GLOBAL API JSON ERROR HANDLERS ---
+@app.errorhandler(400)
+def bad_request_handler(e):
+    if request.path.startswith('/api/'):
+        return make_error_response("BAD_REQUEST", str(e.description or e), 400)
+    return e
+
+@app.errorhandler(404)
+def not_found_handler(e):
+    if request.path.startswith('/api/'):
+        return make_error_response("NOT_FOUND", "The requested API resource does not exist.", 404)
+    return e
+
+@app.errorhandler(405)
+def method_not_allowed_handler(e):
+    if request.path.startswith('/api/'):
+        return make_error_response("METHOD_NOT_ALLOWED", "HTTP method is not supported for this endpoint.", 405)
+    return e
+
+@app.errorhandler(429)
+def too_many_requests_handler(e):
+    if request.path.startswith('/api/'):
+        return make_error_response("RATE_LIMIT_EXCEEDED", "Too many requests. Please wait.", 429)
+    return e
+
+@app.errorhandler(500)
+def internal_server_error_handler(e):
+    if request.path.startswith('/api/'):
+        return make_error_response("INTERNAL_ERROR", "A fatal server error occurred.", 500)
+    return e
+
+# --- 4b. AUTHENTICATION & ACCESS TOKEN HANDLERS ---
+def check_authentication():
+    # A. Validate admin cookie session
+    if session.get('admin_logged_in'):
+        return True
+    
+    # B. Validate Bearer Access Token in Authorization header
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+        token = auth_header.split(' ')[1]
+        configured_token = os.environ.get("API_ACCESS_TOKEN")
+        if configured_token and token == configured_token:
+            return True
+            
+    return False
+
+def require_admin():
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapped(*args, **kwargs):
+            if not check_authentication():
+                return make_error_response("UNAUTHORIZED", "Access denied. Valid session or Bearer token is required.", 401)
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+# --- 4c. REUSABLE API RATE LIMITING DECORATOR ---
+def rate_limit(limit=10, period=60):
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapped(*args, **kwargs):
+            client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+            if client_ip and ',' in client_ip:
+                client_ip = client_ip.split(',')[0].strip()
+                
+            if is_rate_limited(client_ip, limit, period):
+                response = jsonify({
+                    'success': False,
+                    'error': {
+                        'code': 'RATE_LIMIT_EXCEEDED',
+                        'message': 'Too many requests. Please slow down.'
+                    }
+                })
+                response.headers['Retry-After'] = str(period)
+                response.headers['X-RateLimit-Limit'] = str(limit)
+                response.headers['X-RateLimit-Remaining'] = '0'
+                return response, 429
+            return f(*args, **kwargs)
+        return wrapped
+    return decorator
+
+# --- 4d. REUSABLE POST IDEMPOTENCY DECORATOR ---
+def idempotent():
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapped(*args, **kwargs):
+            idempotency_key = request.headers.get('X-Idempotency-Key')
+            if idempotency_key:
+                cached_res = check_idempotency_key(idempotency_key)
+                if cached_res:
+                    if isinstance(cached_res, tuple):
+                        return jsonify(cached_res[0]), cached_res[1]
+                    return jsonify(cached_res), 200
+            
+            res = f(*args, **kwargs)
+            
+            if idempotency_key:
+                status_code = 200
+                if isinstance(res, tuple):
+                    res_body, status_code = res
+                else:
+                    res_body = res
+                
+                if hasattr(res_body, 'get_json'):
+                    payload = res_body.get_json()
+                elif isinstance(res_body, dict):
+                    payload = res_body
+                else:
+                    payload = res_body
+                    
+                save_idempotency_key(idempotency_key, (payload, status_code))
+            return res
+        return wrapped
+    return decorator
+
 
 # --- 4. IDEMPOTENCY KEY CHECKER ---
 def check_idempotency_key(key):
@@ -287,13 +405,8 @@ def send_sms_notification(name, email_address):
 
 # API Endpoint to handle contact form submissions
 @app.route('/api/contact', methods=['POST'])
+@rate_limit(limit=3, period=60)
 def contact():
-    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    if client_ip and ',' in client_ip:
-        client_ip = client_ip.split(',')[0].strip()
-
-    if is_rate_limited(client_ip, limit=3, period=60):
-        return make_error_response("RATE_LIMIT_EXCEEDED", "Too many contact submissions. Slow down.", 429)
 
     try:
         data = request.get_json()
@@ -402,13 +515,8 @@ def query_gemini_model(prompt):
         return None
 
 @app.route('/api/chat', methods=['POST'])
+@rate_limit(limit=10, period=60)
 def chat():
-    client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-    if client_ip and ',' in client_ip:
-        client_ip = client_ip.split(',')[0].strip()
-
-    if is_rate_limited(client_ip, limit=10, period=60):
-        return make_error_response("RATE_LIMIT_EXCEEDED", "Too many chat requests. Slow down.", 429)
 
     try:
         data = request.get_json()
@@ -448,6 +556,7 @@ def old_logout():
 
 @app.route('/api/v1/admin/login', methods=['POST'])
 @app.route('/api/admin/login', methods=['POST'])
+@rate_limit(limit=5, period=60)
 def admin_login():
     try:
         data = request.get_json()
@@ -487,9 +596,8 @@ def admin_logout():
 # V1 Document Catalog API (with support for Pagination and Disk Cache)
 @app.route('/api/v1/admin/documents', methods=['GET'])
 @app.route('/api/admin/documents', methods=['GET'])
+@require_admin()
 def admin_list_documents():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
 
     try:
         # Load catalog metadata
@@ -533,16 +641,9 @@ def admin_list_documents():
 # V1 Document Upload API (incorporating Idempotency verification)
 @app.route('/api/v1/admin/documents/upload', methods=['POST'])
 @app.route('/api/admin/documents/upload', methods=['POST'])
+@require_admin()
+@idempotent()
 def admin_upload_document():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
-
-    # Idempotency Verification via HTTP Header
-    idempotency_key = request.headers.get('X-Idempotency-Key')
-    if idempotency_key:
-        cached_res = check_idempotency_key(idempotency_key)
-        if cached_res:
-            return jsonify(cached_res), 200
 
     try:
         if 'file' not in request.files:
@@ -597,9 +698,6 @@ def admin_upload_document():
             'document': new_record
         }
 
-        if idempotency_key:
-            save_idempotency_key(idempotency_key, response_payload)
-
         return jsonify(response_payload), 200
 
     except Exception as e:
@@ -608,9 +706,8 @@ def admin_upload_document():
 # V1 Document Deletion API
 @app.route('/api/v1/admin/documents/delete', methods=['POST'])
 @app.route('/api/admin/documents/delete', methods=['POST'])
+@require_admin()
 def admin_delete_document():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
 
     try:
         data = request.get_json()
@@ -640,9 +737,8 @@ def admin_delete_document():
 # V1 List Showcase Projects
 @app.route('/api/v1/admin/projects', methods=['GET'])
 @app.route('/api/admin/projects', methods=['GET'])
+@require_admin()
 def admin_list_projects():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
     try:
         projects = get_existing_projects()
         response_data = []
@@ -660,15 +756,9 @@ def admin_list_projects():
 # V1 Add & Auto-Generate Project Card (incorporating SSRF validation, Caching, and Git Locks)
 @app.route('/api/v1/admin/projects/add', methods=['POST'])
 @app.route('/api/admin/projects/add', methods=['POST'])
+@require_admin()
+@idempotent()
 def admin_add_project():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
-
-    idempotency_key = request.headers.get('X-Idempotency-Key')
-    if idempotency_key:
-        cached_res = check_idempotency_key(idempotency_key)
-        if cached_res:
-            return jsonify(cached_res), 200
 
     try:
         data = request.get_json()
@@ -841,9 +931,6 @@ def admin_add_project():
             }
         }
 
-        if idempotency_key:
-            save_idempotency_key(idempotency_key, response_payload)
-
         return jsonify(response_payload), 200
 
     except Exception as e:
@@ -852,9 +939,8 @@ def admin_add_project():
 # V1 Delete Showcase Project (with Git Locks)
 @app.route('/api/v1/admin/projects/delete', methods=['POST'])
 @app.route('/api/admin/projects/delete', methods=['POST'])
+@require_admin()
 def admin_delete_project():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
     try:
         data = request.get_json()
         if not data or 'name' not in data:
@@ -898,9 +984,8 @@ def admin_delete_project():
 # V1 Update Showcase Project Links (with Git Locks)
 @app.route('/api/v1/admin/projects/update', methods=['POST'])
 @app.route('/api/admin/projects/update', methods=['POST'])
+@require_admin()
 def admin_update_project():
-    if not session.get('admin_logged_in'):
-        return make_error_response("UNAUTHORIZED", "Access denied.", 401)
     try:
         data = request.get_json()
         if not data or not all(k in data for k in ['name', 'github_link', 'live_link']):

@@ -1304,6 +1304,115 @@ chat_histories_lock = threading.Lock()
 
 
 
+
+# --- 5b. RETRIEVAL-AUGMENTED GENERATION (RAG) TEXT CACHING & SEARCH ---
+def extract_and_cache_pdf_text(pdf_path, filename):
+    """Extracts text from a PDF file using pypdf and caches it on disk for RAG search."""
+    try:
+        from pypdf import PdfReader
+        rag_dir = os.path.join(app.root_path, "static", "assets", "document_catalog_rag")
+        os.makedirs(rag_dir, exist_ok=True)
+
+        reader = PdfReader(pdf_path)
+        text_content = []
+        for page in reader.pages:
+            text = page.extract_text()
+            if text:
+                text_content.append(text)
+
+        full_text = "\n\n".join(text_content)
+        cache_path = os.path.join(rag_dir, filename + ".txt")
+        with open(cache_path, 'w', encoding='utf-8') as f:
+            f.write(full_text)
+
+        print(f"[RAG Indexer] Extracted and cached text for {filename} ({len(full_text)} chars)")
+        return True
+    except Exception as e:
+        print(f"[RAG Indexer] Failed to extract text for {filename}: {e}")
+        return False
+
+def sync_rag_document_cache():
+    """Scans the Parquet catalog and indexes any PDF documents that do not have cached text."""
+    try:
+        df = catalog_manager.read_catalog()
+        if df.empty:
+            return
+
+        print("[RAG Indexer] Synchronizing document cache on startup...")
+        for _, row in df.iterrows():
+            filename = row['filename']
+            path = row['path']
+            abs_path = os.path.join(app.root_path, path.replace('/', os.path.sep))
+
+            if filename.lower().endswith('.pdf') and os.path.exists(abs_path):
+                cache_path = os.path.join(app.root_path, "static", "assets", "document_catalog_rag", filename + ".txt")
+                if not os.path.exists(cache_path):
+                    extract_and_cache_pdf_text(abs_path, filename)
+    except Exception as e:
+        print(f"[RAG Indexer] Cache synchronization failed: {e}")
+
+def retrieve_document_chunks(user_query, limit_chars=2000):
+    """
+    Performs keyword scoring over the cached document text paragraphs to retrieve relevant sections.
+    Matches queries against paragraphs and returns the most relevant snippets.
+    """
+    try:
+        import re
+        rag_dir = os.path.join(app.root_path, "static", "assets", "document_catalog_rag")
+        if not os.path.exists(rag_dir):
+            return ""
+
+        chunks = []
+        for filename in os.listdir(rag_dir):
+            if filename.endswith(".txt"):
+                filepath = os.path.join(rag_dir, filename)
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        text = f.read()
+
+                    # Segment by paragraphs
+                    paragraphs = [p.strip() for p in text.split('\n\n') if len(p.strip()) > 30]
+                    for p in paragraphs:
+                        chunks.append({
+                            'source': filename.replace('.txt', ''),
+                            'text': p
+                        })
+                except Exception as e:
+                    print(f"[RAG Engine] Error reading cache file {filename}: {e}")
+
+        if not chunks:
+            return ""
+
+        query_words = [w.lower() for w in re.findall(r'\b\w+\b', user_query) if len(w) > 2]
+        if not query_words:
+            return ""
+
+        ranked_chunks = []
+        for chunk in chunks:
+            score = 0
+            chunk_text_lower = chunk['text'].lower()
+            for word in query_words:
+                if word in chunk_text_lower:
+                    score += chunk_text_lower.count(word)
+            if score > 0:
+                ranked_chunks.append((score, chunk))
+
+        ranked_chunks.sort(key=lambda x: x[0], reverse=True)
+
+        retrieved_content = []
+        current_chars = 0
+        for score, chunk in ranked_chunks[:5]:
+            snippet = f"Source: {chunk['source']} | Content: {chunk['text']}"
+            if current_chars + len(snippet) < limit_chars:
+                retrieved_content.append(snippet)
+                current_chars += len(snippet)
+
+        if retrieved_content:
+            return "\n\nRetrieved Relevant Document Content Snippets:\n" + "\n---\n".join(retrieved_content)
+    except Exception as e:
+        print(f"[RAG Engine] Search failed: {e}")
+    return ""
+
 def query_gemini_model(prompt, chat_id):
 
     if not HAS_GEMINI:
@@ -1349,6 +1458,11 @@ def query_gemini_model(prompt, chat_id):
 
 
         docs_context = "\n".join(docs_metadata) if docs_metadata else "- No document attachments currently registered."
+
+        # Inject matching document text snippets via true RAG
+        retrieved_snippets = retrieve_document_chunks(prompt)
+        if retrieved_snippets:
+            docs_context += "\n" + retrieved_snippets
 
 
 
@@ -1806,6 +1920,10 @@ def admin_upload_document():
 
         catalog_manager.write_catalog(df)
 
+        # Extract and cache text for RAG search
+        if file_path.lower().endswith('.pdf'):
+            extract_and_cache_pdf_text(file_path, filename)
+
 
 
         response_payload = {
@@ -1881,6 +1999,16 @@ def admin_delete_document():
         df = df[df['id'] != doc_id]
 
         catalog_manager.write_catalog(df)
+
+        # Remove cached text index for RAG
+        filename = doc_record.iloc[0]['filename']
+        cache_path = os.path.join(app.root_path, "static", "assets", "document_catalog_rag", filename + ".txt")
+        if os.path.exists(cache_path):
+            os.remove(cache_path)
+
+        # Extract and cache text for RAG search
+        if file_path.lower().endswith('.pdf'):
+            extract_and_cache_pdf_text(file_path, filename)
 
 
 
@@ -2507,15 +2635,15 @@ def admin_analytics():
         df = catalog_manager.read_catalog()
         total_docs = len(df)
         total_size_bytes = int(df['size_bytes'].sum()) if total_docs > 0 else 0
-        
+
         # Calculate categories
         cat_counts = df['category'].value_counts().to_dict() if total_docs > 0 else {}
-        
+
         # Return AI model session stats
         with chat_histories_lock:
             total_active_sessions = len(chat_histories)
             total_turns = sum(len(h) for h in chat_histories.values())
-            
+
         payload = {
             'success': True,
             'database': {
@@ -2991,6 +3119,7 @@ def update_project_links_in_file(filepath, project_name, new_github, new_live):
 
 
 if __name__ == '__main__':
+    sync_rag_document_cache()
 
     app.run(debug=False, host='127.0.0.1', port=5000)
 

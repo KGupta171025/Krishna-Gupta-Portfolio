@@ -1,5 +1,5 @@
 # Target local backend API endpoint
-$Url = "http://127.0.0.1:5000/api/contact"
+$Url = "http://127.0.0.1:5000/api/openapi.json"
 $LogFile = Join-Path $PSScriptRoot "portfolio_monitor.log"
 
 try {
@@ -17,8 +17,8 @@ catch {
 
 $Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
-# If status code is 0 (connection refused/timeout) or server error (500+)
-if ($Status -eq 0 -or $Status -ge 500) {
+# If status code is not 200 (healthy OK status)
+if ($Status -ne 200) {
     Add-Content -Path $LogFile -Value "$Timestamp: Portfolio Backend API is unhealthy (Status: $Status). Attempting restart..."
     
     # Check if python processes are running and stop them

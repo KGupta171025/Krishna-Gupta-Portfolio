@@ -1414,6 +1414,36 @@
 
                 </div>
 
+                <!-- AI & Database Analytics Card -->
+                <div class="glass-card" style="margin-top: 20px;">
+                    <h3 class="section-title"><i class="fas fa-brain"></i> AI & Database Insights</h3>
+                    <div class="analytics-container">
+                        <div class="analytics-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px;">
+                            <div class="analytics-kpi" style="background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Active Sessions</div>
+                                <div id="kpi-sessions" style="font-size: 1.25rem; font-weight: 700; color: var(--primary); margin-top: 4px;">0</div>
+                            </div>
+                            <div class="analytics-kpi" style="background: rgba(255, 255, 255, 0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.05); text-align: center;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Docs</div>
+                                <div id="kpi-docs" style="font-size: 1.25rem; font-weight: 700; color: #10b981; margin-top: 4px;">0</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px;">Local NLP Classifier:</div>
+                        <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.15); border-radius: 6px; padding: 8px; font-size: 0.8rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="color: var(--text-color); font-weight: 500;"><i class="fas fa-microchip"></i> Cosine-Similarity TF-IDF</span>
+                            <span style="font-size: 0.7rem; background: var(--primary); color: #0b0f19; padding: 2px 6px; border-radius: 4px; font-weight: 700;">ACTIVE</span>
+                        </div>
+                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 6px;">Catalog Storage Volume:</div>
+                        <div style="width: 100%; background: rgba(255, 255, 255, 0.05); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 6px;">
+                            <div id="analytics-storage-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), #10b981); transition: width 0.5s ease;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                            <span id="analytics-bytes">0 KB</span>
+                            <span>Max Limit: 100 MB</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
 
@@ -1909,6 +1939,7 @@
         // Load Parquet Catalog
 
         function loadCatalog() {
+            if (typeof loadAnalytics === 'function') { loadAnalytics(); }
 
             const listContainer = document.getElementById('documents-list');
 
@@ -2877,6 +2908,54 @@
         });
 
 
+
+        
+        // Custom dynamic full-stack AI & Database Analytics loader
+        function loadAnalytics() {
+            if (isStaticMode) {
+                // Static read-only simulation fallback for GitHub Pages hosting
+                document.getElementById('kpi-sessions').innerText = "1";
+                document.getElementById('kpi-docs').innerText = "8";
+                
+                // Formatted size: 8 static files = ~1.9 MB
+                const totalBytes = 1948834; 
+                document.getElementById('analytics-bytes').innerText = "1.9 MB";
+                const maxBytes = 104857600;
+                const percent = (totalBytes / maxBytes) * 100;
+                document.getElementById('analytics-storage-bar').style.width = percent.toFixed(2) + '%';
+                return;
+            }
+
+            fetch('/api/v1/admin/analytics', {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to load analytics");
+                return res.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('kpi-sessions').innerText = data.ai_agent.active_sessions;
+                    document.getElementById('kpi-docs').innerText = data.database.total_documents;
+                    
+                    const bytes = data.database.total_size_bytes;
+                    let sizeStr = "0 KB";
+                    if (bytes > 1048576) {
+                        sizeStr = (bytes / 1048576).toFixed(1) + " MB";
+                    } else if (bytes > 0) {
+                        sizeStr = (bytes / 1024).toFixed(1) + " KB";
+                    }
+                    document.getElementById('analytics-bytes').innerText = sizeStr;
+                    
+                    const maxBytes = 104857600; // 100MB limit
+                    const percent = Math.min((bytes / maxBytes) * 100, 100);
+                    document.getElementById('analytics-storage-bar').style.width = Math.max(percent, 2) + '%';
+                }
+            })
+            .catch(err => {
+                console.error("Analytics fetch error:", err);
+            });
+        }
 
         // Custom Category Dropdown UI Controller
 

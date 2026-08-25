@@ -2496,6 +2496,46 @@ def admin_update_project():
 
 
 
+
+
+# --- 8b. ADMIN ANALYTICS ENDPOINT ---
+@app.route('/api/v1/admin/analytics', methods=['GET'])
+@app.route('/api/admin/analytics', methods=['GET'])
+@require_admin()
+def admin_analytics():
+    try:
+        df = catalog_manager.read_catalog()
+        total_docs = len(df)
+        total_size_bytes = int(df['size_bytes'].sum()) if total_docs > 0 else 0
+        
+        # Calculate categories
+        cat_counts = df['category'].value_counts().to_dict() if total_docs > 0 else {}
+        
+        # Return AI model session stats
+        with chat_histories_lock:
+            total_active_sessions = len(chat_histories)
+            total_turns = sum(len(h) for h in chat_histories.values())
+            
+        payload = {
+            'success': True,
+            'database': {
+                'total_documents': total_docs,
+                'total_size_bytes': total_size_bytes,
+                'categories': cat_counts,
+                'encryption_enabled': DB_KEY is not None
+            },
+            'ai_agent': {
+                'active_sessions': total_active_sessions,
+                'total_conversation_turns': total_turns,
+                'local_vsm_classifier': 'TF-IDF Vector Space Model',
+                'vector_distance_metric': 'Cosine Similarity',
+                'online_model': 'Gemini 1.5 Flash'
+            }
+        }
+        return jsonify(payload), 200
+    except Exception as e:
+        return make_error_response("INTERNAL_ERROR", str(e), 500)
+
 # --- 9. OPENAPI SPECIFICATION ENDPOINT (API Self-Documentation) ---
 
 @app.route('/api/openapi.json', methods=['GET'])

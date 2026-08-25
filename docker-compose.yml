@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  portfolio-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - API_ACCESS_TOKEN=${API_ACCESS_TOKEN:-default_token}
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    restart: always

@@ -2006,12 +2006,6 @@ def admin_delete_document():
         if os.path.exists(cache_path):
             os.remove(cache_path)
 
-        # Extract and cache text for RAG search
-        if file_path.lower().endswith('.pdf'):
-            extract_and_cache_pdf_text(file_path, filename)
-
-
-
         return jsonify({'success': True, 'message': 'Document successfully removed.'}), 200
 
     except Exception as e:

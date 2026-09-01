@@ -880,20 +880,12 @@ function initThreeBackground() {
 
 
     function updateShapePosition() {
-        if (window.innerWidth < 768) {
-            // Mobile: Position in subtle upper-right background, scaled small, low ambient opacity
-            shapeMesh.position.set(1.5, 3.2, -3.5);
-            initialY = 3.2;
-            shapeMesh.scale.set(0.4, 0.4, 0.4);
-            shapeMat.opacity = 0.07;
-        } else if (window.innerWidth < 992) {
-            // Tablet
-            shapeMesh.position.set(2.2, 2.0, -2.0);
-            initialY = 2.0;
-            shapeMesh.scale.set(0.65, 0.65, 0.65);
-            shapeMat.opacity = 0.11;
+        if (window.innerWidth < 992) {
+            // On mobile & tablet: hide 3D torus knot mesh so text and buttons are 100% clear and unobstructed
+            shapeMesh.visible = false;
         } else {
-            // Desktop
+            // Desktop: Showcase floating 3D wireframe mesh on right side
+            shapeMesh.visible = true;
             shapeMesh.position.set(3.2, 1.0, -1.0);
             initialY = 1.0;
             shapeMesh.scale.set(1, 1, 1);
@@ -940,15 +932,16 @@ function initThreeBackground() {
         camera.position.y = -targetY * (window.innerWidth < 768 ? 1.5 : 3.5);
         camera.lookAt(scene.position);
 
-        // Adjust mesh Y position based on document scroll (3D parallax) with smooth damping
-        const scrollFraction = window.scrollY / Math.max(window.innerHeight, 1);
-        const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
-        const scrollFactor = window.innerWidth < 768 ? 0.3 : 1.0;
-        shapeMesh.position.y = initialY - (scrollFraction * visibleHeight * scrollFactor);
+        // Adjust mesh Y position based on document scroll (3D parallax) on desktop
+        if (shapeMesh.visible) {
+            const scrollFraction = window.scrollY / Math.max(window.innerHeight, 1);
+            const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
+            shapeMesh.position.y = initialY - (scrollFraction * visibleHeight);
 
-        // Spin the Torus Knot mesh with cursor parallax inertia
-        shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
-        shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
+            // Spin the Torus Knot mesh with cursor parallax inertia
+            shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
+            shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
+        }
 
         renderer.render(scene, camera);
     }

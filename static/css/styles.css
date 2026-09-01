@@ -1376,10 +1376,10 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color);
 }
 
-/* Scroll-reveal physics styling */
+/* Scroll-reveal physics styling (with instant fail-safe visibility) */
 .reveal {
-    opacity: 0;
-    transform: translateY(30px) scale(0.98);
+    opacity: 1;
+    transform: translateY(0);
     transition: opacity var(--transition-slow), transform var(--transition-slow);
 }
 

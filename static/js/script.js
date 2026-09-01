@@ -879,321 +879,87 @@ function initThreeBackground() {
 
 
 
-
-
-
-
     function updateShapePosition() {
-
-
-
-
-
-
-
-        if (window.innerWidth < 991) {
-
-
-
-
-
-
-
-            shapeMesh.position.set(0, -2.4, -2.5);
-
-
-
-
-
-
-
-            initialY = -2.4;
-
-
-
-
-
-
-
+        if (window.innerWidth < 768) {
+            // Mobile: Position in subtle upper-right background, scaled small, low ambient opacity
+            shapeMesh.position.set(1.5, 3.2, -3.5);
+            initialY = 3.2;
+            shapeMesh.scale.set(0.4, 0.4, 0.4);
+            shapeMat.opacity = 0.07;
+        } else if (window.innerWidth < 992) {
+            // Tablet
+            shapeMesh.position.set(2.2, 2.0, -2.0);
+            initialY = 2.0;
             shapeMesh.scale.set(0.65, 0.65, 0.65);
-
-
-
-
-
-
-
+            shapeMat.opacity = 0.11;
         } else {
-
-
-
-
-
-
-
-            shapeMesh.position.set(3, 1, -1);
-
-
-
-
-
-
-
-            initialY = 1;
-
-
-
-
-
-
-
+            // Desktop
+            shapeMesh.position.set(3.2, 1.0, -1.0);
+            initialY = 1.0;
             shapeMesh.scale.set(1, 1, 1);
-
-
-
-
-
-
-
+            shapeMat.opacity = 0.18;
         }
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
 
     updateShapePosition();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     camera.position.z = 6;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Mouse movement physics
-
-
-
-
-
-
-
+    // Mouse & Touch movement physics
     let mouseX = 0;
-
-
-
-
-
-
-
     let mouseY = 0;
-
-
-
-
-
-
-
     let targetX = 0;
-
-
-
-
-
-
-
     let targetY = 0;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     document.addEventListener('mousemove', (e) => {
-
-
-
-
-
-
-
         mouseX = (e.clientX / window.innerWidth - 0.5);
-
-
-
-
-
-
-
         mouseY = (e.clientY / window.innerHeight - 0.5);
-
-
-
-
-
-
-
     });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0) {
+            mouseX = (e.touches[0].clientX / window.innerWidth - 0.5) * 0.5;
+            mouseY = (e.touches[0].clientY / window.innerHeight - 0.5) * 0.5;
+        }
+    }, { passive: true });
 
     // Animation Loop
-
-
-
-
-
-
-
     function animate() {
-    requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
 
-    // Smooth camera damping/inertia
-    targetX += (mouseX - targetX) * 0.05;
-    targetY += (mouseY - targetY) * 0.05;
+        // Smooth camera damping/inertia
+        targetX += (mouseX - targetX) * 0.05;
+        targetY += (mouseY - targetY) * 0.05;
 
-    // Slow background orbital rotation (handled entirely by GPU)
-    points.rotation.y += 0.0004;
-    points.rotation.x += 0.0002;
+        // Slow background orbital rotation (handled entirely by GPU)
+        points.rotation.y += 0.0004;
+        points.rotation.x += 0.0002;
 
-    // Move camera slightly to warp the perspective
-    camera.position.x = targetX * 3.5;
-    camera.position.y = -targetY * 3.5;
-    camera.lookAt(scene.position);
+        // Move camera slightly to warp the perspective
+        camera.position.x = targetX * (window.innerWidth < 768 ? 1.5 : 3.5);
+        camera.position.y = -targetY * (window.innerWidth < 768 ? 1.5 : 3.5);
+        camera.lookAt(scene.position);
 
-    // Adjust mesh Y position based on document scroll (3D parallax)
-    const scrollFraction = window.scrollY / window.innerHeight;
-    const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
-    shapeMesh.position.y = initialY - (scrollFraction * visibleHeight);
+        // Adjust mesh Y position based on document scroll (3D parallax) with smooth damping
+        const scrollFraction = window.scrollY / Math.max(window.innerHeight, 1);
+        const visibleHeight = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
+        const scrollFactor = window.innerWidth < 768 ? 0.3 : 1.0;
+        shapeMesh.position.y = initialY - (scrollFraction * visibleHeight * scrollFactor);
 
-    // Spin the Torus Knot mesh with cursor parallax inertia
-    shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
-    shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
+        // Spin the Torus Knot mesh with cursor parallax inertia
+        shapeMesh.rotation.x += 0.004 + (targetY * 0.015);
+        shapeMesh.rotation.y += 0.004 + (targetX * 0.015);
 
-    renderer.render(scene, camera);
-}
-
-
-
-
-
-
+        renderer.render(scene, camera);
+    }
 
     animate();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Resize Handler
-
-
-
-
-
-
-
     window.addEventListener('resize', () => {
-
-
-
-
-
-
-
         camera.aspect = window.innerWidth / window.innerHeight;
-
-
-
-
-
-
-
         camera.updateProjectionMatrix();
-
-
-
-
-
-
-
         renderer.setSize(window.innerWidth, window.innerHeight);
-
-
-
-
-
-
-
-    });
-
-
-
-
 
 
 

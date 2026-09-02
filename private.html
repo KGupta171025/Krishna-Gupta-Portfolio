@@ -1584,6 +1584,16 @@
                         }
                     }
 
+                    // If it's a resume, also ensure alias links point to latest content
+                    if (originalCategory === 'Resume') {
+                        try {
+                            let sha1 = null;
+                            const f1 = await fetchGitHubPathInfo('static/assets/Krishna-Gupta_Resume.pdf');
+                            if (f1 && f1.sha) sha1 = f1.sha;
+                            await uploadFileToGitHub('static/assets/Krishna-Gupta_Resume.pdf', base64Content, `Sync active resume alias`, sha1);
+                        } catch (e) {}
+                    }
+
                     showToast(`Document "${originalFilename}" successfully replaced with "${cleanNewName}"!`, "success");
                     loadCatalog();
                 } catch (err) {

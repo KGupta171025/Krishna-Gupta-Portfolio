@@ -1535,9 +1535,17 @@
 
             const selectedFile = exchangeFileInput.files[0];
             const originalFilename = activeExchangeInfo.filename;
-            const originalPath = activeExchangeInfo.path || (activeExchangeInfo.category === 'Certificate' ? `static/assets/certificates/${originalFilename}` : `static/assets/${originalFilename}`);
+            const originalCategory = activeExchangeInfo.category || 'Other';
+            const originalPath = activeExchangeInfo.path || (originalCategory === 'Certificate' ? `static/assets/certificates/${originalFilename}` : `static/assets/${originalFilename}`);
 
-            showToast(`Uploading replacement for ${originalFilename}...`, "info");
+            // Adopt the new selected filename (sanitized)
+            const cleanNewName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            let newPath = `static/assets/${cleanNewName}`;
+            if (originalCategory === 'Certificate') {
+                newPath = `static/assets/certificates/${cleanNewName}`;
+            }
+
+            showToast(`Replacing "${originalFilename}" with "${cleanNewName}"...`, "info");
 
             if (isStaticMode) {
                 try {
@@ -1549,16 +1557,34 @@
 
                     const base64Content = await fileToBase64(selectedFile);
                     
-                    // Fetch existing SHA
-                    let existingSha = null;
-                    try {
-                        const existing = await fetchGitHubPathInfo(originalPath);
-                        if (existing && existing.sha) existingSha = existing.sha;
-                    } catch (err) {}
+                    if (cleanNewName === originalFilename) {
+                        // Same filename: Overwrite file content in place
+                        let existingSha = null;
+                        try {
+                            const existing = await fetchGitHubPathInfo(originalPath);
+                            if (existing && existing.sha) existingSha = existing.sha;
+                        } catch (err) {}
 
-                    await uploadFileToGitHub(originalPath, base64Content, `Exchange/Replace ${originalFilename} via Admin Document Control Center`, existingSha);
+                        await uploadFileToGitHub(originalPath, base64Content, `Exchange/Replace ${originalFilename} via Admin Document Control Center`, existingSha);
+                    } else {
+                        // Different filename: 1. Upload new file with its new name
+                        let newSha = null;
+                        try {
+                            const existingNew = await fetchGitHubPathInfo(newPath);
+                            if (existingNew && existingNew.sha) newSha = existingNew.sha;
+                        } catch (err) {}
 
-                    showToast(`Document "${originalFilename}" replaced successfully!`, "success");
+                        await uploadFileToGitHub(newPath, base64Content, `Upload ${cleanNewName} (Replaces ${originalFilename}) via Admin Document Control Center`, newSha);
+
+                        // 2. Delete the old file from repository
+                        try {
+                            await deleteFileFromGitHub(originalPath, `Remove old ${originalFilename} after replacement with ${cleanNewName}`);
+                        } catch (delErr) {
+                            console.log("Note on old file cleanup:", delErr);
+                        }
+                    }
+
+                    showToast(`Document "${originalFilename}" successfully replaced with "${cleanNewName}"!`, "success");
                     loadCatalog();
                 } catch (err) {
                     console.error("Cloud exchange error:", err);
@@ -1572,24 +1598,33 @@
 
             // Local Server Mode
             const formData = new FormData();
-            const fileToUpload = new File([selectedFile], originalFilename, { type: selectedFile.type });
-            formData.append('file', fileToUpload);
-            formData.append('category', activeExchangeInfo.category);
+            formData.append('file', selectedFile);
+            formData.append('category', originalCategory);
 
             fetch('/api/v1/admin/documents/upload', {
                 method: 'POST',
                 body: formData
             })
             .then(res => {
-                if (!res.ok) throw new Error("Replacement failed");
+                if (!res.ok) throw new Error("Replacement upload failed");
                 return res.json();
             })
-            .then(data => {
+            .then(async data => {
                 if (data.success) {
-                    showToast(data.message, "success");
+                    // If filename changed, remove old document entry from catalog
+                    if (cleanNewName !== originalFilename && activeExchangeInfo.id) {
+                        try {
+                            await fetch('/api/v1/admin/documents/delete', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ id: activeExchangeInfo.id })
+                            });
+                        } catch (e) {}
+                    }
+                    showToast(`Document "${originalFilename}" successfully replaced with "${cleanNewName}"!`, "success");
                     loadCatalog();
                 } else {
-                    showToast(data.message, "error");
+                    showToast(data.message || "Replacement failed", "error");
                 }
             })
             .catch(err => {

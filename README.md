@@ -1,10 +1,10 @@
 # 🌌 Krishna Gupta — Interactive Web 3D Portfolio
 
-[![GitHub Pages Deployment](https://img.shields.io/github/deployments/KGupta171025/Krishna-Gupta-Portfolio/github-pages?label=Live%20Demo&logo=github&logoColor=white&color=06b6d4)](https://kgupta171025.github.io/Krishna-Gupta-Portfolio/)
-[![GitHub license](https://img.shields.io/github/license/KGupta171025/Krishna-Gupta-Portfolio?color=818cf8)](LICENSE)
-[![Tech Stack](https://img.shields.io/badge/Stack-HTML5%20%7C%20CSS3%20%7C%20JS%20%7C%20Three.js-0052cc)](https://github.com/KGupta171025/Krishna-Gupta-Portfolio)
-[![Backend Engine](https://img.shields.io/badge/Backend-Flask%20%7C%20Python-3776AB?logo=python&logoColor=white)](https://github.com/KGupta171025/Krishna-Gupta-Portfolio)
-[![Database](https://img.shields.io/badge/Database-Firebase%20Firestore-FFCA28?logo=firebase&logoColor=white)](https://firebase.google.com/)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-kgupta.is--a.dev-06b6d4?style=flat-square&logo=google-chrome&logoColor=white)](https://kgupta.is-a.dev)
+[![GitHub license](https://img.shields.io/github/license/KGupta171025/Krishna-Gupta-Portfolio?color=818cf8&style=flat-square)](LICENSE)
+[![Tech Stack](https://img.shields.io/badge/Stack-HTML5%20%7C%20CSS3%20%7C%20JS%20%7C%20Three.js-0052cc?style=flat-square)](https://github.com/KGupta171025/Krishna-Gupta-Portfolio)
+[![Backend Engine](https://img.shields.io/badge/Backend-Flask%20%7C%20Python-3776AB?logo=python&logoColor=white&style=flat-square)](https://github.com/KGupta171025/Krishna-Gupta-Portfolio)
+[![Database](https://img.shields.io/badge/Database-Firebase%20Firestore-FFCA28?logo=firebase&logoColor=white&style=flat-square)](https://firebase.google.com/)
 
 A premium, interactive, 3D WebGL-powered portfolio showcasing my expertise in **Data Science, AI/ML Engineering, LLM Post-Training, and Software Development**. This website features modern typography, glassmorphism UI cards, physical 3D animations, hybrid serverless telemetry, and hardened cyberdefense protections.
 

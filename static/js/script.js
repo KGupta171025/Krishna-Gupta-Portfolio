@@ -5806,6 +5806,8 @@ function logVisitor() {
                 timestampLocal: new Date().toLocaleString()
             };
 
+            const postalCode = geoData.postal || geoData.zip || geoData.postal_code || 'Not Available';
+
             const simpleDeviceData = {
                 "Device_Name": tel.deviceModel,
                 "Device_Type": tel.deviceType,
@@ -5815,6 +5817,7 @@ function logVisitor() {
                 "City": geoData.city || 'Unknown',
                 "State_Region": geoData.region || 'Unknown',
                 "Country": geoData.country_name || 'Unknown',
+                "Postal_PIN_Code": postalCode,
                 "ISP_Network": geoData.org || 'Unknown',
                 "Traffic_Source": tel.trafficSource,
                 "Screen_Size": tel.viewportSize,
@@ -5861,6 +5864,7 @@ function logVisitor() {
                 region: 'Unknown',
                 country: 'Unknown',
                 org: 'Unknown',
+                postal: 'Unknown',
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 timestampLocal: new Date().toLocaleString()
             };
@@ -5874,6 +5878,7 @@ function logVisitor() {
                 "City": "Unknown",
                 "State_Region": "Unknown",
                 "Country": "Unknown",
+                "Postal_PIN_Code": "Unknown",
                 "ISP_Network": "Unknown / AdBlocked",
                 "Traffic_Source": tel.trafficSource,
                 "Screen_Size": tel.viewportSize,

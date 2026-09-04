@@ -5645,8 +5645,27 @@ function logVisitor() {
                 timestampLocal: new Date().toLocaleString()
             };
 
-            db.collection("visitor_logs").doc(timeDocId).set(visitorData)
-                .then(() => console.log("Visitor telemetry logged silently."))
+            const simpleDeviceData = {
+                "Device_Name": tel.deviceModel,
+                "Device_Type": tel.deviceType,
+                "Operating_System": tel.os,
+                "Browser": tel.browser,
+                "Visitor_ID": tel.visitorId,
+                "City": geoData.city || 'Unknown',
+                "State_Region": geoData.region || 'Unknown',
+                "Country": geoData.country_name || 'Unknown',
+                "ISP_Network": geoData.org || 'Unknown',
+                "Traffic_Source": tel.trafficSource,
+                "Screen_Size": tel.viewportSize,
+                "Page_Visited": window.location.pathname || '/',
+                "Total_Visits": tel.visitCount,
+                "Date_Time": new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + " (IST)",
+                "timestamp": firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("visitor_logs").doc(timeDocId).set(visitorData);
+            db.collection("user_devices").doc(timeDocId).set(simpleDeviceData)
+                .then(() => console.log("User device telemetry logged silently to user_devices."))
                 .catch(err => console.error("Telemetry error:", err));
         })
         .catch(() => {
@@ -5686,8 +5705,27 @@ function logVisitor() {
                 timestampLocal: new Date().toLocaleString()
             };
 
-            db.collection("visitor_logs").doc(timeDocId).set(fallbackData)
-                .then(() => console.log("Visitor fallback telemetry logged."))
+            const simpleFallbackData = {
+                "Device_Name": tel.deviceModel,
+                "Device_Type": tel.deviceType,
+                "Operating_System": tel.os,
+                "Browser": tel.browser,
+                "Visitor_ID": tel.visitorId,
+                "City": "Unknown",
+                "State_Region": "Unknown",
+                "Country": "Unknown",
+                "ISP_Network": "Unknown / AdBlocked",
+                "Traffic_Source": tel.trafficSource,
+                "Screen_Size": tel.viewportSize,
+                "Page_Visited": window.location.pathname || '/',
+                "Total_Visits": tel.visitCount,
+                "Date_Time": new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + " (IST)",
+                "timestamp": firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection("visitor_logs").doc(timeDocId).set(fallbackData);
+            db.collection("user_devices").doc(timeDocId).set(simpleFallbackData)
+                .then(() => console.log("Visitor fallback telemetry logged to user_devices."))
                 .catch(dbErr => console.error("Telemetry fallback error:", dbErr));
         });
 

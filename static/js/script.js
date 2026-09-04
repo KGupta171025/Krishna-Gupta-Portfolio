@@ -5586,390 +5586,110 @@ function logVisitor() {
 
 
 
+    const tel = getVisitorDetailedTelemetry();
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
 
-
-
-
-
-
-
-
-
-
-    // Fetch geolocation data from ipapi.co (free public IP/Geo API)
-
-
-
-
-
-
-
+    // Silently fetch IP & Geolocation in background
     fetch('https://ipapi.co/json/')
-
-
-
-
-
-
-
         .then(response => response.json())
-
-
-
-
-
-
-
         .then(geoData => {
-
-
-
-
-
-
-
             const visitorData = {
+                // Identity & Device
+                visitorId: tel.visitorId,
+                sessionId: tel.sessionId,
+                isReturningVisitor: tel.isReturningVisitor,
+                visitCount: tel.visitCount,
+                deviceType: tel.deviceType,
+                deviceModel: tel.deviceModel,
+                os: tel.os,
+                browser: tel.browser,
+                browserEngine: tel.browserEngine,
 
+                // Traffic & Source
+                trafficSource: tel.trafficSource,
+                campaignSource: tel.campaignSource,
+                campaignMedium: tel.campaignMedium,
+                campaignName: tel.campaignName,
+                referrer: tel.referrerUrl,
+                page: window.location.pathname || '/',
+                pageTitle: document.title || 'Krishna Gupta Portfolio',
 
+                // Hardware & Display
+                screenSize: tel.viewportSize,
+                screenResolution: tel.screenResolution,
+                screenOrientation: tel.screenOrientation,
+                cpuCores: tel.cpuCores,
+                deviceMemory: tel.deviceMemory,
+                networkType: tel.networkType,
+                timeZone: tel.timeZone,
+                systemTheme: tel.systemTheme,
+                touchSupport: tel.touchSupport,
+                language: navigator.language || 'en-US',
+                userAgent: navigator.userAgent,
 
-
-
-
-
+                // Geolocation & Network
                 ip: geoData.ip || 'Unknown',
-
-
-
-
-
-
-
                 city: geoData.city || 'Unknown',
-
-
-
-
-
-
-
                 region: geoData.region || 'Unknown',
-
-
-
-
-
-
-
                 country: geoData.country_name || 'Unknown',
-
-
-
-
-
-
-
+                countryCode: geoData.country_code || 'Unknown',
                 org: geoData.org || 'Unknown',
+                postal: geoData.postal || 'Unknown',
+                latitude: geoData.latitude || null,
+                longitude: geoData.longitude || null,
 
-
-
-
-
-
-
-                userAgent: navigator.userAgent,
-
-
-
-
-
-
-
-                language: navigator.language || 'Unknown',
-
-
-
-
-
-
-
-                screenSize: `${window.innerWidth}x${window.innerHeight}`,
-
-
-
-
-
-
-
-                referrer: document.referrer || 'Direct / Bookmark',
-
-
-
-
-
-
-
-                page: window.location.pathname,
-
-
-
-
-
-
-
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-
-
-
-
-
-
-
+                // Timestamp
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                timestampLocal: new Date().toLocaleString()
             };
 
-
-
-
-
-
-
-            const d = new Date();
-
-
-
-
-
-
-
-            const pad = (n) => String(n).padStart(2, '0');
-
-
-
-
-
-
-
-            const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
-
-
-
-
-
-
-
             db.collection("visitor_logs").doc(timeDocId).set(visitorData)
-
-
-
-
-
-
-
-                .then(() => console.log("Visitor analytics logged successfully with ID:", timeDocId))
-
-
-
-
-
-
-
-                .catch(err => console.error("Error logging analytics:", err));
-
-
-
-
-
-
-
+                .then(() => console.log("Visitor telemetry logged silently."))
+                .catch(err => console.error("Telemetry error:", err));
         })
-
-
-
-
-
-
-
-        .catch(err => {
-
-
-
-
-
-
-
-            // Fallback if IP API fails or is blocked by an adblocker
-
-
-
-
-
-
-
-            const visitorData = {
-
-
-
-
-
-
-
-                ip: 'Blocked/Failed',
-
-
-
-
-
-
-
-                city: 'Unknown',
-
-
-
-
-
-
-
-                region: 'Unknown',
-
-
-
-
-
-
-
-                country: 'Unknown',
-
-
-
-
-
-
-
-                org: 'Unknown',
-
-
-
-
-
-
-
+        .catch(() => {
+            // Safe fallback if IP API is blocked by adblocker
+            const fallbackData = {
+                visitorId: tel.visitorId,
+                sessionId: tel.sessionId,
+                isReturningVisitor: tel.isReturningVisitor,
+                visitCount: tel.visitCount,
+                deviceType: tel.deviceType,
+                deviceModel: tel.deviceModel,
+                os: tel.os,
+                browser: tel.browser,
+                browserEngine: tel.browserEngine,
+                trafficSource: tel.trafficSource,
+                campaignSource: tel.campaignSource,
+                referrer: tel.referrerUrl,
+                page: window.location.pathname || '/',
+                pageTitle: document.title || 'Krishna Gupta Portfolio',
+                screenSize: tel.viewportSize,
+                screenResolution: tel.screenResolution,
+                screenOrientation: tel.screenOrientation,
+                cpuCores: tel.cpuCores,
+                deviceMemory: tel.deviceMemory,
+                networkType: tel.networkType,
+                timeZone: tel.timeZone,
+                systemTheme: tel.systemTheme,
+                touchSupport: tel.touchSupport,
+                language: navigator.language || 'en-US',
                 userAgent: navigator.userAgent,
-
-
-
-
-
-
-
-                language: navigator.language || 'Unknown',
-
-
-
-
-
-
-
-                screenSize: `${window.innerWidth}x${window.innerHeight}`,
-
-
-
-
-
-
-
-                referrer: document.referrer || 'Direct / Bookmark',
-
-
-
-
-
-
-
-                page: window.location.pathname,
-
-
-
-
-
-
-
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-
-
-
-
-
-
-
+                ip: 'Blocked / Offline',
+                city: 'Unknown',
+                region: 'Unknown',
+                country: 'Unknown',
+                org: 'Unknown',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                timestampLocal: new Date().toLocaleString()
             };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            const d = new Date();
-
-
-
-
-
-
-
-            const pad = (n) => String(n).padStart(2, '0');
-
-
-
-
-
-
-
-            const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
-
-
-
-
-
-
-
-            db.collection("visitor_logs").doc(timeDocId).set(visitorData)
-
-
-
-
-
-
-
-                .then(() => console.log("Visitor metadata logged with ID:", timeDocId))
-
-
-
-
-
-
-
-                .catch(dbErr => console.error("Error logging metadata:", dbErr));
-
-
-
-
-
-
-
+            db.collection("visitor_logs").doc(timeDocId).set(fallbackData)
+                .then(() => console.log("Visitor fallback telemetry logged."))
+                .catch(dbErr => console.error("Telemetry fallback error:", dbErr));
         });
-
-
-
-
-
 
 
 }

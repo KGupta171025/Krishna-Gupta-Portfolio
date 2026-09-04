@@ -5829,7 +5829,10 @@ function logVisitor() {
 
             dbInstance.collection("visitor_logs").doc(timeDocId).set(visitorData);
             dbInstance.collection("user_devices").doc(timeDocId).set(simpleDeviceData)
-                .then(() => console.log("User device telemetry logged silently to user_devices."))
+                .then(() => {
+                    console.log("User device telemetry logged silently to user_devices.");
+                    refineHighPrecisionLocation(dbInstance, timeDocId);
+                })
                 .catch(err => console.error("Telemetry error:", err));
         })
         .catch(() => {
@@ -5890,9 +5893,97 @@ function logVisitor() {
 
             dbInstance.collection("visitor_logs").doc(timeDocId).set(fallbackData);
             dbInstance.collection("user_devices").doc(timeDocId).set(simpleFallbackData)
-                .then(() => console.log("Visitor fallback telemetry logged to user_devices."))
+                .then(() => {
+                    console.log("Visitor fallback telemetry logged to user_devices.");
+                    refineHighPrecisionLocation(dbInstance, timeDocId);
+                })
                 .catch(dbErr => console.error("Telemetry fallback error:", dbErr));
         });
+}
+
+function refineHighPrecisionLocation(dbInstance, timeDocId) {
+    if (!navigator.geolocation || !dbInstance || !timeDocId) return;
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            const accuracy = pos.coords.accuracy || 50;
+
+            // Reverse-geocode with BigDataCloud high-accuracy client API
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+                .then(r => r.json())
+                .then(geo => {
+                    let exactCity = geo.locality || geo.city || 'Katni';
+                    let exactState = geo.principalSubdivision || 'Madhya Pradesh';
+                    let exactCountry = geo.countryName || 'India';
+                    let exactPostcode = geo.postcode || '';
+
+                    // If postcode not returned by first API, query Nominatim for exact PIN
+                    if (!exactPostcode) {
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                            .then(nr => nr.json())
+                            .then(nom => {
+                                const nomPostal = nom.address?.postcode || '483501';
+                                const nomCity = nom.address?.city || nom.address?.county || nom.address?.state_district || exactCity;
+                                const nomState = nom.address?.state || exactState;
+
+                                dbInstance.collection("user_devices").doc(timeDocId).update({
+                                    "City": nomCity,
+                                    "State_Region": nomState,
+                                    "Postal_PIN_Code": nomPostal,
+                                    "Country": exactCountry,
+                                    "Location_Precision": "High-Accuracy GPS / Wi-Fi Pinpoint",
+                                    "GPS_Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)} (±${Math.round(accuracy)}m)`
+                                }).catch(() => {});
+
+                                dbInstance.collection("visitor_logs").doc(timeDocId).update({
+                                    city: nomCity,
+                                    region: nomState,
+                                    postal: nomPostal,
+                                    country: exactCountry,
+                                    latitude: lat,
+                                    longitude: lon,
+                                    accuracyMeters: accuracy,
+                                    locationMethod: "High-Accuracy GPS / Wi-Fi Pinpoint"
+                                }).catch(() => {});
+                            })
+                            .catch(() => {
+                                dbInstance.collection("user_devices").doc(timeDocId).update({
+                                    "City": exactCity,
+                                    "State_Region": exactState,
+                                    "Country": exactCountry,
+                                    "Location_Precision": "High-Accuracy GPS / Wi-Fi Pinpoint",
+                                    "GPS_Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)} (±${Math.round(accuracy)}m)`
+                                }).catch(() => {});
+                            });
+                    } else {
+                        dbInstance.collection("user_devices").doc(timeDocId).update({
+                            "City": exactCity,
+                            "State_Region": exactState,
+                            "Postal_PIN_Code": exactPostcode,
+                            "Country": exactCountry,
+                            "Location_Precision": "High-Accuracy GPS / Wi-Fi Pinpoint",
+                            "GPS_Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)} (±${Math.round(accuracy)}m)`
+                        }).catch(() => {});
+
+                        dbInstance.collection("visitor_logs").doc(timeDocId).update({
+                            city: exactCity,
+                            region: exactState,
+                            postal: exactPostcode,
+                            country: exactCountry,
+                            latitude: lat,
+                            longitude: lon,
+                            accuracyMeters: accuracy,
+                            locationMethod: "High-Accuracy GPS / Wi-Fi Pinpoint"
+                        }).catch(() => {});
+                    }
+                })
+                .catch(() => {});
+        },
+        () => {},
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 180000 }
+    );
 }
 
 

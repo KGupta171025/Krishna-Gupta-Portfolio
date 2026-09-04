@@ -5659,6 +5659,30 @@ function logVisitor() {
 
 
 
+            const now = new Date();
+
+
+
+
+
+
+
+            const pad = (n) => String(n).padStart(2, '0');
+
+
+
+
+
+
+
+            const docId = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}_${String(now.getMilliseconds()).padStart(3, '0')}`;
+
+
+
+
+
+
+
             const visitorData = {
 
 
@@ -5747,6 +5771,30 @@ function logVisitor() {
 
 
 
+                created_at_iso: now.toISOString(),
+
+
+
+
+
+
+
+                timestamp_epoch: Date.now(),
+
+
+
+
+
+
+
+                formatted_datetime: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+
+
+
+
+
+
+
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
 
 
@@ -5771,7 +5819,7 @@ function logVisitor() {
 
 
 
-            db.collection("visitor_logs").add(visitorData)
+            db.collection("visitor_logs").doc(docId).set(visitorData)
 
 
 
@@ -5779,7 +5827,7 @@ function logVisitor() {
 
 
 
-                .then(() => console.log("Visitor analytics logged successfully."))
+                .then(() => console.log("Visitor analytics logged successfully (chronological ID)."))
 
 
 
@@ -5812,6 +5860,30 @@ function logVisitor() {
 
 
             // Fallback if IP API fails or is blocked by an adblocker
+
+
+
+
+
+
+
+            const now = new Date();
+
+
+
+
+
+
+
+            const pad = (n) => String(n).padStart(2, '0');
+
+
+
+
+
+
+
+            const docId = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}_${String(now.getMilliseconds()).padStart(3, '0')}`;
 
 
 
@@ -5907,6 +5979,30 @@ function logVisitor() {
 
 
 
+                created_at_iso: now.toISOString(),
+
+
+
+
+
+
+
+                timestamp_epoch: Date.now(),
+
+
+
+
+
+
+
+                formatted_datetime: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+
+
+
+
+
+
+
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
 
 
@@ -5931,7 +6027,7 @@ function logVisitor() {
 
 
 
-            db.collection("visitor_logs").add(visitorData)
+            db.collection("visitor_logs").doc(docId).set(visitorData)
 
 
 
@@ -5939,7 +6035,7 @@ function logVisitor() {
 
 
 
-                .then(() => console.log("Visitor metadata logged (sans geo)."))
+                .then(() => console.log("Visitor metadata logged (sans geo, chronological ID)."))
 
 
 

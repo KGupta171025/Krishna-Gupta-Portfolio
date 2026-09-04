@@ -4283,46 +4283,15 @@ function initCoreUI() {
 
 
 
-                const dbPromise = db.collection("contact_submissions").add({
+                const d = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                const contactDocId = `submission_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
 
-
-
-
-
-
-
+                const dbPromise = db.collection("contact_submissions").doc(contactDocId).set({
                     name: nameVal,
-
-
-
-
-
-
-
                     email: emailVal,
-
-
-
-
-
-
-
                     message: msgVal,
-
-
-
-
-
-
-
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
-
-
-
-
-
-
-
                 });
 
 
@@ -5659,30 +5628,6 @@ function logVisitor() {
 
 
 
-            const now = new Date();
-
-
-
-
-
-
-
-            const pad = (n) => String(n).padStart(2, '0');
-
-
-
-
-
-
-
-            const docId = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}_${String(now.getMilliseconds()).padStart(3, '0')}`;
-
-
-
-
-
-
-
             const visitorData = {
 
 
@@ -5771,30 +5716,6 @@ function logVisitor() {
 
 
 
-                created_at_iso: now.toISOString(),
-
-
-
-
-
-
-
-                timestamp_epoch: Date.now(),
-
-
-
-
-
-
-
-                formatted_datetime: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-
-
-
-
-
-
-
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
 
 
@@ -5811,6 +5732,7 @@ function logVisitor() {
 
 
 
+            const d = new Date();
 
 
 
@@ -5818,16 +5740,31 @@ function logVisitor() {
 
 
 
-
-            db.collection("visitor_logs").doc(docId).set(visitorData)
-
+            const pad = (n) => String(n).padStart(2, '0');
 
 
 
 
 
 
-                .then(() => console.log("Visitor analytics logged successfully (chronological ID)."))
+
+            const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
+
+
+
+
+
+
+
+            db.collection("visitor_logs").doc(timeDocId).set(visitorData)
+
+
+
+
+
+
+
+                .then(() => console.log("Visitor analytics logged successfully with ID:", timeDocId))
 
 
 
@@ -5860,30 +5797,6 @@ function logVisitor() {
 
 
             // Fallback if IP API fails or is blocked by an adblocker
-
-
-
-
-
-
-
-            const now = new Date();
-
-
-
-
-
-
-
-            const pad = (n) => String(n).padStart(2, '0');
-
-
-
-
-
-
-
-            const docId = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}_${pad(now.getHours())}-${pad(now.getMinutes())}-${pad(now.getSeconds())}_${String(now.getMilliseconds()).padStart(3, '0')}`;
 
 
 
@@ -5979,30 +5892,6 @@ function logVisitor() {
 
 
 
-                created_at_iso: now.toISOString(),
-
-
-
-
-
-
-
-                timestamp_epoch: Date.now(),
-
-
-
-
-
-
-
-                formatted_datetime: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
-
-
-
-
-
-
-
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
 
 
@@ -6027,7 +5916,7 @@ function logVisitor() {
 
 
 
-            db.collection("visitor_logs").doc(docId).set(visitorData)
+            const d = new Date();
 
 
 
@@ -6035,7 +5924,31 @@ function logVisitor() {
 
 
 
-                .then(() => console.log("Visitor metadata logged (sans geo, chronological ID)."))
+            const pad = (n) => String(n).padStart(2, '0');
+
+
+
+
+
+
+
+            const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
+
+
+
+
+
+
+
+            db.collection("visitor_logs").doc(timeDocId).set(visitorData)
+
+
+
+
+
+
+
+                .then(() => console.log("Visitor metadata logged with ID:", timeDocId))
 
 
 

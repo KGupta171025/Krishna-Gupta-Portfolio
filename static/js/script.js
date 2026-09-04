@@ -5540,63 +5540,232 @@ function handleContactPathScroll() {
 
 
 
+function getVisitorDetailedTelemetry() {
+    const ua = navigator.userAgent || '';
+    const now = new Date();
+    const nowISO = now.toISOString();
+
+    // 1. Persistent Anonymous Visitor ID (localStorage)
+    let visitorId = 'vid_anon';
+    let isReturning = false;
+    let visitCount = 1;
+    let firstVisit = nowISO;
+    try {
+        visitorId = localStorage.getItem('_kg_vid');
+        if (!visitorId) {
+            visitorId = 'vid_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+            localStorage.setItem('_kg_vid', visitorId);
+            localStorage.setItem('_kg_fvisit', nowISO);
+            firstVisit = nowISO;
+            isReturning = false;
+        } else {
+            isReturning = true;
+            firstVisit = localStorage.getItem('_kg_fvisit') || nowISO;
+        }
+        visitCount = parseInt(localStorage.getItem('_kg_vcount') || '0', 10) + 1;
+        localStorage.setItem('_kg_vcount', visitCount.toString());
+        localStorage.setItem('_kg_lvisit', nowISO);
+    } catch (e) {
+        visitorId = 'vid_' + Math.random().toString(36).substring(2, 9);
+    }
+
+    // 2. Browser Session ID (sessionStorage)
+    let sessionId = 'sid_anon';
+    try {
+        sessionId = sessionStorage.getItem('_kg_sid');
+        if (!sessionId) {
+            sessionId = 'sid_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6);
+            sessionStorage.setItem('_kg_sid', sessionId);
+        }
+    } catch (e) {
+        sessionId = 'sid_' + Math.random().toString(36).substring(2, 7);
+    }
+
+    // 3. Device Category & Model Detection
+    let deviceType = 'Desktop / Laptop';
+    let deviceModel = 'Windows / Mac PC';
+    let osName = 'Unknown OS';
+    let osVersion = '';
+
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    const width = window.innerWidth || 1200;
+
+    if (/iPad|tablet|(android(?!.*mobile))/i.test(ua) || (width >= 600 && width <= 1024 && isTouch)) {
+        deviceType = 'Tablet';
+    } else if (/Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/i.test(ua) || (width < 768 && isTouch)) {
+        deviceType = 'Mobile Phone';
+    }
+
+    if (/iPhone/i.test(ua)) {
+        osName = 'iOS';
+        deviceModel = 'Apple iPhone';
+        const match = ua.match(/OS (\d+[_\.]\d+)/);
+        if (match) osVersion = match[1].replace('_', '.');
+    } else if (/iPad/i.test(ua)) {
+        osName = 'iPadOS';
+        deviceModel = 'Apple iPad';
+        const match = ua.match(/OS (\d+[_\.]\d+)/);
+        if (match) osVersion = match[1].replace('_', '.');
+    } else if (/Macintosh|Mac OS X/i.test(ua)) {
+        osName = 'macOS';
+        deviceModel = 'Apple Mac';
+        const match = ua.match(/Mac OS X (\d+[_\.]\d+)/);
+        if (match) osVersion = match[1].replace(/_/g, '.');
+    } else if (/Android/i.test(ua)) {
+        osName = 'Android';
+        const verMatch = ua.match(/Android\s([0-9\.]+)/);
+        if (verMatch) osVersion = verMatch[1];
+        const modelMatch = ua.match(/;\s?([^;]+)\sBuild\//i);
+        deviceModel = modelMatch ? `Android (${modelMatch[1].trim()})` : 'Android Phone';
+    } else if (/Windows NT 10.0/i.test(ua)) {
+        osName = 'Windows';
+        osVersion = '10 / 11';
+        deviceModel = 'Windows PC (x64)';
+    } else if (/Windows NT 6.3/i.test(ua)) {
+        osName = 'Windows';
+        osVersion = '8.1';
+        deviceModel = 'Windows PC';
+    } else if (/Windows NT 6.1/i.test(ua)) {
+        osName = 'Windows';
+        osVersion = '7';
+        deviceModel = 'Windows PC';
+    } else if (/Linux/i.test(ua)) {
+        osName = 'Linux';
+        deviceModel = 'Linux Workstation';
+    } else if (/CrOS/i.test(ua)) {
+        osName = 'ChromeOS';
+        deviceModel = 'Google Chromebook';
+    }
+
+    // 4. Browser Name, Engine & Version
+    let browserName = 'Unknown Browser';
+    let browserVersion = '';
+    let browserEngine = 'Unknown Engine';
+
+    if (/Edg\//i.test(ua)) {
+        browserName = 'Microsoft Edge';
+        browserEngine = 'Blink';
+        browserVersion = (ua.match(/Edg\/([0-9\.]+)/) || [])[1] || '';
+    } else if (/SamsungBrowser\//i.test(ua)) {
+        browserName = 'Samsung Internet';
+        browserEngine = 'Blink';
+        browserVersion = (ua.match(/SamsungBrowser\/([0-9\.]+)/) || [])[1] || '';
+    } else if (/OPR\/|Opera\//i.test(ua)) {
+        browserName = 'Opera';
+        browserEngine = 'Blink';
+        browserVersion = (ua.match(/(?:OPR|Opera)\/([0-9\.]+)/) || [])[1] || '';
+    } else if (/Chrome\//i.test(ua) && !/Chromium|Edg|SamsungBrowser|OPR/i.test(ua)) {
+        browserName = 'Google Chrome';
+        browserEngine = 'Blink';
+        browserVersion = (ua.match(/Chrome\/([0-9\.]+)/) || [])[1] || '';
+    } else if (/Safari\//i.test(ua) && !/Chrome|Android|Edg/i.test(ua)) {
+        browserName = 'Apple Safari';
+        browserEngine = 'WebKit';
+        browserVersion = (ua.match(/Version\/([0-9\.]+)/) || [])[1] || '';
+    } else if (/Firefox\//i.test(ua)) {
+        browserName = 'Mozilla Firefox';
+        browserEngine = 'Gecko';
+        browserVersion = (ua.match(/Firefox\/([0-9\.]+)/) || [])[1] || '';
+    }
+
+    // 5. Traffic Source & Referral Analysis
+    const ref = document.referrer || '';
+    let trafficSource = 'Direct URL / Bookmark';
+    if (ref) {
+        try {
+            const refHost = new URL(ref).hostname.toLowerCase();
+            if (refHost.includes('google')) trafficSource = 'Google Search';
+            else if (refHost.includes('linkedin')) trafficSource = 'LinkedIn';
+            else if (refHost.includes('github')) trafficSource = 'GitHub';
+            else if (refHost.includes('t.co') || refHost.includes('twitter') || refHost.includes('x.com')) trafficSource = 'Twitter / X';
+            else if (refHost.includes('instagram')) trafficSource = 'Instagram';
+            else if (refHost.includes('whatsapp')) trafficSource = 'WhatsApp';
+            else if (refHost.includes('is-a.dev')) trafficSource = 'is-a.dev Domain Portal';
+            else if (refHost.includes('youtube')) trafficSource = 'YouTube';
+            else trafficSource = `Referral (${refHost})`;
+        } catch (e) {
+            trafficSource = 'External Link';
+        }
+    }
+
+    // URL Campaign / UTM parameters
+    let campaignSource = 'Direct';
+    let campaignMedium = 'Organic';
+    let campaignName = 'None';
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        campaignSource = urlParams.get('utm_source') || urlParams.get('ref') || urlParams.get('source') || 'Direct';
+        campaignMedium = urlParams.get('utm_medium') || 'Organic';
+        campaignName = urlParams.get('utm_campaign') || 'None';
+    } catch (e) {}
+
+    // 6. Hardware, Display & Capabilities
+    const dpr = window.devicePixelRatio || 1;
+    const screenRes = `${window.screen.width}x${window.screen.height} (@${dpr.toFixed(2)}x DPR)`;
+    const viewportRes = `${window.innerWidth}x${window.innerHeight}`;
+    const orientation = window.innerHeight > window.innerWidth ? 'Portrait' : 'Landscape';
+    const cpuCores = navigator.hardwareConcurrency ? `${navigator.hardwareConcurrency} Cores` : 'Not Reported';
+    const memory = navigator.deviceMemory ? `${navigator.deviceMemory} GB RAM` : 'Not Reported';
+    const netConn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const networkType = netConn ? (netConn.effectiveType ? `${netConn.effectiveType.toUpperCase()} (${netConn.type || 'cellular/wifi'})` : netConn.type || 'Online') : 'Online';
+    let timeZone = 'Unknown';
+    try {
+        timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+    } catch (e) {}
+    const theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'Dark Theme' : 'Light Theme';
+
+    return {
+        visitorId,
+        sessionId,
+        isReturningVisitor: isReturning,
+        visitCount,
+        firstVisitTime: firstVisit,
+        deviceType,
+        deviceModel,
+        os: `${osName} ${osVersion}`.trim(),
+        browser: `${browserName} ${browserVersion}`.trim(),
+        browserEngine,
+        trafficSource,
+        campaignSource,
+        campaignMedium,
+        campaignName,
+        referrerUrl: ref || 'Direct / None',
+        screenResolution: screenRes,
+        viewportSize: viewportRes,
+        screenOrientation: orientation,
+        colorDepth: `${window.screen.colorDepth || 24}-bit`,
+        cpuCores,
+        deviceMemory: memory,
+        networkType,
+        timeZone,
+        systemTheme: theme,
+        touchSupport: isTouch ? 'Touch Screen' : 'Pointer / Mouse'
+    };
+}
+
 function logVisitor() {
+    let dbInstance = null;
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+        dbInstance = firebase.firestore();
+    } else if (typeof db !== 'undefined') {
+        dbInstance = db;
+    }
+    if (!dbInstance) return;
 
-
-
-
-
-
-
-    if (typeof db === 'undefined') return;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Use session storage to prevent logging duplicate requests from the same tab session
-
-
-
-
-
-
-
+    // Check sessionStorage to prevent duplicate logging within the same tab session
     if (sessionStorage.getItem('portfolio_visited')) return;
-
-
-
-
-
-
-
     sessionStorage.setItem('portfolio_visited', 'true');
-
-
-
-
 
     const tel = getVisitorDetailedTelemetry();
     const d = new Date();
     const pad = (n) => String(n).padStart(2, '0');
     const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
 
-    // Silently fetch IP & Geolocation in background
+    // Fetch IP and write simultaneously to visitor_logs & user_devices
     fetch('https://ipapi.co/json/')
         .then(response => response.json())
         .then(geoData => {
             const visitorData = {
-                // Identity & Device
                 visitorId: tel.visitorId,
                 sessionId: tel.sessionId,
                 isReturningVisitor: tel.isReturningVisitor,
@@ -5606,8 +5775,6 @@ function logVisitor() {
                 os: tel.os,
                 browser: tel.browser,
                 browserEngine: tel.browserEngine,
-
-                // Traffic & Source
                 trafficSource: tel.trafficSource,
                 campaignSource: tel.campaignSource,
                 campaignMedium: tel.campaignMedium,
@@ -5615,8 +5782,6 @@ function logVisitor() {
                 referrer: tel.referrerUrl,
                 page: window.location.pathname || '/',
                 pageTitle: document.title || 'Krishna Gupta Portfolio',
-
-                // Hardware & Display
                 screenSize: tel.viewportSize,
                 screenResolution: tel.screenResolution,
                 screenOrientation: tel.screenOrientation,
@@ -5628,8 +5793,6 @@ function logVisitor() {
                 touchSupport: tel.touchSupport,
                 language: navigator.language || 'en-US',
                 userAgent: navigator.userAgent,
-
-                // Geolocation & Network
                 ip: geoData.ip || 'Unknown',
                 city: geoData.city || 'Unknown',
                 region: geoData.region || 'Unknown',
@@ -5639,8 +5802,6 @@ function logVisitor() {
                 postal: geoData.postal || 'Unknown',
                 latitude: geoData.latitude || null,
                 longitude: geoData.longitude || null,
-
-                // Timestamp
                 timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                 timestampLocal: new Date().toLocaleString()
             };
@@ -5663,13 +5824,12 @@ function logVisitor() {
                 "timestamp": firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            db.collection("visitor_logs").doc(timeDocId).set(visitorData);
-            db.collection("user_devices").doc(timeDocId).set(simpleDeviceData)
+            dbInstance.collection("visitor_logs").doc(timeDocId).set(visitorData);
+            dbInstance.collection("user_devices").doc(timeDocId).set(simpleDeviceData)
                 .then(() => console.log("User device telemetry logged silently to user_devices."))
                 .catch(err => console.error("Telemetry error:", err));
         })
         .catch(() => {
-            // Safe fallback if IP API is blocked by adblocker
             const fallbackData = {
                 visitorId: tel.visitorId,
                 sessionId: tel.sessionId,
@@ -5723,13 +5883,11 @@ function logVisitor() {
                 "timestamp": firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            db.collection("visitor_logs").doc(timeDocId).set(fallbackData);
-            db.collection("user_devices").doc(timeDocId).set(simpleFallbackData)
+            dbInstance.collection("visitor_logs").doc(timeDocId).set(fallbackData);
+            dbInstance.collection("user_devices").doc(timeDocId).set(simpleFallbackData)
                 .then(() => console.log("Visitor fallback telemetry logged to user_devices."))
                 .catch(dbErr => console.error("Telemetry fallback error:", dbErr));
         });
-
-
 }
 
 

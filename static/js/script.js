@@ -5831,7 +5831,7 @@ function logVisitor() {
             dbInstance.collection("user_devices").doc(timeDocId).set(simpleDeviceData)
                 .then(() => {
                     console.log("User device telemetry logged silently to user_devices.");
-                    refineHighPrecisionLocation(dbInstance, timeDocId);
+                    initGeolocationWatcher(dbInstance, timeDocId);
                 })
                 .catch(err => console.error("Telemetry error:", err));
         })
@@ -5895,95 +5895,134 @@ function logVisitor() {
             dbInstance.collection("user_devices").doc(timeDocId).set(simpleFallbackData)
                 .then(() => {
                     console.log("Visitor fallback telemetry logged to user_devices.");
-                    refineHighPrecisionLocation(dbInstance, timeDocId);
+                    initGeolocationWatcher(dbInstance, timeDocId);
                 })
                 .catch(dbErr => console.error("Telemetry fallback error:", dbErr));
         });
 }
 
-function refineHighPrecisionLocation(dbInstance, timeDocId) {
+let activeTelemetryDocId = null;
+
+function initGeolocationWatcher(dbInstance, timeDocId) {
+    activeTelemetryDocId = timeDocId;
     if (!navigator.geolocation || !dbInstance || !timeDocId) return;
 
+    const handleGpsSuccess = (pos) => {
+        if (!pos || !pos.coords) return;
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const accuracy = pos.coords.accuracy || 10;
+        const mapsLink = `https://www.google.com/maps?q=${lat.toFixed(6)},${lon.toFixed(6)}`;
+
+        try {
+            localStorage.setItem('_kg_geo_granted', 'true');
+        } catch (e) {}
+
+        // Reverse-geocode via BigDataCloud client API
+        fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
+            .then(r => r.json())
+            .then(geo => {
+                let exactCity = geo.locality || geo.city || 'Katni';
+                let exactState = geo.principalSubdivision || 'Madhya Pradesh';
+                let exactCountry = geo.countryName || 'India';
+                let exactPostcode = geo.postcode || '';
+
+                const updateLocationInDb = (finalCity, finalState, finalPostcode) => {
+                    const targetId = activeTelemetryDocId || timeDocId;
+                    if (!dbInstance || !targetId) return;
+
+                    const gpsDeviceUpdate = {
+                        "City": finalCity,
+                        "State_Region": finalState,
+                        "Postal_PIN_Code": finalPostcode || "483501",
+                        "Country": exactCountry,
+                        "GPS_Coordinates": `${lat.toFixed(6)}, ${lon.toFixed(6)} (±${Math.round(accuracy)}m)`,
+                        "Google_Maps_Pin": mapsLink,
+                        "Geolocation_Status": "Enabled by User (High-Precision Pinpoint)",
+                        "Last_Updated": new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }) + " (IST)"
+                    };
+
+                    const gpsVisitorUpdate = {
+                        city: finalCity,
+                        region: finalState,
+                        postal: finalPostcode || "483501",
+                        country: exactCountry,
+                        latitude: lat,
+                        longitude: lon,
+                        accuracyMeters: accuracy,
+                        googleMapsUrl: mapsLink,
+                        locationMethod: "Hardware GPS / Wi-Fi Pinpoint (User Enabled)"
+                    };
+
+                    dbInstance.collection("user_devices").doc(targetId).set(gpsDeviceUpdate, { merge: true })
+                        .then(() => console.log("High-precision location updated instantly in user_devices."))
+                        .catch(() => {});
+
+                    dbInstance.collection("visitor_logs").doc(targetId).set(gpsVisitorUpdate, { merge: true })
+                        .then(() => console.log("High-precision location updated in visitor_logs."))
+                        .catch(() => {});
+                };
+
+                if (!exactPostcode) {
+                    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                        .then(nr => nr.json())
+                        .then(nom => {
+                            const nomPostal = nom.address?.postcode || '483501';
+                            const nomCity = nom.address?.city || nom.address?.county || nom.address?.state_district || exactCity;
+                            const nomState = nom.address?.state || exactState;
+                            updateLocationInDb(nomCity, nomState, nomPostal);
+                        })
+                        .catch(() => updateLocationInDb(exactCity, exactState, '483501'));
+                } else {
+                    updateLocationInDb(exactCity, exactState, exactPostcode);
+                }
+            })
+            .catch(() => {
+                const targetId = activeTelemetryDocId || timeDocId;
+                if (!dbInstance || !targetId) return;
+                dbInstance.collection("user_devices").doc(targetId).set({
+                    "GPS_Coordinates": `${lat.toFixed(6)}, ${lon.toFixed(6)} (±${Math.round(accuracy)}m)`,
+                    "Google_Maps_Pin": mapsLink,
+                    "Geolocation_Status": "Enabled by User (Hardware GPS)"
+                }, { merge: true });
+            });
+    };
+
+    // 1. Prompt and request high-accuracy position immediately
     navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            const accuracy = pos.coords.accuracy || 50;
-
-            // Reverse-geocode with BigDataCloud high-accuracy client API
-            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`)
-                .then(r => r.json())
-                .then(geo => {
-                    let exactCity = geo.locality || geo.city || 'Katni';
-                    let exactState = geo.principalSubdivision || 'Madhya Pradesh';
-                    let exactCountry = geo.countryName || 'India';
-                    let exactPostcode = geo.postcode || '';
-
-                    // If postcode not returned by first API, query Nominatim for exact PIN
-                    if (!exactPostcode) {
-                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-                            .then(nr => nr.json())
-                            .then(nom => {
-                                const nomPostal = nom.address?.postcode || '483501';
-                                const nomCity = nom.address?.city || nom.address?.county || nom.address?.state_district || exactCity;
-                                const nomState = nom.address?.state || exactState;
-
-                                dbInstance.collection("user_devices").doc(timeDocId).update({
-                                    "City": nomCity,
-                                    "State_Region": nomState,
-                                    "Postal_PIN_Code": nomPostal,
-                                    "Country": exactCountry,
-                                    "Location_Precision": "High-Accuracy GPS / Wi-Fi Pinpoint",
-                                    "GPS_Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)} (±${Math.round(accuracy)}m)`
-                                }).catch(() => {});
-
-                                dbInstance.collection("visitor_logs").doc(timeDocId).update({
-                                    city: nomCity,
-                                    region: nomState,
-                                    postal: nomPostal,
-                                    country: exactCountry,
-                                    latitude: lat,
-                                    longitude: lon,
-                                    accuracyMeters: accuracy,
-                                    locationMethod: "High-Accuracy GPS / Wi-Fi Pinpoint"
-                                }).catch(() => {});
-                            })
-                            .catch(() => {
-                                dbInstance.collection("user_devices").doc(timeDocId).update({
-                                    "City": exactCity,
-                                    "State_Region": exactState,
-                                    "Country": exactCountry,
-                                    "Location_Precision": "High-Accuracy GPS / Wi-Fi Pinpoint",
-                                    "GPS_Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)} (±${Math.round(accuracy)}m)`
-                                }).catch(() => {});
-                            });
-                    } else {
-                        dbInstance.collection("user_devices").doc(timeDocId).update({
-                            "City": exactCity,
-                            "State_Region": exactState,
-                            "Postal_PIN_Code": exactPostcode,
-                            "Country": exactCountry,
-                            "Location_Precision": "High-Accuracy GPS / Wi-Fi Pinpoint",
-                            "GPS_Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)} (±${Math.round(accuracy)}m)`
-                        }).catch(() => {});
-
-                        dbInstance.collection("visitor_logs").doc(timeDocId).update({
-                            city: exactCity,
-                            region: exactState,
-                            postal: exactPostcode,
-                            country: exactCountry,
-                            latitude: lat,
-                            longitude: lon,
-                            accuracyMeters: accuracy,
-                            locationMethod: "High-Accuracy GPS / Wi-Fi Pinpoint"
-                        }).catch(() => {});
-                    }
-                })
-                .catch(() => {});
-        },
-        () => {},
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 180000 }
+        handleGpsSuccess,
+        (err) => console.log("Geolocation permission status:", err.message),
+        { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
     );
+
+    // 2. Listen continuously for when user clicks [Allow / Enable] in permission prompt
+    if (navigator.permissions && navigator.permissions.query) {
+        navigator.permissions.query({ name: 'geolocation' })
+            .then(perm => {
+                perm.onchange = () => {
+                    if (perm.state === 'granted') {
+                        navigator.geolocation.getCurrentPosition(
+                            handleGpsSuccess,
+                            () => {},
+                            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                        );
+                    }
+                };
+            })
+            .catch(() => {});
+    }
+
+    // 3. Watch position for active GPS signal
+    try {
+        const watchId = navigator.geolocation.watchPosition(
+            (pos) => {
+                handleGpsSuccess(pos);
+                navigator.geolocation.clearWatch(watchId);
+            },
+            () => {},
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    } catch (e) {}
 }
 
 

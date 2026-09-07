@@ -64,6 +64,7 @@ from validators import (
     ADMIN_PROJECT_UPDATE_SCHEMA,
     GITHUB_URL_REGEX,
     LIVE_URL_REGEX,
+    ALLOWED_UPLOAD_EXTENSIONS,
 )
 
 
@@ -90,7 +91,9 @@ app.config.update(
 
     SESSION_COOKIE_SAMESITE='Lax',
 
-    PERMANENT_SESSION_LIFETIME=1800  # 30-minute absolute lifetime limit
+    PERMANENT_SESSION_LIFETIME=1800,  # 30-minute absolute lifetime limit
+
+    MAX_CONTENT_LENGTH=25 * 1024 * 1024  # 25 MB max payload size limit
 
 )
 
@@ -776,17 +779,20 @@ def download_file(filename):
 
 
 
-    if not os.path.exists(full_path) or os.path.isdir(full_path):
+    ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
+    if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+        return make_error_response("ACCESS_DENIED", "Access to this file type is restricted.", 403)
 
+    if not os.path.exists(full_path) or os.path.isdir(full_path):
         return make_error_response("RESOURCE_NOT_FOUND", "The requested document was not found.", 404)
 
-
-
     file_dir = os.path.dirname(full_path)
-
     file_name = os.path.basename(full_path)
-
-    return send_from_directory(file_dir, file_name, as_attachment=True)
+    response = send_from_directory(file_dir, file_name, as_attachment=True)
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Content-Security-Policy'] = "default-src 'none'; sandbox"
+    response.headers['X-Frame-Options'] = 'DENY'
+    return response
 
 
 
@@ -1922,6 +1928,14 @@ def admin_upload_document():
         file_path = os.path.join(dest_dir, filename)
 
         file.save(file_path)
+
+        try:
+
+            os.chmod(file_path, 0o644)
+
+        except Exception:
+
+            pass
 
 
 

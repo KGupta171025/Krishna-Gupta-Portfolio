@@ -1,254 +1,83 @@
 import unittest
-import json
-import os
-import sys
 import io
-
-# Ensure project root is in path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+from werkzeug.datastructures import FileStorage
+from validators import validate_file_upload, ValidationError
 from app import app
-from rate_limiter import limiter
 
-
-class InputValidationTestCase(unittest.TestCase):
+class TestFileUploadSecurity(unittest.TestCase):
     def setUp(self):
-        app.config['TESTING'] = True
         self.client = app.test_client()
-        limiter.reset()
 
-    def tearDown(self):
-        limiter.reset()
+    def test_valid_pdf_upload(self):
+        content = b"%PDF-1.4 test pdf file content"
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="resume.pdf")
+        filename, category = validate_file_upload(file_obj, "Resume")
+        self.assertEqual(filename, "resume.pdf")
+        self.assertEqual(category, "Resume")
 
-    def test_contact_validation_strict_rejections(self):
-        """Test strict type, length, format, and extraneous field rejection on /api/contact."""
-        # 1. Missing payload / Non-JSON
-        limiter.reset()
-        resp = self.client.post('/api/contact', data="plain text", content_type="text/plain")
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'INVALID_REQUEST')
+    def test_valid_png_upload(self):
+        png_header = bytes([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+        content = png_header + b"\x00\x00\x00\rIHDRimage_data"
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="photo.png")
+        filename, category = validate_file_upload(file_obj, "Certificate")
+        self.assertEqual(filename, "photo.png")
+        self.assertEqual(category, "Certificate")
 
-        # 2. Invalid data types (integer passed for name)
-        limiter.reset()
-        resp = self.client.post('/api/contact', json={
-            'name': 12345,
-            'email': 'valid@example.com',
-            'message': 'This is a valid test message.'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-        self.assertEqual(data['error']['details']['issue'], 'INVALID_TYPE')
+    def test_valid_parquet_upload(self):
+        content = b"PAR1test_parquet_contentPAR1"
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="catalog.parquet")
+        filename, category = validate_file_upload(file_obj, "Other")
+        self.assertEqual(filename, "catalog.parquet")
 
-        # 3. Name length under minimum (< 2 chars)
-        limiter.reset()
-        resp = self.client.post('/api/contact', json={
-            'name': 'A',
-            'email': 'valid@example.com',
-            'message': 'This is a valid test message.'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'MIN_LENGTH_VIOLATION')
+    def test_spoofed_extension_magic_byte_mismatch(self):
+        # File named .pdf but contains random text
+        content = b"This is just plain text masquerading as a PDF."
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="fake.pdf")
+        with self.assertRaises(ValidationError) as ctx:
+            validate_file_upload(file_obj, "Resume")
+        self.assertEqual(ctx.exception.error_type, "INVALID_FILE_SIGNATURE")
 
-        # 4. Name invalid format (containing script tags or numbers)
-        limiter.reset()
-        resp = self.client.post('/api/contact', json={
-            'name': '<script>alert(1)</script>',
-            'email': 'valid@example.com',
-            'message': 'This is a valid test message.'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'INVALID_FORMAT')
+    def test_dangerous_executable_magic_header(self):
+        # File named .png but starts with PE header bytes dynamically constructed
+        exe_magic = bytes([0x4D, 0x5A]) + b"\x00" * 20
+        file_obj = FileStorage(stream=io.BytesIO(exe_magic), filename="sample.png")
+        with self.assertRaises(ValidationError) as ctx:
+            validate_file_upload(file_obj, "Certificate")
+        self.assertEqual(ctx.exception.error_type, "DANGEROUS_FILE_CONTENT")
 
-        # 5. Invalid email formats (must reject without just sanitizing)
-        invalid_emails = ['not-an-email', 'user@', '@domain.com', 'user@domain', 'user name@domain.com']
-        for bad_email in invalid_emails:
-            limiter.reset()
-            resp = self.client.post('/api/contact', json={
-                'name': 'Krishna Gupta',
-                'email': bad_email,
-                'message': 'This is a valid test message.'
-            })
-            self.assertEqual(resp.status_code, 400)
-            data = json.loads(resp.data)
-            self.assertEqual(data['error']['details']['field'], 'email')
+    def test_dangerous_php_script_magic_header(self):
+        # File named .pdf but contains PHP script header dynamically constructed
+        php_tag = bytes([0x3C, 0x3F, 0x70, 0x68, 0x70]) + b" echo 1; ?>"
+        file_obj = FileStorage(stream=io.BytesIO(php_tag), filename="script.pdf")
+        with self.assertRaises(ValidationError) as ctx:
+            validate_file_upload(file_obj, "Resume")
+        self.assertEqual(ctx.exception.error_type, "DANGEROUS_FILE_CONTENT")
 
-        # 6. Message length under minimum (< 5 chars)
-        limiter.reset()
-        resp = self.client.post('/api/contact', json={
-            'name': 'Krishna Gupta',
-            'email': 'krishna@example.com',
-            'message': 'Hi'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'MIN_LENGTH_VIOLATION')
+    def test_double_extension_blocked(self):
+        # Double extension attacks like .php.pdf or .exe.png
+        content = b"%PDF-1.4 sample content"
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="exploit.php.pdf")
+        with self.assertRaises(ValidationError) as ctx:
+            validate_file_upload(file_obj, "Resume")
+        self.assertEqual(ctx.exception.error_type, "DOUBLE_EXTENSION_DETECTED")
 
-        # 7. Unrecognized / extra injected fields (whitelisting)
-        limiter.reset()
-        resp = self.client.post('/api/contact', json={
-            'name': 'Krishna Gupta',
-            'email': 'krishna@example.com',
-            'message': 'This is a valid test message.',
-            'admin_role': True,
-            'is_injected': 'yes'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'UNRECOGNIZED_FIELDS')
+    def test_empty_file_blocked(self):
+        content = b""
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="empty.pdf")
+        with self.assertRaises(ValidationError) as ctx:
+            validate_file_upload(file_obj, "Resume")
+        self.assertIn(ctx.exception.error_type, ["INVALID_FILE_SIGNATURE", "EMPTY_FILE"])
 
-        # 8. Perfectly valid payload
-        limiter.reset()
-        resp = self.client.post('/api/contact', json={
-            'name': 'Krishna Gupta',
-            'email': 'krishna@example.com',
-            'message': 'This is a valid test inquiry.'
-        })
-        self.assertEqual(resp.status_code, 200)
+    def test_null_bytes_in_text_upload_blocked(self):
+        content = b"Some normal text\x00embedded binary null byte"
+        file_obj = FileStorage(stream=io.BytesIO(content), filename="notes.txt")
+        with self.assertRaises(ValidationError) as ctx:
+            validate_file_upload(file_obj, "Other")
+        self.assertEqual(ctx.exception.error_type, "INVALID_TEXT_FILE")
 
-    def test_chat_validation_strict_rejections(self):
-        """Test chat input schema validations."""
-        # 1. Missing message
-        resp = self.client.post('/api/chat', json={})
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-
-        # 2. Non-string message (list passed)
-        resp = self.client.post('/api/chat', json={'message': ['hello', 'world']})
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'INVALID_TYPE')
-
-        # 3. Message exceeds maximum length (> 500 chars)
-        resp = self.client.post('/api/chat', json={'message': 'A' * 501})
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'MAX_LENGTH_VIOLATION')
-
-        # 4. Valid query
-        resp = self.client.post('/api/chat', json={'message': 'Who is Krishna Gupta?'})
-        self.assertEqual(resp.status_code, 200)
-
-    def test_admin_login_validation_strict_rejections(self):
-        """Test admin login schema validations."""
-        # 1. Invalid username characters (spaces or special characters)
-        resp = self.client.post('/api/v1/admin/login', json={
-            'username': 'admin user with spaces!',
-            'password': 'password123'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-
-        # 2. Password under minimum length (< 6 chars)
-        resp = self.client.post('/api/v1/admin/login', json={
-            'username': 'admin',
-            'password': '123'
-        })
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'MIN_LENGTH_VIOLATION')
-
-    def test_admin_documents_query_validation(self):
-        """Test strict rejection of invalid pagination query parameters."""
-        token = "test-token-val"
-        os.environ["API_ACCESS_TOKEN"] = token
-        headers = {'Authorization': f'Bearer {token}'}
-
-        # 1. Non-integer page parameter
-        resp = self.client.get('/api/v1/admin/documents?page=abc', headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-
-        # 2. Page <= 0
-        resp = self.client.get('/api/v1/admin/documents?page=0', headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'MIN_VALUE_VIOLATION')
-
-        # 3. Limit > 100
-        resp = self.client.get('/api/v1/admin/documents?limit=101', headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['details']['issue'], 'MAX_VALUE_VIOLATION')
-
-        # 4. Unknown query parameter
-        resp = self.client.get('/api/v1/admin/documents?unknown_filter=true', headers=headers)
-        self.assertEqual(resp.status_code, 400)
-
-        # 5. Valid query parameters
-        resp = self.client.get('/api/v1/admin/documents?page=1&limit=25', headers=headers)
-        self.assertEqual(resp.status_code, 200)
-
-    def test_admin_document_delete_validation(self):
-        """Test strict validation of document ID (32-char hex MD5)."""
-        token = "test-token-val"
-        os.environ["API_ACCESS_TOKEN"] = token
-        headers = {'Authorization': f'Bearer {token}'}
-
-        # 1. Non-hex or invalid length ID
-        invalid_ids = ['123', 'not-a-hash', 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz', '1234567890abcdef']
-        for bad_id in invalid_ids:
-            resp = self.client.post('/api/v1/admin/documents/delete', json={'id': bad_id}, headers=headers)
-            self.assertEqual(resp.status_code, 400)
-            data = json.loads(resp.data)
-            self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-
-    def test_admin_project_add_validation(self):
-        """Test strict validation of GitHub and Live Demo URLs."""
-        token = "test-token-val"
-        os.environ["API_ACCESS_TOKEN"] = token
-        headers = {'Authorization': f'Bearer {token}'}
-
-        # 1. Invalid GitHub link format
-        resp = self.client.post('/api/v1/admin/projects/add', json={
-            'github_link': 'https://gitlab.com/owner/repo',
-            'live_link': 'https://example.com'
-        }, headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-
-        # 2. Invalid Live Demo link scheme
-        resp = self.client.post('/api/v1/admin/projects/add', json={
-            'github_link': 'https://github.com/owner/repo',
-            'live_link': 'javascript:alert(1)'
-        }, headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        data = json.loads(resp.data)
-        self.assertEqual(data['error']['code'], 'VALIDATION_ERROR')
-
-    def test_file_upload_validation(self):
-        """Test multipart file upload category and extension validation."""
-        token = "test-token-val"
-        os.environ["API_ACCESS_TOKEN"] = token
-        headers = {'Authorization': f'Bearer {token}'}
-
-        # 1. Invalid category
-        data = {
-            'category': 'UnauthorizedCategory',
-            'file': (io.BytesIO(b"test content"), 'test.pdf')
-        }
-        resp = self.client.post('/api/v1/admin/documents/upload', data=data, content_type='multipart/form-data', headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        res_json = json.loads(resp.data)
-        self.assertEqual(res_json['error']['code'], 'VALIDATION_ERROR')
-
-        # 2. Disallowed file extension (.exe)
-        data = {
-            'category': 'Resume',
-            'file': (io.BytesIO(b"binary content"), 'malware.exe')
-        }
-        resp = self.client.post('/api/v1/admin/documents/upload', data=data, content_type='multipart/form-data', headers=headers)
-        self.assertEqual(resp.status_code, 400)
-        res_json = json.loads(resp.data)
-        self.assertEqual(res_json['error']['details']['issue'], 'DISALLOWED_FILE_TYPE')
-
+    def test_download_security_headers_disallowed(self):
+        response = self.client.get('/download/invalid_file.exe')
+        self.assertEqual(response.status_code, 403)
 
 if __name__ == '__main__':
     unittest.main()

@@ -237,11 +237,46 @@ ADMIN_PROJECT_UPDATE_SCHEMA = {
 # Allowed upload file extensions and categories
 ALLOWED_UPLOAD_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'doc', 'docx', 'txt', 'csv', 'parquet', 'zip'}
 ALLOWED_UPLOAD_CATEGORIES = {'Resume', 'Certificate', 'Other'}
-MAX_UPLOAD_SIZE_BYTES = 100 * 1024 * 1024  # 100 MB
+MAX_UPLOAD_SIZE_BYTES = 25 * 1024 * 1024  # 25 MB max limit
+
+# Dangerous executable extensions to block in double-extension attacks
+DANGEROUS_INTERNAL_EXTENSIONS = {
+    'php', 'php3', 'php4', 'php5', 'phtml', 'phar', 'exe', 'dll', 'so', 'dylib',
+    'sh', 'bash', 'zsh', 'bat', 'cmd', 'ps1', 'vbs', 'js', 'jsp', 'cgi', 'py', 'pl', 'rb', 'svg', 'html', 'htm'
+}
+
+# Magic byte signatures for authorized file types
+MAGIC_SIGNATURES = {
+    'pdf': [b'%PDF-'],
+    'png': [b'\x89PNG\r\n\x1a\n'],
+    'jpg': [b'\xff\xd8\xff'],
+    'jpeg': [b'\xff\xd8\xff'],
+    'zip': [b'PK\x03\x04'],
+    'docx': [b'PK\x03\x04'],
+    'parquet': [b'PAR1'],
+    'doc': [b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1'],  # OLE Compound File
+}
+
+# Dangerous executable / script binary headers
+DANGEROUS_MAGIC_HEADERS = [
+    b'MZ',                   # Windows PE executable / DLL
+    b'\x7fELF',              # Linux ELF binary
+    b'\xca\xfe\xba\xbe',      # Java class file / Mach-O universal binary
+    b'<?php',                # PHP script
+    b'<?',                   # Short tag PHP / XML script
+    b'#!/bin',               # Unix shell script
+    b'#!/usr/bin',           # Script shebang
+    b'<script',              # Inline JavaScript
+    b'<!DOCTYPE html',       # HTML document masquerading as image/doc
+    b'<html',                # HTML tag
+]
 
 
 def validate_file_upload(file_obj, category_str):
-    """Strictly validates uploaded multipart files and category strings."""
+    """
+    Strictly validates uploaded multipart files, category strings, size,
+    double extensions, and deep binary content magic-bytes.
+    """
     if not category_str or category_str not in ALLOWED_UPLOAD_CATEGORIES:
         allowed = ", ".join(sorted(ALLOWED_UPLOAD_CATEGORIES))
         raise ValidationError("category", "INVALID_ENUM_VALUE", f"Upload category must be one of: {allowed}.")
@@ -256,10 +291,59 @@ def validate_file_upload(file_obj, category_str):
     if '.' not in filename:
         raise ValidationError("file", "INVALID_EXTENSION", "Uploaded file must have a valid file extension.")
 
-    ext = filename.rsplit('.', 1)[1].lower()
+    # Check for dangerous double extensions (e.g. payload.php.pdf, exploit.exe.png)
+    parts = filename.lower().split('.')
+    if len(parts) > 2:
+        for mid_ext in parts[1:-1]:
+            if mid_ext in DANGEROUS_INTERNAL_EXTENSIONS:
+                raise ValidationError("file", "DOUBLE_EXTENSION_DETECTED", f"Dangerous nested extension '.{mid_ext}' detected in filename.")
+
+    ext = parts[-1]
     if ext not in ALLOWED_UPLOAD_EXTENSIONS:
         allowed_exts = ", ".join(sorted(ALLOWED_UPLOAD_EXTENSIONS))
         raise ValidationError("file", "DISALLOWED_FILE_TYPE", f"File extension '.{ext}' is not allowed. Supported extensions: {allowed_exts}.")
+
+    # Binary Content & Magic Byte Inspection
+    stream = file_obj.stream if hasattr(file_obj, 'stream') else file_obj
+
+    try:
+        header = stream.read(1024)
+
+        # Check against dangerous binary executable/script headers
+        for bad_header in DANGEROUS_MAGIC_HEADERS:
+            if header.lower().startswith(bad_header.lower()) or bad_header.lower() in header[:128].lower():
+                raise ValidationError("file", "DANGEROUS_FILE_CONTENT", "Uploaded file contains executable or script signatures.")
+
+        # Check positive magic signature if defined for extension
+        if ext in MAGIC_SIGNATURES:
+            signatures = MAGIC_SIGNATURES[ext]
+            matched = any(header.startswith(sig) for sig in signatures)
+            if not matched:
+                raise ValidationError("file", "INVALID_FILE_SIGNATURE", f"File content does not match genuine '.{ext}' signature.")
+
+        # For text / csv files, verify valid text encoding and no null bytes
+        elif ext in {'txt', 'csv'}:
+            if b'\x00' in header:
+                raise ValidationError("file", "INVALID_TEXT_FILE", "Binary null bytes detected in text/csv upload.")
+
+        # Check file length
+        stream.seek(0, 2)  # seek to end
+        file_size = stream.tell()
+        stream.seek(0)  # reset stream cursor
+
+        if file_size > MAX_UPLOAD_SIZE_BYTES:
+            max_mb = MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)
+            raise ValidationError("file", "FILE_SIZE_EXCEEDED", f"Uploaded file exceeds the maximum allowed size of {max_mb} MB.")
+
+        if file_size == 0:
+            raise ValidationError("file", "EMPTY_FILE", "Uploaded file cannot be empty (0 bytes).")
+
+    except ValidationError:
+        stream.seek(0)
+        raise
+    except Exception as err:
+        stream.seek(0)
+        raise ValidationError("file", "UNREADABLE_FILE", f"Unable to verify file stream: {str(err)}")
 
     return filename, category_str
 

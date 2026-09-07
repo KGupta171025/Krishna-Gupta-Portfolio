@@ -40,6 +40,8 @@ from cryptography.fernet import Fernet
 
 import pandas as pd
 
+from rate_limiter import limiter, rate_limit, rate_limit_auth, rate_limit_public, rate_limit_authenticated
+
 
 
 # Load environment
@@ -136,27 +138,9 @@ def get_spark_session():
 
 # --- 2. DEFENSIVE CYBERSECURITY MODULES ---
 
-ip_requests = defaultdict(list)
-
-rate_limiter_lock = threading.Lock()
-
-
-
 def is_rate_limited(ip_address, limit=3, period=60):
-
-    now = time.time()
-
-    with rate_limiter_lock:
-
-        ip_requests[ip_address] = [t for t in ip_requests[ip_address] if now - t < period]
-
-        if len(ip_requests[ip_address]) >= limit:
-
-            return True
-
-        ip_requests[ip_address].append(now)
-
-        return False
+    is_limited, _, _, _ = limiter.check_sliding_window(f"legacy:{ip_address}", limit, period)
+    return is_limited
 
 
 
@@ -302,53 +286,7 @@ def require_admin():
 
 
 
-# --- 4c. REUSABLE API RATE LIMITING DECORATOR ---
-
-def rate_limit(limit=10, period=60):
-
-    def decorator(f):
-
-        @functools.wraps(f)
-
-        def wrapped(*args, **kwargs):
-
-            client_ip = request.headers.get('X-Forwarded-For', request.remote_addr)
-
-            if client_ip and ',' in client_ip:
-
-                client_ip = client_ip.split(',')[0].strip()
-
-
-
-            if is_rate_limited(client_ip, limit, period):
-
-                response = jsonify({
-
-                    'success': False,
-
-                    'error': {
-
-                        'code': 'RATE_LIMIT_EXCEEDED',
-
-                        'message': 'Too many requests. Please slow down.'
-
-                    }
-
-                })
-
-                response.headers['Retry-After'] = str(period)
-
-                response.headers['X-RateLimit-Limit'] = str(limit)
-
-                response.headers['X-RateLimit-Remaining'] = '0'
-
-                return response, 429
-
-            return f(*args, **kwargs)
-
-        return wrapped
-
-    return decorator
+# --- 4c. RATE LIMITING DECORATORS ARE SOURCED FROM rate_limiter.py ---
 
 
 
@@ -673,7 +611,7 @@ def home():
 
 
 @app.route('/download/<path:filename>')
-
+@rate_limit_public(tier="download")
 def download_file(filename):
 
     if ".." in filename or filename.startswith('/') or filename.startswith('.'):
@@ -843,9 +781,7 @@ def send_sms_notification(name, email_address):
 # API Endpoint to handle contact form submissions
 
 @app.route('/api/contact', methods=['POST'])
-
-@rate_limit(limit=3, period=60)
-
+@rate_limit_public(tier="contact")
 def contact():
 
 
@@ -1559,9 +1495,7 @@ def query_gemini_model(prompt, chat_id):
         return None
 
 @app.route('/api/chat', methods=['POST'])
-
-@rate_limit(limit=10, period=60)
-
+@rate_limit_public(tier="chat")
 def chat():
 
     try:
@@ -1650,7 +1584,7 @@ def old_logout():
 
 @app.route('/api/admin/login', methods=['POST'])
 
-@rate_limit(limit=5, period=60)
+@rate_limit_auth()
 
 def admin_login():
 
@@ -1676,6 +1610,8 @@ def admin_login():
 
 
 
+        client_ip = limiter.get_client_ip()
+
         stored_user_hash = os.environ.get("ADMIN_USERNAME_HASH")
 
         input_user_hash = hashlib.sha256(username.encode('utf-8')).hexdigest()
@@ -1685,6 +1621,8 @@ def admin_login():
         if input_user_hash != stored_user_hash:
 
             PasswordHasher().hash("dummy_password")  # Defend against timing leaks
+
+            limiter.record_auth_result(username, client_ip, success=False)
 
             return make_error_response("UNAUTHORIZED", "Invalid admin credentials.", 401)
 
@@ -1700,9 +1638,15 @@ def admin_login():
 
         except Exception:
 
+            limiter.record_auth_result(username, client_ip, success=False)
+
             return make_error_response("UNAUTHORIZED", "Invalid admin credentials.", 401)
 
 
+
+        # Authentication succeeded: reset backoff counters
+
+        limiter.record_auth_result(username, client_ip, success=True)
 
         session['admin_logged_in'] = True
 
@@ -1731,6 +1675,8 @@ def admin_logout():
 @app.route('/api/admin/documents', methods=['GET'])
 
 @require_admin()
+
+@rate_limit_authenticated()
 
 def admin_list_documents():
 
@@ -1821,6 +1767,8 @@ def admin_list_documents():
 @app.route('/api/admin/documents/upload', methods=['POST'])
 
 @require_admin()
+
+@rate_limit_authenticated()
 
 @idempotent()
 
@@ -1956,6 +1904,8 @@ def admin_upload_document():
 
 @require_admin()
 
+@rate_limit_authenticated()
+
 def admin_delete_document():
 
 
@@ -2022,6 +1972,8 @@ def admin_delete_document():
 
 @require_admin()
 
+@rate_limit_authenticated()
+
 def admin_list_projects():
 
     try:
@@ -2059,6 +2011,8 @@ def admin_list_projects():
 @app.route('/api/admin/projects/add', methods=['POST'])
 
 @require_admin()
+
+@rate_limit_authenticated()
 
 @idempotent()
 
@@ -2426,6 +2380,8 @@ def admin_add_project():
 
 @require_admin()
 
+@rate_limit_authenticated()
+
 def admin_delete_project():
 
     try:
@@ -2515,6 +2471,8 @@ def admin_delete_project():
 @app.route('/api/admin/projects/update', methods=['POST'])
 
 @require_admin()
+
+@rate_limit_authenticated()
 
 def admin_update_project():
 
@@ -2621,48 +2579,90 @@ def admin_update_project():
 
 
 # --- 8b. ADMIN ANALYTICS ENDPOINT ---
+
 @app.route('/api/v1/admin/analytics', methods=['GET'])
+
 @app.route('/api/admin/analytics', methods=['GET'])
+
 @require_admin()
+
+@rate_limit_authenticated()
+
 def admin_analytics():
+
     try:
+
         df = catalog_manager.read_catalog()
+
         total_docs = len(df)
+
         total_size_bytes = int(df['size_bytes'].sum()) if total_docs > 0 else 0
 
+
+
         # Calculate categories
+
         cat_counts = df['category'].value_counts().to_dict() if total_docs > 0 else {}
 
+
+
         # Return AI model session stats
+
         with chat_histories_lock:
+
             total_active_sessions = len(chat_histories)
+
             total_turns = sum(len(h) for h in chat_histories.values())
 
+
+
         payload = {
+
             'success': True,
+
             'database': {
+
                 'total_documents': total_docs,
+
                 'total_size_bytes': total_size_bytes,
+
                 'categories': cat_counts,
+
                 'encryption_enabled': DB_KEY is not None
+
             },
+
             'ai_agent': {
+
                 'active_sessions': total_active_sessions,
+
                 'total_conversation_turns': total_turns,
+
                 'local_vsm_classifier': 'TF-IDF Vector Space Model',
+
                 'vector_distance_metric': 'Cosine Similarity',
+
                 'online_model': 'Gemini 1.5 Flash'
+
             }
+
         }
+
         return jsonify(payload), 200
+
     except Exception as e:
+
         return make_error_response("INTERNAL_ERROR", str(e), 500)
+
+
 
 # --- 9. OPENAPI SPECIFICATION ENDPOINT (API Self-Documentation) ---
 
 @app.route('/api/openapi.json', methods=['GET'])
 
 @app.route('/api/v1/openapi.json', methods=['GET'])
+
+@rate_limit_public(tier="general")
 
 def get_openapi_spec():
 

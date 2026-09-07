@@ -27,7 +27,11 @@ A premium, interactive, 3D WebGL-powered portfolio showcasing my expertise in **
 
 ### 💻 Backend Cyberdefense Hardening
 * **Anti-Denial of Service (DoS)**: High-latency tasks (SMTP, SMS API triggers) are handled asynchronously using worker thread pools.
-* **IP Rate Limiter**: Thread-safe sliding window filter allowing a maximum of 3 endpoint hits per 60 seconds per IP.
+* **Multi-Tier Configurable Rate Limiter**: Thread-safe sliding window filter with endpoint-specific tiers:
+  - **Auth Routes**: Strict dual-key (per-IP & per-account) tracking with progressive **exponential backoff** ($2\text{s} \to 4\text{s} \to 8\text{s} \dots$) rather than hard lockouts.
+  - **Public Routes**: Moderate per-IP sliding window limits for contact, chat, and download endpoints.
+  - **Authenticated Actions**: Looser limits for verified administrative sessions and Bearer token API consumers.
+  - **Dynamic Configuration**: All limits, time windows, and backoff factors are configurable via `.env`.
 * **Path Traversal Shield**: Strictly validates and cleans requested files, blocking folder navigation attacks.
 * **Production Integrity**: Disabled Flask Werkzeug interactive debug shell, base64 API key obfuscation, and automated client-side HTTPS enforcement.
 

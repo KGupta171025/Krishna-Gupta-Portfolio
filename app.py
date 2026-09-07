@@ -42,6 +42,23 @@ import pandas as pd
 
 from rate_limiter import limiter, rate_limit, rate_limit_auth, rate_limit_public, rate_limit_authenticated
 
+from validators import (
+    ValidationError,
+    validate_json_schema,
+    validate_query_schema,
+    validate_file_upload,
+    CONTACT_SCHEMA,
+    CHAT_SCHEMA,
+    ADMIN_LOGIN_SCHEMA,
+    ADMIN_DOCS_QUERY_SCHEMA,
+    ADMIN_DOC_DELETE_SCHEMA,
+    ADMIN_PROJECT_ADD_SCHEMA,
+    ADMIN_PROJECT_DELETE_SCHEMA,
+    ADMIN_PROJECT_UPDATE_SCHEMA,
+    GITHUB_URL_REGEX,
+    LIVE_URL_REGEX,
+)
+
 
 
 # Load environment
@@ -614,9 +631,9 @@ def home():
 @rate_limit_public(tier="download")
 def download_file(filename):
 
-    if ".." in filename or filename.startswith('/') or filename.startswith('.'):
+    if not filename or len(filename) > 255 or ".." in filename or filename.startswith('/') or filename.startswith('.') or '\x00' in filename:
 
-        return make_error_response("ACCESS_DENIED", "Access denied to parent files.", 403)
+        return make_error_response("VALIDATION_ERROR", "Invalid or unsafe document filename.", 400)
 
 
 
@@ -782,37 +799,14 @@ def send_sms_notification(name, email_address):
 
 @app.route('/api/contact', methods=['POST'])
 @rate_limit_public(tier="contact")
+@validate_json_schema(CONTACT_SCHEMA)
 def contact():
 
-
-
     try:
-
-        data = request.get_json()
-
-        if not data:
-
-            return make_error_response("INVALID_REQUEST", "No payload provided.", 400)
-
-
-
-        name = data.get('name')
-
-        email = data.get('email')
-
-        message = data.get('message')
-
-
-
-        if not all([name, email, message]):
-
-            return make_error_response("VALIDATION_ERROR", "All fields are required.", 400)
-
-
-
-        if len(name) > 100 or len(email) > 100 or len(message) > 5000:
-
-            return make_error_response("VALIDATION_ERROR", "Payload size limit exceeded.", 400)
+        data = request.validated_data
+        name = data['name']
+        email = data['email']
+        message = data['message']
 
 
 
@@ -1496,23 +1490,11 @@ def query_gemini_model(prompt, chat_id):
 
 @app.route('/api/chat', methods=['POST'])
 @rate_limit_public(tier="chat")
+@validate_json_schema(CHAT_SCHEMA)
 def chat():
 
     try:
-
-        data = request.get_json()
-
-        if not data or 'message' not in data:
-
-            return make_error_response("INVALID_REQUEST", "No query provided.", 400)
-
-
-
-        user_message = data.get('message')
-
-        if len(user_message) > 500:
-
-            return make_error_response("VALIDATION_ERROR", "Message query exceeds character limits.", 400)
+        user_message = request.validated_data['message']
 
 
 
@@ -1586,27 +1568,15 @@ def old_logout():
 
 @rate_limit_auth()
 
+@validate_json_schema(ADMIN_LOGIN_SCHEMA)
+
 def admin_login():
 
     try:
 
-        data = request.get_json()
+        username = request.validated_data['username']
 
-        if not data:
-
-            return make_error_response("INVALID_REQUEST", "Username and password required.", 400)
-
-
-
-        username = data.get('username')
-
-        password = data.get('password')
-
-
-
-        if not username or not password:
-
-            return make_error_response("VALIDATION_ERROR", "Username and password required.", 400)
+        password = request.validated_data['password']
 
 
 
@@ -1678,6 +1648,8 @@ def admin_logout():
 
 @rate_limit_authenticated()
 
+@validate_query_schema(ADMIN_DOCS_QUERY_SCHEMA)
+
 def admin_list_documents():
 
 
@@ -1708,17 +1680,9 @@ def admin_list_documents():
 
         # Implement pagination (GET /api/v1/admin/documents?page=1&limit=10)
 
-        try:
+        page = request.validated_args['page']
 
-            page = int(request.args.get('page', 1))
-
-            limit = int(request.args.get('limit', 50))
-
-        except ValueError:
-
-            page = 1
-
-            limit = 50
+        limit = request.validated_args['limit']
 
 
 
@@ -1786,17 +1750,25 @@ def admin_upload_document():
 
         file = request.files['file']
 
-        category = request.form.get('category', 'Other')
+        category_raw = request.form.get('category', 'Other')
 
 
 
-        if file.filename == '':
+        try:
 
-            return make_error_response("VALIDATION_ERROR", "No selected file.", 400)
+            filename, category = validate_file_upload(file, category_raw)
+
+        except ValidationError as val_err:
+
+            return make_error_response("VALIDATION_ERROR", val_err.message, 400)
 
 
 
-        filename = secure_filename(file.filename)
+        filename = secure_filename(filename)
+
+        if not filename:
+
+            return make_error_response("VALIDATION_ERROR", "Invalid filename provided.", 400)
 
 
 
@@ -1906,21 +1878,15 @@ def admin_upload_document():
 
 @rate_limit_authenticated()
 
+@validate_json_schema(ADMIN_DOC_DELETE_SCHEMA)
+
 def admin_delete_document():
 
 
 
     try:
 
-        data = request.get_json()
-
-        if not data or 'id' not in data:
-
-            return make_error_response("VALIDATION_ERROR", "Document ID is required.", 400)
-
-
-
-        doc_id = data.get('id')
+        doc_id = request.validated_data['id']
 
         df = catalog_manager.read_catalog()
 
@@ -2016,47 +1982,21 @@ def admin_list_projects():
 
 @idempotent()
 
+@validate_json_schema(ADMIN_PROJECT_ADD_SCHEMA)
+
 def admin_add_project():
 
 
 
     try:
 
-        data = request.get_json()
+        github_link = request.validated_data['github_link']
 
-        if not data:
-
-            return make_error_response("INVALID_REQUEST", "No payload provided.", 400)
+        live_link = request.validated_data['live_link']
 
 
-
-        github_link = data.get('github_link', '').strip()
-
-        live_link = data.get('live_link', '').strip()
-
-
-
-        if not github_link or not live_link:
-
-            return make_error_response("VALIDATION_ERROR", "GitHub link and Live link are required.", 400)
-
-
-
-        # Secure URL Formatting & SSRF Validation Check
 
         github_match = GITHUB_URL_REGEX.match(github_link)
-
-        if not github_match:
-
-            return make_error_response("VALIDATION_ERROR", "Invalid GitHub link. Must match format 'https://github.com/owner/repo'.", 400)
-
-
-
-        if not LIVE_URL_REGEX.match(live_link):
-
-            return make_error_response("VALIDATION_ERROR", "Invalid Live Demo link. Must be a valid HTTP/HTTPS URL.", 400)
-
-
 
         owner = github_match.group(1)
 
@@ -2382,19 +2322,13 @@ def admin_add_project():
 
 @rate_limit_authenticated()
 
+@validate_json_schema(ADMIN_PROJECT_DELETE_SCHEMA)
+
 def admin_delete_project():
 
     try:
 
-        data = request.get_json()
-
-        if not data or 'name' not in data:
-
-            return make_error_response("VALIDATION_ERROR", "Project name is required.", 400)
-
-
-
-        proj_name = data.get('name')
+        proj_name = request.validated_data['name']
 
 
 
@@ -2474,39 +2408,17 @@ def admin_delete_project():
 
 @rate_limit_authenticated()
 
+@validate_json_schema(ADMIN_PROJECT_UPDATE_SCHEMA)
+
 def admin_update_project():
 
     try:
 
-        data = request.get_json()
+        proj_name = request.validated_data['name']
 
-        if not data or not all(k in data for k in ['name', 'github_link', 'live_link']):
+        new_github = request.validated_data['github_link']
 
-            return make_error_response("VALIDATION_ERROR", "Project name, github_link, and live_link are required.", 400)
-
-
-
-        proj_name = data.get('name')
-
-        new_github = data.get('github_link').strip()
-
-        new_live = data.get('live_link').strip()
-
-
-
-        # Validate URL formats
-
-        github_match = GITHUB_URL_REGEX.match(new_github)
-
-        if not github_match:
-
-            return make_error_response("VALIDATION_ERROR", "Invalid GitHub link. Must match format 'https://github.com/owner/repo'.", 400)
-
-
-
-        if not LIVE_URL_REGEX.match(new_live):
-
-            return make_error_response("VALIDATION_ERROR", "Invalid Live Demo link. Must be a valid HTTP/HTTPS URL.", 400)
+        new_live = request.validated_data['live_link']
 
 
 

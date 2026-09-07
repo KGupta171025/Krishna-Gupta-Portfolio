@@ -8,11 +8,11 @@ import threading
 
 import time
 
+import logging
+
 import requests
 
 import smtplib
-
-import threading
 
 import re
 
@@ -27,6 +27,13 @@ from email.mime.multipart import MIMEMultipart
 from flask import Flask, render_template, send_from_directory, request, jsonify, session, redirect, url_for
 
 from dotenv import load_dotenv
+
+# Configure structured application logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] [%(name)s] %(message)s'
+)
+logger = logging.getLogger("portfolio_app")
 
 import io
 
@@ -171,19 +178,45 @@ def send_async_notifications(name, email_address, message):
 
 # --- 3. UNIFIED ERROR HANDLER & STATUS CODES ---
 
-def make_error_response(error_code, message, status_code, details=None):
+def make_error_response(error_code, message, status_code, details=None, error_id=None):
+
+    if status_code >= 500 and error_id is None:
+
+        error_id = str(uuid.uuid4())[:8]
+
+
+
+    # Sanitize message: never leak file paths or tracebacks in client responses
+
+    sanitized_message = str(message)
+
+    if status_code >= 500:
+
+        sanitized_message = "An unexpected server error occurred. Please try again later."
+
+    elif any(p in sanitized_message for p in [':\\', ':\\\\', 'Traceback (most recent call last)']):
+
+        sanitized_message = "Invalid request or resource format."
+
+
 
     error_payload = {
 
         'code': error_code,
 
-        'message': message
+        'message': sanitized_message
 
     }
 
     if details is not None:
 
         error_payload['details'] = details
+
+
+
+    if error_id is not None:
+
+        error_payload['error_id'] = error_id
 
 
 
@@ -197,17 +230,57 @@ def make_error_response(error_code, message, status_code, details=None):
 
 
 
-# --- 3b. GLOBAL API JSON ERROR HANDLERS ---
+
+
+# --- 3b. GLOBAL API JSON & HTML ERROR HANDLERS ---
+
+
 
 @app.errorhandler(400)
 
 def bad_request_handler(e):
 
-    if request.path.startswith('/api/'):
+    if request.path.startswith('/api/') or request.is_json:
 
-        return make_error_response("BAD_REQUEST", str(e.description or e), 400)
+        desc = getattr(e, 'description', None) or "Invalid request syntax or parameters."
 
-    return e
+        if any(p in str(desc) for p in [':\\', ':\\\\', 'Traceback']):
+
+            desc = "Invalid request payload."
+
+        return make_error_response("BAD_REQUEST", str(desc), 400)
+
+    return render_template('index.html'), 400
+
+
+
+
+
+@app.errorhandler(401)
+
+def unauthorized_handler(e):
+
+    if request.path.startswith('/api/') or request.is_json:
+
+        return make_error_response("UNAUTHORIZED", "Authentication required.", 401)
+
+    return redirect(url_for('private_dashboard'))
+
+
+
+
+
+@app.errorhandler(403)
+
+def forbidden_handler(e):
+
+    if request.path.startswith('/api/') or request.is_json:
+
+        return make_error_response("FORBIDDEN", "Access denied.", 403)
+
+    return render_template('index.html'), 403
+
+
 
 
 
@@ -215,11 +288,13 @@ def bad_request_handler(e):
 
 def not_found_handler(e):
 
-    if request.path.startswith('/api/'):
+    if request.path.startswith('/api/') or request.is_json:
 
         return make_error_response("NOT_FOUND", "The requested API resource does not exist.", 404)
 
-    return e
+    return render_template('index.html'), 404
+
+
 
 
 
@@ -227,11 +302,13 @@ def not_found_handler(e):
 
 def method_not_allowed_handler(e):
 
-    if request.path.startswith('/api/'):
+    if request.path.startswith('/api/') or request.is_json:
 
         return make_error_response("METHOD_NOT_ALLOWED", "HTTP method is not supported for this endpoint.", 405)
 
-    return e
+    return render_template('index.html'), 405
+
+
 
 
 
@@ -239,11 +316,13 @@ def method_not_allowed_handler(e):
 
 def too_many_requests_handler(e):
 
-    if request.path.startswith('/api/'):
+    if request.path.startswith('/api/') or request.is_json:
 
         return make_error_response("RATE_LIMIT_EXCEEDED", "Too many requests. Please wait.", 429)
 
-    return e
+    return render_template('index.html'), 429
+
+
 
 
 
@@ -251,11 +330,33 @@ def too_many_requests_handler(e):
 
 def internal_server_error_handler(e):
 
-    if request.path.startswith('/api/'):
+    err_id = str(uuid.uuid4())[:8]
 
-        return make_error_response("INTERNAL_ERROR", "A fatal server error occurred.", 500)
+    logger.exception(f"[{err_id}] HTTP 500 server error on {request.method} {request.path}: {e}")
 
-    return e
+    if request.path.startswith('/api/') or request.is_json:
+
+        return make_error_response("INTERNAL_ERROR", "An internal server error occurred.", 500, error_id=err_id)
+
+    return render_template('index.html'), 500
+
+
+
+
+
+@app.errorhandler(Exception)
+
+def unhandled_exception_handler(e):
+
+    err_id = str(uuid.uuid4())[:8]
+
+    logger.exception(f"[{err_id}] Unhandled runtime exception on {request.method} {request.path}: {e}")
+
+    if request.path.startswith('/api/') or request.is_json:
+
+        return make_error_response("INTERNAL_ERROR", "An unexpected server error occurred.", 500, error_id=err_id)
+
+    return render_template('index.html'), 500
 
 
 
@@ -848,7 +949,11 @@ def contact():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error in contact submission: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while submitting your message.", 500, error_id=err_id)
 
 
 
@@ -1540,7 +1645,11 @@ def chat():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error in chat assistant: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while processing the chat inquiry.", 500, error_id=err_id)
 
 
 
@@ -1638,7 +1747,11 @@ def admin_login():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error in admin login: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred during authentication.", 500, error_id=err_id)
 
 
 
@@ -1734,7 +1847,11 @@ def admin_list_documents():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error listing documents: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while retrieving document catalog.", 500, error_id=err_id)
 
 
 
@@ -1878,7 +1995,11 @@ def admin_upload_document():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error uploading document: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while saving the document.", 500, error_id=err_id)
 
 
 
@@ -1940,7 +2061,11 @@ def admin_delete_document():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error deleting document: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while deleting the document.", 500, error_id=err_id)
 
 
 
@@ -1980,7 +2105,11 @@ def admin_list_projects():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error listing projects: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while listing showcase projects.", 500, error_id=err_id)
 
 
 
@@ -2322,7 +2451,11 @@ def admin_add_project():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error adding project: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while adding the project.", 500, error_id=err_id)
 
 
 
@@ -2408,7 +2541,11 @@ def admin_delete_project():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error deleting project: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while deleting the project.", 500, error_id=err_id)
 
 
 
@@ -2498,7 +2635,11 @@ def admin_update_project():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error updating project links: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while updating project links.", 500, error_id=err_id)
 
 
 
@@ -2578,7 +2719,11 @@ def admin_analytics():
 
     except Exception as e:
 
-        return make_error_response("INTERNAL_ERROR", str(e), 500)
+        err_id = str(uuid.uuid4())[:8]
+
+        logger.exception(f"[{err_id}] Error in admin analytics: {e}")
+
+        return make_error_response("INTERNAL_ERROR", "An error occurred while generating analytics.", 500, error_id=err_id)
 
 
 

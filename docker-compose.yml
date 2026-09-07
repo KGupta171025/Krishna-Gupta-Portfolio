@@ -10,7 +10,7 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=production
-      - API_ACCESS_TOKEN=${API_ACCESS_TOKEN:-default_token}
+      - API_ACCESS_TOKEN=${API_ACCESS_TOKEN}
       - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
     restart: always

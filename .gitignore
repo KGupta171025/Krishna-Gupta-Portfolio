@@ -3,23 +3,39 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Environments
+# Environments & Secrets
 .venv/
 venv/
 ENV/
 env/
 .env
+.env.*
+!.env.example
 
-# Virtualenv
+# Private Keys & Certificates
+*.pem
+*.key
+*.pfx
+*.pkcs12
+*.crt
+*.csr
+
+# Cloud Credentials & Service Account Tokens
+*serviceAccount*.json
+credentials.json
+*firebase-adminsdk*.json
+client_secret*.json
+
+# Virtualenv & Logs
 pip-log.txt
 pip-delete-this-directory.txt
+*.log
 
 # Editor / OS configs
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
-*.log
 
 # Security Reports
 /Security_Analysis.pdf
@@ -28,4 +44,5 @@ Thumbs.db
 # Encrypted Datasets & Catalogs
 *.parquet*
 *.enc
-
+*.sqlite*
+*.db

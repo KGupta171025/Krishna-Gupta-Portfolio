@@ -69,7 +69,7 @@ load_dotenv()
 
 app = Flask(__name__, template_folder='.')
 
-app.secret_key = os.environ.get("FLASK_SECRET", "super-secure-fallback-key-ralk-gupta")
+app.secret_key = os.environ.get("FLASK_SECRET") or os.urandom(32).hex()
 
 
 

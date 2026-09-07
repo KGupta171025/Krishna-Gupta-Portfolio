@@ -1131,21 +1131,8 @@
                         showToast(data.message, "error");
                     }
                 } catch (err) {
-                    console.log("Backend API offline. Running client-side secure fallback...", err);
-                    
-                    const userHash = await sha256(usernameInput);
-                    const passHash = await sha256(passwordInput);
-
-                    const targetUserHash = "9a75c28caa1fa24bc9ee897058902023aafbac2e5d8ab153e618218a4293ea63";
-                    const targetPassHash = "c5c51b6039f000953ca1f14cc06986e998e87032360b4690a9b52e3dd3eb5a93";
-
-                    if (userHash === targetUserHash && passHash === targetPassHash) {
-                        isStaticMode = true;
-                        showToast("Authentication granted (GitHub Cloud Direct Mode)!", "success");
-                        enterDashboard();
-                    } else {
-                        showToast("Access Denied: Invalid credentials.", "error");
-                    }
+                    console.error("Backend authentication error:", err);
+                    showToast("Authentication service unavailable. Please ensure backend server is running.", "error");
                 }
             });
         }

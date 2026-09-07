@@ -28,7 +28,7 @@ class RateLimitingTestCase(unittest.TestCase):
         # Send valid requests up to the limit
         for i in range(limit):
             response = self.client.post('/api/contact', json={
-                'name': f'Tester {i}',
+                'name': 'Tester Person',
                 'email': 'tester@example.com',
                 'message': 'Hello test'
             }, environ_base={'REMOTE_ADDR': '192.168.1.10'})

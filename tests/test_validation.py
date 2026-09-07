@@ -23,12 +23,14 @@ class InputValidationTestCase(unittest.TestCase):
     def test_contact_validation_strict_rejections(self):
         """Test strict type, length, format, and extraneous field rejection on /api/contact."""
         # 1. Missing payload / Non-JSON
+        limiter.reset()
         resp = self.client.post('/api/contact', data="plain text", content_type="text/plain")
         self.assertEqual(resp.status_code, 400)
         data = json.loads(resp.data)
         self.assertEqual(data['error']['code'], 'INVALID_REQUEST')
 
         # 2. Invalid data types (integer passed for name)
+        limiter.reset()
         resp = self.client.post('/api/contact', json={
             'name': 12345,
             'email': 'valid@example.com',
@@ -40,6 +42,7 @@ class InputValidationTestCase(unittest.TestCase):
         self.assertEqual(data['error']['details']['issue'], 'INVALID_TYPE')
 
         # 3. Name length under minimum (< 2 chars)
+        limiter.reset()
         resp = self.client.post('/api/contact', json={
             'name': 'A',
             'email': 'valid@example.com',
@@ -50,6 +53,7 @@ class InputValidationTestCase(unittest.TestCase):
         self.assertEqual(data['error']['details']['issue'], 'MIN_LENGTH_VIOLATION')
 
         # 4. Name invalid format (containing script tags or numbers)
+        limiter.reset()
         resp = self.client.post('/api/contact', json={
             'name': '<script>alert(1)</script>',
             'email': 'valid@example.com',
@@ -62,6 +66,7 @@ class InputValidationTestCase(unittest.TestCase):
         # 5. Invalid email formats (must reject without just sanitizing)
         invalid_emails = ['not-an-email', 'user@', '@domain.com', 'user@domain', 'user name@domain.com']
         for bad_email in invalid_emails:
+            limiter.reset()
             resp = self.client.post('/api/contact', json={
                 'name': 'Krishna Gupta',
                 'email': bad_email,
@@ -72,6 +77,7 @@ class InputValidationTestCase(unittest.TestCase):
             self.assertEqual(data['error']['details']['field'], 'email')
 
         # 6. Message length under minimum (< 5 chars)
+        limiter.reset()
         resp = self.client.post('/api/contact', json={
             'name': 'Krishna Gupta',
             'email': 'krishna@example.com',
@@ -82,6 +88,7 @@ class InputValidationTestCase(unittest.TestCase):
         self.assertEqual(data['error']['details']['issue'], 'MIN_LENGTH_VIOLATION')
 
         # 7. Unrecognized / extra injected fields (whitelisting)
+        limiter.reset()
         resp = self.client.post('/api/contact', json={
             'name': 'Krishna Gupta',
             'email': 'krishna@example.com',
@@ -94,6 +101,7 @@ class InputValidationTestCase(unittest.TestCase):
         self.assertEqual(data['error']['details']['issue'], 'UNRECOGNIZED_FIELDS')
 
         # 8. Perfectly valid payload
+        limiter.reset()
         resp = self.client.post('/api/contact', json={
             'name': 'Krishna Gupta',
             'email': 'krishna@example.com',

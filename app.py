@@ -171,19 +171,27 @@ def send_async_notifications(name, email_address, message):
 
 # --- 3. UNIFIED ERROR HANDLER & STATUS CODES ---
 
-def make_error_response(error_code, message, status_code):
+def make_error_response(error_code, message, status_code, details=None):
+
+    error_payload = {
+
+        'code': error_code,
+
+        'message': message
+
+    }
+
+    if details is not None:
+
+        error_payload['details'] = details
+
+
 
     return jsonify({
 
         'success': False,
 
-        'error': {
-
-            'code': error_code,
-
-            'message': message
-
-        }
+        'error': error_payload
 
     }), status_code
 
@@ -525,6 +533,12 @@ class EncryptedDocumentCatalog:
 
         try:
 
+            if app.config.get('TESTING'):
+
+                return None
+
+
+
             spark = get_spark_session()
 
             if spark is None:
@@ -691,7 +705,7 @@ def send_email_notification(name, email_address, message):
 
 
 
-    if not sender_email or not sender_password:
+    if not sender_email or not sender_password or app.config.get('TESTING'):
 
         return False
 
@@ -755,7 +769,7 @@ def send_sms_notification(name, email_address):
 
 
 
-    if not all([account_sid, auth_token, twilio_number, recipient_number]):
+    if not all([account_sid, auth_token, twilio_number, recipient_number]) or app.config.get('TESTING'):
 
         return False
 
@@ -1345,7 +1359,7 @@ def retrieve_document_chunks(user_query, limit_chars=2000):
 
 def query_gemini_model(prompt, chat_id):
 
-    if not HAS_GEMINI:
+    if not HAS_GEMINI or app.config.get('TESTING'):
 
         return None
 
@@ -1760,7 +1774,7 @@ def admin_upload_document():
 
         except ValidationError as val_err:
 
-            return make_error_response("VALIDATION_ERROR", val_err.message, 400)
+            return make_error_response("VALIDATION_ERROR", val_err.message, 400, details={'field': val_err.field, 'issue': val_err.error_type})
 
 
 

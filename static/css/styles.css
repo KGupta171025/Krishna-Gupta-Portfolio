@@ -1,3 +1,27 @@
+
+/* ==========================================
+   Lenis Smooth Scrolling & GPU Performance
+   ========================================== */
+html.lenis, html.lenis body {
+    height: auto;
+}
+
+.lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+    overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+    pointer-events: none;
+}
+
 /* ==========================================
    Krishna Gupta - Premium Web Experience
    ========================================== */
@@ -61,7 +85,6 @@ body.light-theme {
 }
 
 html {
-    scroll-behavior: smooth;
     overflow-x: hidden;
 }
 
@@ -94,6 +117,9 @@ ul {
     z-index: -2;
     pointer-events: none;
     background-color: transparent;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    will-change: transform;
 }
 
 /* Container */

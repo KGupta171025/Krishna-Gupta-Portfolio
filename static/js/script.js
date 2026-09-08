@@ -281,14 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // 0. Initialize Lenis Smooth Scroll Engine (Disabled for instant scroll response)
-    /*
+    // 0. Initialize Lenis Smooth Scroll Engine
     try {
         initLenisScroll();
     } catch (e) {
-        console.error("Lenis scroll initialization failed:", e);
+        console.error('Lenis scroll initialization failed:', e);
     }
-    */
 
 
 
@@ -1493,191 +1491,84 @@ function initCardTiltEffects() {
 
 
 function initLenisScroll() {
+    if (typeof Lenis === 'undefined') return;
 
-
-
-
-
-
-
-    const lenis = new Lenis({
-
-
-
-
-
-
-
-        duration: 0.8, // Snappier duration for instant responsiveness
-
-
-
-
-
-
-
+    // High performance smooth scrolling engine
+    window.lenis = new Lenis({
+        duration: 1.1,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-
-
-
-
-
-
-
-        direction: 'vertical',
-
-
-
-
-
-
-
-        gestureDirection: 'vertical',
-
-
-
-
-
-
-
-        smooth: true,
-
-
-
-
-
-
-
-        mouseMultiplier: 1,
-
-
-
-
-
-
-
-        smoothTouch: false,
-
-
-
-
-
-
-
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1.0,
+        touchMultiplier: 1.5,
+        infinite: false,
     });
 
+    if (typeof ScrollTrigger !== 'undefined') {
+        window.lenis.on('scroll', ScrollTrigger.update);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    lenis.on('scroll', ScrollTrigger.update);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    function raf(time) {
-
-
-
-
-
-
-
-        lenis.raf(time);
-
-
-
-
-
-
-
+        if (typeof gsap !== 'undefined') {
+            gsap.ticker.add((time) => {
+                window.lenis.raf(time * 1000);
+            });
+            gsap.ticker.lagSmoothing(0);
+        } else {
+            function raf(time) {
+                window.lenis.raf(time);
+                requestAnimationFrame(raf);
+            }
+            requestAnimationFrame(raf);
+        }
+    } else {
+        function raf(time) {
+            window.lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
         requestAnimationFrame(raf);
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
-
-    requestAnimationFrame(raf);
-
-
-
-
-
-
-
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function initGSAPAnimations() {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
     gsap.registerPlugin(ScrollTrigger);
 
+    ScrollTrigger.config({
+        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load,resize"
+    });
+
+    gsap.defaults({
+        ease: "power2.out",
+        force3D: true
+    });
+
     // A. Hero text elements entrance
-    gsap.fromTo(".hero-content > *", 
+    gsap.fromTo(".hero-content > *",
         { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.35, stagger: 0.05, ease: "power1.out" }
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: "power2.out", clearProps: "transform" }
     );
 
     // B. Hero visual layout code terminal
-    gsap.fromTo(".hero-visual", 
+    gsap.fromTo(".hero-visual",
         { opacity: 0, scale: 0.96 },
-        { opacity: 1, scale: 1, duration: 0.4, ease: "power1.out", delay: 0.15 }
+        { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out", delay: 0.1, clearProps: "transform" }
     );
 
     // C. Section Headers on scroll
     gsap.utils.toArray('.section-header').forEach(header => {
-        gsap.fromTo(header, 
-            { opacity: 0, y: 15 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                duration: 0.3, 
+        gsap.fromTo(header,
+            { opacity: 0, y: 18 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.45,
+                ease: "power2.out",
+                clearProps: "transform",
                 scrollTrigger: {
                     trigger: header,
-                    start: "top 95%",
+                    start: "top 90%",
+                    fastScrollEnd: true,
+                    preventOverlaps: true,
                     toggleActions: "play none none none"
                 }
             }
@@ -1686,17 +1577,20 @@ function initGSAPAnimations() {
 
     // D. Project Grid Cards entrance
     if (document.querySelector('.projects-grid')) {
-        gsap.fromTo(".projects-grid .project-card-container", 
+        gsap.fromTo(".projects-grid .project-card-container",
             { opacity: 0, y: 25 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                duration: 0.35, 
-                stagger: 0.05, 
-                ease: "power1.out", 
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.45,
+                stagger: 0.06,
+                ease: "power2.out",
+                clearProps: "transform",
                 scrollTrigger: {
                     trigger: ".projects-grid",
-                    start: "top 95%",
+                    start: "top 90%",
+                    fastScrollEnd: true,
+                    preventOverlaps: true,
                     toggleActions: "play none none none"
                 }
             }
@@ -1707,16 +1601,19 @@ function initGSAPAnimations() {
     gsap.utils.toArray('.timeline-item').forEach(item => {
         const content = item.querySelector('.timeline-content');
         if (content) {
-            gsap.fromTo(content, 
+            gsap.fromTo(content,
                 { opacity: 0, x: item.classList.contains('left') ? -25 : 25 },
-                { 
-                    opacity: 1, 
-                    x: 0, 
-                    duration: 0.35, 
-                    ease: "power1.out", 
+                {
+                    opacity: 1,
+                    x: 0,
+                    duration: 0.45,
+                    ease: "power2.out",
+                    clearProps: "transform",
                     scrollTrigger: {
                         trigger: item,
-                        start: "top 95%",
+                        start: "top 90%",
+                        fastScrollEnd: true,
+                        preventOverlaps: true,
                         toggleActions: "play none none none"
                     }
                 }
@@ -1726,17 +1623,20 @@ function initGSAPAnimations() {
 
     // F. Skills Grid Cards entrance
     if (document.querySelector('.skills-grid')) {
-        gsap.fromTo(".skills-grid .skill-card", 
+        gsap.fromTo(".skills-grid .skill-card",
             { opacity: 0, y: 20 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                duration: 0.3, 
-                stagger: 0.03, 
-                ease: "power1.out", 
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.4,
+                stagger: 0.03,
+                ease: "power2.out",
+                clearProps: "transform",
                 scrollTrigger: {
                     trigger: ".skills-grid",
-                    start: "top 95%",
+                    start: "top 90%",
+                    fastScrollEnd: true,
+                    preventOverlaps: true,
                     toggleActions: "play none none none"
                 }
             }
@@ -1745,17 +1645,20 @@ function initGSAPAnimations() {
 
     // G. Certifications Grid Cards entrance
     if (document.querySelector('.certifications-grid')) {
-        gsap.fromTo(".certifications-grid .cert-card-container", 
+        gsap.fromTo(".certifications-grid .cert-card-container",
             { opacity: 0, y: 20 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                duration: 0.3, 
-                stagger: 0.04, 
-                ease: "power1.out", 
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.4,
+                stagger: 0.04,
+                ease: "power2.out",
+                clearProps: "transform",
                 scrollTrigger: {
                     trigger: ".certifications-grid",
-                    start: "top 95%",
+                    start: "top 90%",
+                    fastScrollEnd: true,
+                    preventOverlaps: true,
                     toggleActions: "play none none none"
                 }
             }
@@ -1764,8 +1667,8 @@ function initGSAPAnimations() {
 
     // H. Universal Scroll Reveal for general containers with .reveal class
     gsap.utils.toArray('.reveal').forEach(el => {
-        if (el.classList.contains('projects-grid') || 
-            el.classList.contains('certifications-grid') || 
+        if (el.classList.contains('projects-grid') ||
+            el.classList.contains('certifications-grid') ||
             el.classList.contains('skills-tab-content') ||
             el.classList.contains('skills-tabs')) {
             gsap.set(el, { opacity: 1, y: 0, scale: 1 });
@@ -1773,36 +1676,25 @@ function initGSAPAnimations() {
         }
 
         const isHero = el.classList.contains('hero-content') || el.classList.contains('hero-visual');
-        gsap.fromTo(el, 
-            { opacity: 0, y: 15 },
-            { 
-                opacity: 1, 
-                y: 0, 
-                duration: 0.35, 
-                ease: "power1.out", 
+        gsap.fromTo(el,
+            { opacity: 0, y: 18 },
+            {
+                opacity: 1,
+                y: 0,
+                duration: 0.45,
+                ease: "power2.out",
+                clearProps: "transform",
                 scrollTrigger: isHero ? null : {
                     trigger: el,
-                    start: "top 95%",
+                    start: "top 90%",
+                    fastScrollEnd: true,
+                    preventOverlaps: true,
                     toggleActions: "play none none none"
                 }
             }
         );
     });
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ==========================================================
 
@@ -2380,455 +2272,66 @@ function initCoreUI() {
 
 
 
-    // C. Sticky Navbar sizing on Scroll
-
-
-
-
-
-
-
+    // C. Optimized Sticky Navbar & ScrollSpy Controller (Throttled via RAF & Lenis)
     const navbar = document.getElementById('navbar');
+    const sections = document.querySelectorAll('section[id]');
+    let activeNavId = '';
+    let isScrollTicking = false;
 
+    function handleScrollUpdate() {
+        const scrollY = window.scrollY || window.pageYOffset;
 
-
-
-
-
-
-    window.addEventListener('scroll', () => {
-
-
-
-
-
-
-
-        if (window.scrollY > 50) {
-
-
-
-
-
-
-
-            navbar.classList.add('scrolled');
-
-
-
-
-
-
-
-        } else {
-
-
-
-
-
-
-
-            navbar.classList.remove('scrolled');
-
-
-
-
-
-
-
+        // Sticky navbar class
+        if (navbar) {
+            if (scrollY > 50) {
+                if (!navbar.classList.contains('scrolled')) navbar.classList.add('scrolled');
+            } else {
+                if (navbar.classList.contains('scrolled')) navbar.classList.remove('scrolled');
+            }
         }
 
-
-
-
-
-
-
-    });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // D. ScrollSpy Active navigation highlight & Dynamic URL updates
-
-
-
-
-
-
-
-    const sections = document.querySelectorAll('section');
-
-
-
-
-
-
-
-    window.addEventListener('scroll', () => {
-
-
-
-
-
-
-
-        let currentId = '';
-
-
-
-
-
-
-
-        sections.forEach(section => {
-
-
-
-
-
-
-
-            const sectionTop = section.offsetTop;
-
-
-
-
-
-
-
-            if (window.scrollY >= (sectionTop - 180)) {
-
-
-
-
-
-
-
-                currentId = section.getAttribute('id');
-
-
-
-
-
-
-
+        // ScrollSpy update
+        if (sections.length > 0 && navLinks.length > 0) {
+            let currentId = '';
+            for (let i = 0; i < sections.length; i++) {
+                const section = sections[i];
+                const sectionTop = section.offsetTop;
+                if (scrollY >= (sectionTop - 200)) {
+                    currentId = section.getAttribute('id');
+                }
             }
 
-
-
-
-
-
-
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        navLinks.forEach(link => {
-
-
-
-
-
-
-
-            link.classList.remove('active');
-
-
-
-
-
-
-
-            const href = link.getAttribute('href');
-
-
-
-
-
-
-
-            if (href.endsWith(`#${currentId}`)) {
-
-
-
-
-
-
-
-                link.classList.add('active');
-
-
-
-
-
-
-
+            if (currentId && currentId !== activeNavId) {
+                activeNavId = currentId;
+                navLinks.forEach(link => {
+                    const href = link.getAttribute('href') || '';
+                    if (href.endsWith(`#${currentId}`)) {
+                        link.classList.add('active');
+                    } else if (href.includes('#')) {
+                        link.classList.remove('active');
+                    }
+                });
             }
-
-
-
-
-
-
-
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Update URL path dynamically as they scroll
-
-
-
-
-
-
-
-        if (currentId && currentId !== 'hero') {
-
-
-
-
-
-
-
-            const targetPath = `${basePath}/${currentId}`;
-
-
-
-
-
-
-
-            if (window.location.pathname !== targetPath && window.location.pathname !== targetPath + '/') {
-
-
-
-
-
-
-
-                window.history.replaceState(null, null, targetPath);
-
-
-
-
-
-
-
-            }
-
-
-
-
-
-
-
-        } else if (currentId === 'hero') {
-
-
-
-
-
-
-
-            const rootPath = basePath || '/';
-
-
-
-
-
-
-
-            if (window.location.pathname !== rootPath) {
-
-
-
-
-
-
-
-                window.history.replaceState(null, null, rootPath);
-
-
-
-
-
-
-
-            }
-
-
-
-
-
-
-
         }
 
-
-
-
-
-
-
-    });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // E. Skills Category tab filters
-
-
-
-
-
-
-
-    const tabBtns = document.querySelectorAll('.tab-btn');
-
-
-
-
-
-
-
-    const tabPanes = document.querySelectorAll('.tab-pane');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    tabBtns.forEach(btn => {
-
-
-
-
-
-
-
-        btn.addEventListener('click', () => {
-
-
-
-
-
-
-
-            tabBtns.forEach(b => b.classList.remove('active'));
-
-
-
-
-
-
-
-            tabPanes.forEach(p => p.classList.remove('active'));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            btn.classList.add('active');
-
-
-
-
-
-
-
-            const targetPane = btn.getAttribute('data-tab');
-
-
-
-
-
-
-
-            document.getElementById(targetPane).classList.add('active');
-
-
-
-
-
-
-
+        isScrollTicking = false;
+    }
+
+    if (window.lenis) {
+        window.lenis.on('scroll', () => {
+            if (!isScrollTicking) {
+                requestAnimationFrame(handleScrollUpdate);
+                isScrollTicking = true;
+            }
         });
-
-
-
-
-
-
-
-    });
+    } else {
+        window.addEventListener('scroll', () => {
+            if (!isScrollTicking) {
+                requestAnimationFrame(handleScrollUpdate);
+                isScrollTicking = true;
+            }
+        }, { passive: true });
+    }
 
 
 

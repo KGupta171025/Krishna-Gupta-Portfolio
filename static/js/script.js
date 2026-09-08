@@ -6554,20 +6554,58 @@ function initAIChatbot() {
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function showTypingIndicator() {
+    let activeThinkingOrb = null;
+
+    function showTypingIndicator(state = 'searching') {
+        removeTypingIndicator();
+
         const typingDiv = document.createElement('div');
-        typingDiv.className = 'chat-message bot typing';
+        typingDiv.className = 'chat-message bot typing thinking-orb-container';
         typingDiv.id = 'chat-typing-indicator';
-        for (let i = 0; i < 3; i++) {
-            const dot = document.createElement('span');
-            dot.className = 'typing-dot';
-            typingDiv.appendChild(dot);
-        }
+        typingDiv.style.display = 'flex';
+        typingDiv.style.alignItems = 'center';
+        typingDiv.style.gap = '10px';
+        typingDiv.style.padding = '8px 14px';
+
+        const orbSlot = document.createElement('div');
+        orbSlot.className = 'orb-slot';
+        orbSlot.style.display = 'inline-flex';
+        orbSlot.style.alignItems = 'center';
+        orbSlot.style.justifyContent = 'center';
+        typingDiv.appendChild(orbSlot);
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'typing-text';
+        textSpan.textContent = 'KALKI AI is thinking...';
+        textSpan.style.fontSize = '0.85rem';
+        textSpan.style.color = 'var(--text-muted, #94a3b8)';
+        typingDiv.appendChild(textSpan);
+
         chatMessages.appendChild(typingDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        if (typeof ThinkingOrb !== 'undefined') {
+            activeThinkingOrb = new ThinkingOrb({
+                target: orbSlot,
+                state: state,
+                size: 28,
+                color: '#00f0ff',
+                dark: true
+            });
+        } else {
+            for (let i = 0; i < 3; i++) {
+                const dot = document.createElement('span');
+                dot.className = 'typing-dot';
+                orbSlot.appendChild(dot);
+            }
+        }
     }
 
     function removeTypingIndicator() {
+        if (activeThinkingOrb) {
+            activeThinkingOrb.destroy();
+            activeThinkingOrb = null;
+        }
         const indicator = document.getElementById('chat-typing-indicator');
         if (indicator) indicator.remove();
     }

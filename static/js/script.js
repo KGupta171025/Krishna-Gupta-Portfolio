@@ -3557,54 +3557,21 @@ function initCoreUI() {
 
 
     const captchaGroup = document.createElement('div');
-
-
-
-
-
-
-
     captchaGroup.className = 'form-group';
-
-
-
-
-
-
-
     captchaGroup.id = 'captchaGroup';
-
-
-
-
-
-
-
-    captchaGroup.innerHTML = `
-
-
-
-
-
-
-
-        <label for="captchaCode">Human Verification: What is ${num1} + ${num2}?</label>
-
-
-
-
-
-
-
-        <input type="text" id="captchaCode" placeholder="Enter answer" required style="text-align: center; font-size: 1rem; font-weight: bold;">
-
-
-
-
-
-
-
-    `;
+    const captchaLabel = document.createElement('label');
+    captchaLabel.htmlFor = 'captchaCode';
+    captchaLabel.textContent = `Human Verification: What is ${num1} + ${num2}?`;
+    const captchaInput = document.createElement('input');
+    captchaInput.type = 'text';
+    captchaInput.id = 'captchaCode';
+    captchaInput.placeholder = 'Enter answer';
+    captchaInput.required = true;
+    captchaInput.style.textAlign = 'center';
+    captchaInput.style.fontSize = '1rem';
+    captchaInput.style.fontWeight = 'bold';
+    captchaGroup.appendChild(captchaLabel);
+    captchaGroup.appendChild(captchaInput);
 
 
 
@@ -4013,54 +3980,23 @@ function initCoreUI() {
 
 
                     const otpGroup = document.createElement('div');
-
-
-
-
-
-
-
                     otpGroup.className = 'form-group';
-
-
-
-
-
-
-
                     otpGroup.id = 'otpGroup';
-
-
-
-
-
-
-
-                    otpGroup.innerHTML = `
-
-
-
-
-
-
-
-                        <label for="otpCode">Verification Code</label>
-
-
-
-
-
-
-
-                        <input type="text" id="otpCode" placeholder="Enter 6-digit code" required maxlength="6" style="text-align: center; font-size: 1.1rem; font-weight: bold; letter-spacing: 4px;">
-
-
-
-
-
-
-
-                    `;
+                    const otpLabel = document.createElement('label');
+                    otpLabel.htmlFor = 'otpCode';
+                    otpLabel.textContent = 'Verification Code';
+                    const otpInput = document.createElement('input');
+                    otpInput.type = 'text';
+                    otpInput.id = 'otpCode';
+                    otpInput.placeholder = 'Enter 6-digit code';
+                    otpInput.required = true;
+                    otpInput.maxLength = 6;
+                    otpInput.style.textAlign = 'center';
+                    otpInput.style.fontSize = '1.1rem';
+                    otpInput.style.fontWeight = 'bold';
+                    otpInput.style.letterSpacing = '4px';
+                    otpGroup.appendChild(otpLabel);
+                    otpGroup.appendChild(otpInput);
 
 
 
@@ -6545,579 +6481,95 @@ function initAIChatbot() {
 
 
     function handleUserSendMessage() {
-
-
-
-
-
-
-
         const text = chatInput.value.trim();
-
-
-
-
-
-
-
         if (!text) return;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Append User Message
-
-
-
-
-
-
-
-        appendMessage(text, 'user');
-
-
-
-
-
-
-
+        // Append User Message safely using textContent
+        appendUserMessage(text);
         chatInput.value = '';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Show Typing Indicator
-
-
-
-
-
-
-
         showTypingIndicator();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         // Query Backend Flask AI Agent Endpoint
-
-
-
-
-
-
-
         fetch('/api/chat', {
-
-
-
-
-
-
-
             method: 'POST',
-
-
-
-
-
-
-
             headers: {
-
-
-
-
-
-
-
                 'Content-Type': 'application/json'
-
-
-
-
-
-
-
             },
-
-
-
-
-
-
-
             body: JSON.stringify({ message: text })
-
-
-
-
-
-
-
         })
-
-
-
-
-
-
-
         .then(response => {
-
-
-
-
-
-
-
             if (!response.ok) throw new Error("Backend unavailable");
-
-
-
-
-
-
-
             return response.json();
-
-
-
-
-
-
-
         })
-
-
-
-
-
-
-
         .then(data => {
-
-
-
-
-
-
-
             removeTypingIndicator();
-
-
-
-
-
-
-
             if (data && data.success) {
-
-
-
-
-
-
-
-                appendMessage(data.message, 'bot');
-
-
-
-
-
-
-
+                appendBotMessage(data.message);
             } else {
-
-
-
-
-
-
-
                 const localResponse = generateAIResponse(text);
-
-
-
-
-
-
-
-                appendMessage(localResponse, 'bot');
-
-
-
-
-
-
-
+                appendBotMessage(localResponse);
             }
-
-
-
-
-
-
-
         })
-
-
-
-
-
-
-
         .catch(err => {
-
-
-
-
-
-
-
             console.log("Using client-side fallback AI matching:", err);
-
-
-
-
-
-
-
             removeTypingIndicator();
-
-
-
-
-
-
-
             const localResponse = generateAIResponse(text);
-
-
-
-
-
-
-
-            appendMessage(localResponse, 'bot');
-
-
-
-
-
-
-
+            appendBotMessage(localResponse);
         });
-
-
-
-
-
-
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    function appendMessage(text, sender) {
-
-
-
-
-
-
-
+    function appendUserMessage(text) {
         const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-message user';
+        const pEl = document.createElement('p');
+        pEl.textContent = text;
+        msgDiv.appendChild(pEl);
 
+        // Remove existing quick replies block when user sends message
+        const oldReplies = chatMessages.querySelector('.chat-quick-replies');
+        if (oldReplies) {
+            oldReplies.remove();
+        }
 
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
+    function appendBotMessage(htmlContent) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-message bot';
+        const pEl = document.createElement('p');
 
-
-
-
-        msgDiv.className = `chat-message ${sender}`;
-
-
-
-
-
-
-
-                const pEl = document.createElement('p');
-        if (sender === 'user') {
-            pEl.textContent = text;
-        } else {
-            pEl.innerHTML = text;
+        const parser = new DOMParser();
+        const parsedDoc = parser.parseFromString(htmlContent, 'text/html');
+        parsedDoc.body.querySelectorAll('script, iframe, object, embed, form').forEach(el => el.remove());
+        while (parsedDoc.body.firstChild) {
+            pEl.appendChild(parsedDoc.body.firstChild);
         }
         msgDiv.appendChild(pEl);
 
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-        // Remove existing quick replies block if bot sends a new message
-
-
-
-
-
-
-
-        const oldReplies = chatMessages.querySelector('.chat-quick-replies');
-
-
-
-
-
-
-
-        if (oldReplies && sender === 'user') {
-
-
-
-
-
-
-
-            oldReplies.remove();
-
-
-
-
-
-
-
-        }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         chatMessages.appendChild(msgDiv);
-
-
-
-
-
-
-
         chatMessages.scrollTop = chatMessages.scrollHeight;
-
-
-
-
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     function showTypingIndicator() {
-
-
-
-
-
-
-
         const typingDiv = document.createElement('div');
-
-
-
-
-
-
-
         typingDiv.className = 'chat-message bot typing';
-
-
-
-
-
-
-
         typingDiv.id = 'chat-typing-indicator';
-
-
-
-
-
-
-
-        typingDiv.innerHTML = `
-
-
-
-
-
-
-
-            <span class="typing-dot"></span>
-
-
-
-
-
-
-
-            <span class="typing-dot"></span>
-
-
-
-
-
-
-
-            <span class="typing-dot"></span>
-
-
-
-
-
-
-
-        `;
-
-
-
-
-
-
-
+        for (let i = 0; i < 3; i++) {
+            const dot = document.createElement('span');
+            dot.className = 'typing-dot';
+            typingDiv.appendChild(dot);
+        }
         chatMessages.appendChild(typingDiv);
-
-
-
-
-
-
-
         chatMessages.scrollTop = chatMessages.scrollHeight;
-
-
-
-
-
-
-
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     function removeTypingIndicator() {
-
-
-
-
-
-
-
         const indicator = document.getElementById('chat-typing-indicator');
-
-
-
-
-
-
-
         if (indicator) indicator.remove();
-
-
-
-
-
-
-
     }
 
 

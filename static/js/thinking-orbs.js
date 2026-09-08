@@ -689,6 +689,63 @@
         }
     }
 
+    
+    // Custom Element <thinking-orb> support for declarative usage across HTML, React, and Vue
+    if (typeof customElements !== 'undefined' && !customElements.get('thinking-orb')) {
+        class ThinkingOrbElement extends HTMLElement {
+            static get observedAttributes() {
+                return ['state', 'size', 'speed', 'color', 'dark', 'paused'];
+            }
+
+            connectedCallback() {
+                const state = this.getAttribute('state') || 'searching';
+                const size = parseInt(this.getAttribute('size') || '64', 10);
+                const speed = parseFloat(this.getAttribute('speed') || '1.0');
+                const color = this.getAttribute('color') || '#00f0ff';
+                const dark = this.getAttribute('dark') !== 'false';
+                const paused = this.hasAttribute('paused');
+
+                this.style.display = 'inline-flex';
+                this.style.alignItems = 'center';
+                this.style.justifyContent = 'center';
+
+                this.orb = new ThinkingOrb({
+                    target: this,
+                    state,
+                    size,
+                    speed,
+                    color,
+                    dark,
+                    paused
+                });
+            }
+
+            disconnectedCallback() {
+                if (this.orb) {
+                    this.orb.destroy();
+                    this.orb = null;
+                }
+            }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                if (!this.orb || oldValue === newValue) return;
+                if (name === 'state') this.orb.setState(newValue);
+                if (name === 'size') this.orb.setSize(parseInt(newValue, 10));
+                if (name === 'speed') this.orb.speed = parseFloat(newValue);
+                if (name === 'color') this.orb.setColor(newValue);
+                if (name === 'paused') {
+                    if (newValue !== null && newValue !== 'false') {
+                        this.orb.pause();
+                    } else {
+                        this.orb.play();
+                    }
+                }
+            }
+        }
+
+        customElements.define('thinking-orb', ThinkingOrbElement);
+    }
+
     ThinkingOrb.MODES = MODE_FRAMES;
     ThinkingOrb.STATE_TO_MODE = STATE_TO_MODE;
     return ThinkingOrb;

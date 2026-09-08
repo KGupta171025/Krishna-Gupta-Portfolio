@@ -1329,26 +1329,25 @@
                 if (doc.category === 'Resume') badgeClass = 'badge-resume';
                 else if (doc.category === 'Certificate') badgeClass = 'badge-certificate';
 
-                const safePath = doc.path.startsWith('http') ? doc.path : doc.path;
-                const filenameEscaped = doc.filename.replace(/'/g, "\\'");
-                const pathEscaped = doc.path.replace(/'/g, "\\'");
-                const categoryEscaped = (doc.category || 'Other').replace(/'/g, "\\'");
+                const safePath = encodeURI(doc.path.startsWith('http') ? doc.path : doc.path);
+                const safeFilename = escapeHtml(doc.filename);
+                const safeCategory = escapeHtml(doc.category || 'Other');
 
                 tr.innerHTML = `
                     <td>
                         <a href="${safePath}" target="_blank" class="doc-link">
-                            <i class="far fa-file-pdf" style="color: var(--red);"></i> ${doc.filename}
+                            <i class="far fa-file-pdf" style="color: var(--red);"></i> ${safeFilename}
                         </a>
                     </td>
-                    <td><span class="badge ${badgeClass}">${doc.category}</span></td>
+                    <td><span class="badge ${badgeClass}">${safeCategory}</span></td>
                     <td>${sizeKB} KB</td>
-                    <td>${doc.uploaded_at || 'Registered'}</td>
+                    <td>${escapeHtml(doc.uploaded_at || 'Registered')}</td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn-exchange" onclick="exchangeDocument('${doc.id}', '${categoryEscaped}', '${filenameEscaped}', '${pathEscaped}')" title="Exchange / Replace document">
+                            <button class="btn-exchange btn-doc-exchange" data-id="${escapeHtml(doc.id)}" data-category="${safeCategory}" data-filename="${safeFilename}" data-path="${escapeHtml(doc.path)}" title="Exchange / Replace document">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
-                            <button class="btn-delete" onclick="deleteDocument('${doc.id}', '${pathEscaped}', '${filenameEscaped}')" title="Delete document">
+                            <button class="btn-delete btn-doc-delete" data-id="${escapeHtml(doc.id)}" data-filename="${safeFilename}" data-path="${escapeHtml(doc.path)}" title="Delete document">
                                 <i class="far fa-trash-alt"></i>
                             </button>
                         </div>
@@ -1742,20 +1741,20 @@
             }
 
             projectsList.innerHTML = projects.map(p => {
-                const nameEscaped = p.name.replace(/'/g, "\\'");
-                const gitEscaped = p.github_link.replace(/'/g, "\\'");
-                const liveEscaped = p.live_link.replace(/'/g, "\\'");
+                const safeName = escapeHtml(p.name);
+                const safeGit = encodeURI(p.github_link);
+                const safeLive = encodeURI(p.live_link);
                 return `
                     <tr>
-                        <td><strong>${escapeHtml(p.name)}</strong></td>
-                        <td><a href="${escapeHtml(p.github_link)}" target="_blank" class="doc-link"><i class="fab fa-github"></i> Source</a></td>
-                        <td><a href="${escapeHtml(p.live_link)}" target="_blank" class="doc-link"><i class="fas fa-external-link-alt"></i> Live</a></td>
+                        <td><strong>${safeName}</strong></td>
+                        <td><a href="${safeGit}" target="_blank" class="doc-link"><i class="fab fa-github"></i> Source</a></td>
+                        <td><a href="${safeLive}" target="_blank" class="doc-link"><i class="fas fa-external-link-alt"></i> Live</a></td>
                         <td>
                             <div class="action-btns">
-                                <button onclick="openEditModal('${nameEscaped}', '${gitEscaped}', '${liveEscaped}')" class="btn-exchange" title="Edit Links">
+                                <button class="btn-exchange btn-proj-edit" data-name="${safeName}" data-git="${escapeHtml(p.github_link)}" data-live="${escapeHtml(p.live_link)}" title="Edit Links">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button onclick="deleteProject('${nameEscaped}')" class="btn-delete" title="Delete Project">
+                                <button class="btn-delete btn-proj-delete" data-name="${safeName}" title="Delete Project">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>

@@ -1,4 +1,26 @@
 // ==========================================
+// Cryptographically Secure Random Generators
+// ==========================================
+function getSecureRandomInt(min, max) {
+    const range = max - min + 1;
+    const randomBuffer = new Uint32Array(1);
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+        window.crypto.getRandomValues(randomBuffer);
+        return min + (randomBuffer[0] % range);
+    }
+    return min + Math.floor(Math.random() * range);
+}
+
+function getSecureRandomString(len = 8) {
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+        const bytes = new Uint8Array(len);
+        window.crypto.getRandomValues(bytes);
+        return Array.from(bytes, b => (b % 36).toString(36)).join('');
+    }
+    return Math.random().toString(36).substring(2, 2 + len);
+}
+
+// ==========================================
 
 
 
@@ -207,6 +229,9 @@ if (typeof emailjs !== 'undefined') {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
+
+
 
     // Force HTTPS redirection (except on localhost / local staging IPs)
 
@@ -3803,7 +3828,7 @@ function initCoreUI() {
 
 
 
-            generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+            generatedOtp = getSecureRandomInt(100000, 999999).toString();
 
 
 
@@ -4285,7 +4310,7 @@ function initCoreUI() {
 
                 const d = new Date();
                 const pad = (n) => String(n).padStart(2, '0');
-                const contactDocId = `submission_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
+                const contactDocId = `submission_${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${getSecureRandomString(6)}`;
 
                 const dbPromise = db.collection("contact_submissions").doc(contactDocId).set({
                     name: nameVal,
@@ -5553,7 +5578,7 @@ function getVisitorDetailedTelemetry() {
     try {
         visitorId = localStorage.getItem('_kg_vid');
         if (!visitorId) {
-            visitorId = 'vid_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+            visitorId = 'vid_' + Date.now().toString(36) + '_' + getSecureRandomString(6);
             localStorage.setItem('_kg_vid', visitorId);
             localStorage.setItem('_kg_fvisit', nowISO);
             firstVisit = nowISO;
@@ -5566,7 +5591,7 @@ function getVisitorDetailedTelemetry() {
         localStorage.setItem('_kg_vcount', visitCount.toString());
         localStorage.setItem('_kg_lvisit', nowISO);
     } catch (e) {
-        visitorId = 'vid_' + Math.random().toString(36).substring(2, 9);
+        visitorId = 'vid_' + getSecureRandomString(8);
     }
 
     // 2. Browser Session ID (sessionStorage)
@@ -5574,11 +5599,11 @@ function getVisitorDetailedTelemetry() {
     try {
         sessionId = sessionStorage.getItem('_kg_sid');
         if (!sessionId) {
-            sessionId = 'sid_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6);
+            sessionId = 'sid_' + Date.now().toString(36) + '_' + getSecureRandomString(6);
             sessionStorage.setItem('_kg_sid', sessionId);
         }
     } catch (e) {
-        sessionId = 'sid_' + Math.random().toString(36).substring(2, 7);
+        sessionId = 'sid_' + getSecureRandomString(7);
     }
 
     // 3. Device Category & Model Detection
@@ -5674,15 +5699,15 @@ function getVisitorDetailedTelemetry() {
     if (ref) {
         try {
             const refHost = new URL(ref).hostname.toLowerCase();
-            if (refHost.includes('google')) trafficSource = 'Google Search';
-            else if (refHost.includes('linkedin')) trafficSource = 'LinkedIn';
-            else if (refHost.includes('github')) trafficSource = 'GitHub';
-            else if (refHost.includes('t.co') || refHost.includes('twitter') || refHost.includes('x.com')) trafficSource = 'Twitter / X';
-            else if (refHost.includes('instagram')) trafficSource = 'Instagram';
-            else if (refHost.includes('whatsapp')) trafficSource = 'WhatsApp';
-            else if (refHost.includes('is-a.dev')) trafficSource = 'is-a.dev Domain Portal';
-            else if (refHost.includes('youtube')) trafficSource = 'YouTube';
-            else trafficSource = `Referral (${refHost})`;
+            if (/(^|\.)google\.[a-z.]+$/i.test(refHost)) trafficSource = 'Google Search';
+            else if (/(^|\.)linkedin\.com$/i.test(refHost)) trafficSource = 'LinkedIn';
+            else if (/(^|\.)github\.com$/i.test(refHost)) trafficSource = 'GitHub';
+            else if (/(^|\.)(twitter\.com|x\.com|t\.co)$/i.test(refHost)) trafficSource = 'Twitter / X';
+            else if (/(^|\.)instagram\.com$/i.test(refHost)) trafficSource = 'Instagram';
+            else if (/(^|\.)whatsapp\.com$/i.test(refHost)) trafficSource = 'WhatsApp';
+            else if (/(^|\.)is-a\.dev$/i.test(refHost)) trafficSource = 'is-a.dev Domain Portal';
+            else if (/(^|\.)youtube\.com$/i.test(refHost)) trafficSource = 'YouTube';
+            else trafficSource = `Referral: ${refHost}`;
         } catch (e) {
             trafficSource = 'External Link';
         }
@@ -5759,7 +5784,7 @@ function logVisitor() {
     const tel = getVisitorDetailedTelemetry();
     const d = new Date();
     const pad = (n) => String(n).padStart(2, '0');
-    const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${Math.random().toString(36).substring(2, 7)}`;
+    const timeDocId = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}_${getSecureRandomString(6)}`;
 
     // Fetch IP and write simultaneously to visitor_logs & user_devices
     fetch('https://ipapi.co/json/')
@@ -6863,7 +6888,13 @@ function initAIChatbot() {
 
 
 
-        msgDiv.innerHTML = `<p>${text}</p>`;
+                const pEl = document.createElement('p');
+        if (sender === 'user') {
+            pEl.textContent = text;
+        } else {
+            pEl.innerHTML = text;
+        }
+        msgDiv.appendChild(pEl);
 
 
 
@@ -7768,6 +7799,9 @@ function initAIChatbot() {
 
 
 document.addEventListener('DOMContentLoaded', () => {
+
+
+
 
 
 

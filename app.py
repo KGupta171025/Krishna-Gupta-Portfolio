@@ -995,39 +995,91 @@ KRISHNA_KNOWLEDGE = {
 
     "summary": """
 
-    Krishna Gupta is a Data Science B.Tech student at the Oriental Institute of Science and Technology, Bhopal (Class of 2027).
+    Krishna Gupta is an innovative AI/ML Engineer and B.Tech in Data Science student (Class of 2027) at Oriental Institute of Science and Technology, Bhopal.
 
-    Aspiring Data Scientist, AI/ML Engineer, LLM Engineer, Data Engineer, and Software Engineer.
+    He has dual industry internship experience architecting Large Language Model (LLM) post-training workflows, autonomous multi-agent systems (LangGraph), and high-throughput data pipelines.
+
+    Certified AWS Developer with expertise across the MLflow lifecycle, computer vision (OpenCV/OCR), and full-stack cloud microservices with 99.9% uptime.
 
     """,
 
-    "personal": "DOB: 17th October, 2005. Age: 20 years old (turns 21 on October 17, 2026).",
+    "personal": "DOB: 17th October, 2005. Age: 20 years old (turns 21 on October 17, 2026). Location: Bhopal, Madhya Pradesh, India.",
 
-    "education": "B.Tech Data Science (2023 - 2027) at Oriental Institute of Science and Technology, Bhopal.",
+    "education": "Bachelor of Technology (B.Tech) in Data Science (2023 - 2027) at Oriental Institute of Science and Technology, Bhopal.",
+
+    "coursework": "Data Structures & Algorithms, Database Management Systems, Operating Systems, Computer Networks, Machine Learning, Deep Learning & NLP, Big Data Engineering, Software Engineering, System Design, Object-Oriented Programming (OOP).",
 
     "experience": """
 
-    Ethara AI (Feb 2026 - May 2026) | LLM Post Training Intern (Remote): Evaluated 50,000+ LLM outputs, built python scripts.
+    1. Ethara.AI (Feb 2026 - May 2026) | LLM & AI Post Training Intern (Remote, Paid):
 
-    Kanchan Pvt Ltd (Oct 2025 - Feb 2026) | Full Stack Development Intern: Developed RevU Social.
+       - Benchmarked and evaluated 50,000+ LLM outputs within LLMOps workflows, boosting model alignment, precision, and safety guardrails by 15%.
+
+       - Automated Python data preprocessing and validation pipelines, saving 20+ hours per week.
+
+       - Formulated capability matrices and rubrics for 100% compliance with enterprise data security standards.
+
+       - Collaborated with AI research teams to analyze edge cases and debug reward-signal discrepancies.
+
+    2. Kanchan Pvt Ltd - Sapphire Web Wing (Oct 2025 - Feb 2026) | Full Stack Development Intern (Remote, Paid):
+
+       - Architected and deployed full-stack web infrastructure for review analytics platform "RevU Social" (revu.social) using React.js and Node.js REST APIs (20% user increase).
+
+       - Optimized PostgreSQL and MySQL relational database schemas, accelerating transaction speeds by 25%.
+
+       - Deployed Docker container microservices on Linux cloud servers maintaining 99.9% uptime and zero security incidents.
 
     """,
 
     "projects": """
 
-    KALKI 1.5 (Python, PyTorch, Multi-Agents, Hybrid RAG)
+    1. KALKI 1.5 – Autonomous Multi-Agent OS & MLOps Platform (Python, FastAPI, LangGraph, LangChain, LLMs, VLMs, MLflow, Hybrid RAG, FAISS) | Live: https://kalki.hg497kg.workers.dev/ | GitHub: https://github.com/KGupta171025/KALKI-1.5
 
-    RevU Social (React, Node.js, Express, MySQL, PostgreSQL)
+    2. Score Vision - AI (FOG Tech) – Computer Vision & Document OCR Platform (Python, OpenCV, EasyOCR, Sentence-Transformers, FAISS, FastAPI, React, Docker) | Live: https://scorevision-ai.hg497kg.workers.dev/ | GitHub: https://github.com/KGupta171025/FOG_Technologies
 
-    ShelfScanner (Gemini Vision API, WebRTC, PySpark, Argon2id, Fernet)
+    3. Razorpay Recovery – Smart Payment Recovery & FinTech Pipeline (Python, SQL, PostgreSQL, REST APIs, Webhooks, Data Pipelines) | Live: https://razor-recovery.hg497kg.workers.dev/ | GitHub: https://github.com/KGupta171025/Razor-Recovery
+
+    4. SHELF-SCANNER – High-Speed Computer Vision & OCR Platform (Python, OpenCV, EasyOCR, Sentence-Transformers, FAISS, FastAPI, Cloudflare Workers) | Live: https://shelf-scanner.hg497kg.workers.dev/ | GitHub: https://github.com/KGupta171025/SHELF-SCANNER
+
+    5. Future Stock Market Prediction & Quantitative Financial Modeling (Python, Scikit-learn, PyTorch MLOps, MLflow Hyperparameter Tuning, LSTM) | Live: https://smf-ai.hg497kg.workers.dev/ | GitHub: https://github.com/KGupta171025
+
+    6. RevU Social – Full-Stack Review & Analytics Platform (React.js, Node.js, REST APIs, MySQL, PostgreSQL, Star Schema) | Live: https://revu.social/ | GitHub: https://github.com/KGupta171025
 
     """,
 
-    "skills": "Python, SQL, JavaScript, C++, PySpark, LangChain, LangGraph, RAG, React.js, Flask, PostgreSQL.",
+    "skills": """
 
-    "certifications": "AWS Certified Developer Associate (2026), IBM Machine Learning (2026), HP LIFE Data Science (2026).",
+    - Generative AI & Agentic Systems: Large Language Models (LLMs), Vision-Language Models (VLMs), LangGraph, LangChain, Autonomous Multi-Agents, Hybrid RAG, Prompt Engineering, Safety Guardrails, Model Alignment (RLHF/DPO), Vector Databases (FAISS, pgvector), Hugging Face Transformers.
 
-    "contact": "Email: krishna.official.gupta@gmail.com | Phone: +91-9993153109 | GitHub: KGupta171025"
+    - MLOps & MLflow Ecosystem: MLflow (Tracing, Model Evaluation, Prompt Templates, AI Gateways, Agent Server, Scikit-Learn MLOps, PyTorch MLOps, Hyperparameter Tuning), Experiment Tracking, Model Registry, CI/CD Pipelines, Docker Containers, AWS Cloud Infrastructure.
+
+    - Machine Learning & Deep Learning: Supervised & Unsupervised Learning, Classification, Regression, Time-Series Forecasting (LSTM), Quantitative Financial Modeling, Computer Vision (OpenCV, EasyOCR), Deep Neural Networks (CNNs), PyTorch, TensorFlow, Scikit-learn, Pandas, NumPy.
+
+    - Backend, APIs & Databases: Python (Advanced), SQL (PostgreSQL, MySQL), FastAPI, RESTful APIs, Microservices, Node.js, React.js, ETL/ELT Pipelines, Dimensional Modeling (Star/Snowflake Schemas), Git, Linux Server Administration, Agile/SDLC.
+
+    """,
+
+    "certifications": """
+
+    - AWS Certified Developer Associate (Infosys Springboard, Jun 2026)
+
+    - Machine Learning with Python (IBM SkillsBuild, Jun 2026)
+
+    - Data Science & Analytics (HP LIFE, Jun 2026)
+
+    - Neural Networks and Convolutional Neural Networks (LinkedIn Learning, Jun 2026)
+
+    - Deloitte Australia Data Analytics Job Simulation (Forage, Sep 2025)
+
+    - Tata Data Visualisation: Empowering Business with Effective Insights (Forage, Sep 2025)
+
+    - Gemini for Google Workspace (Google, Dec 2025)
+
+    - Learning SQL Programming (LinkedIn Learning, Jun 2026)
+
+    """,
+
+    "contact": "Email: hg497kg@gmail.com | Phone: +91-9993153109 | LinkedIn: linkedin.com/in/krishnaofficialgupta | GitHub: github.com/KGupta171025 | Web: kgupta.is-a.dev"
 
 }
 

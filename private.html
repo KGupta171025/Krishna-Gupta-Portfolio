@@ -1064,17 +1064,23 @@
             return data;
         }
 
-        async function deleteFileFromGitHub(path, commitMessage) {
+        async function deleteFileFromGitHub(path, commitMessage, existingSha = null) {
             const token = getGitHubToken();
             if (!token) {
                 openGitHubSyncModal("Please provide your GitHub Token to delete cloud files.");
                 throw new Error("Missing GitHub Personal Access Token");
             }
 
-            // Get existing SHA
-            const fileInfo = await fetchGitHubPathInfo(path);
-            if (!fileInfo || !fileInfo.sha) {
-                throw new Error("File not found on GitHub repository");
+            let sha = existingSha;
+            if (!sha) {
+                const fileInfo = await fetchGitHubPathInfo(path);
+                if (fileInfo && fileInfo.sha) {
+                    sha = fileInfo.sha;
+                }
+            }
+
+            if (!sha) {
+                throw new Error(`File "${path}" not found on GitHub repository`);
             }
 
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`, {
@@ -1086,7 +1092,7 @@
                 },
                 body: JSON.stringify({
                     message: commitMessage,
-                    sha: fileInfo.sha,
+                    sha: sha,
                     branch: GITHUB_BRANCH
                 })
             });
@@ -1492,8 +1498,9 @@
                     }
 
                     showToast(`Deleting ${displayName} from GitHub...`, "info");
-                    const targetPath = path || (id.startsWith('static/') ? id : `static/assets/${displayName}`);
-                    await deleteFileFromGitHub(targetPath, `Delete ${displayName} via Admin Document Control Center`);
+                    const targetPath = path || (id && id.startsWith('static/') ? id : `static/assets/${displayName}`);
+                    const knownSha = (id && id.length === 40 && !id.includes('/')) ? id : null;
+                    await deleteFileFromGitHub(targetPath, `Delete ${displayName} via Admin Document Control Center`, knownSha);
 
                     showToast(`Document "${displayName}" deleted successfully from repository!`, "success");
                     loadCatalog();
@@ -1904,6 +1911,52 @@
                 showToast("Error deleting project: " + err.message, "error");
             }
         }
+
+        
+        // Event delegation for Document and Project Table Actions
+        document.addEventListener('DOMContentLoaded', () => {
+            const docList = document.getElementById('documents-list');
+            if (docList) {
+                docList.addEventListener('click', (e) => {
+                    const deleteBtn = e.target.closest('.btn-doc-delete');
+                    if (deleteBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const id = deleteBtn.getAttribute('data-id');
+                        const path = deleteBtn.getAttribute('data-path');
+                        const filename = deleteBtn.getAttribute('data-filename');
+                        deleteDocument(id, path, filename);
+                        return;
+                    }
+
+                    const exchangeBtn = e.target.closest('.btn-doc-exchange');
+                    if (exchangeBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const id = exchangeBtn.getAttribute('data-id');
+                        const category = exchangeBtn.getAttribute('data-category');
+                        const filename = exchangeBtn.getAttribute('data-filename');
+                        const path = exchangeBtn.getAttribute('data-path');
+                        exchangeDocument(id, category, filename, path);
+                        return;
+                    }
+                });
+            }
+
+            const projList = document.getElementById('projects-list');
+            if (projList) {
+                projList.addEventListener('click', (e) => {
+                    const deleteBtn = e.target.closest('.btn-proj-delete');
+                    if (deleteBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const name = deleteBtn.getAttribute('data-name');
+                        deleteProject(name);
+                        return;
+                    }
+                });
+            }
+        });
 
         // Load catalog on start if session is already active
         document.addEventListener('DOMContentLoaded', () => {

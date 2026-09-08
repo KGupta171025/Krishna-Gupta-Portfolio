@@ -1,1815 +1,3528 @@
-<!DOCTYPE html>
-
-
-
-<html lang="en">
-
-
-
-<head>
-
-
-
-    <meta charset="UTF-8">
-
-
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
-
-    <title>Krishna Gupta | Data Scientist & Full-Stack Developer</title>
-
-
-
-    <meta name="description" content="Portfolio of Krishna Gupta - B.Tech Data Science student skilled in Data Engineering, AI/ML, and Software Development. Explore interactive 3D elements, projects, and downloads.">
-
-
-
-    <!-- Google Fonts -->
-
-
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-
-
-
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
-
-
-    <!-- FontAwesome for Icons -->
-
-
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-
-
-    <!-- Custom CSS -->
-
-
-
-    <link rel="stylesheet" href="static/css/styles.css?v=3.5">
-
-
-
-    <link rel="icon" type="image/svg+xml" href="static/assets/favicon.svg">
-</head>
-
-
-
-<body class="dark-theme">
-
-
-
-    
-
-
-
-
-
-
-
-    <!-- Full-Page 3D WebGL Background Canvas -->
-
-
-
-    <canvas id="three-bg"></canvas>
-
-
-
-
-
-
-
-    <!-- Header & Navigation -->
-
-
-
-    <header class="navbar" id="navbar">
-
-
-
-        <div class="nav-container">
-
-
-
-            <a href="#" class="nav-logo">
-
-
-
-                <span class="logo-accent">&lt;</span>Krishna<span class="logo-accent">.G /&gt;</span>
-
-
-
-            </a>
-
-
-
-            <nav class="nav-menu" id="navMenu">
-
-
-
-                <a href="#hero" class="nav-link active">Home</a>
-
-
-
-                <a href="#about" class="nav-link">About</a>
-
-
-
-                <a href="#skills" class="nav-link">Skills</a>
-
-
-
-                <a href="#experience" class="nav-link">Experience</a>
-
-
-
-                <a href="#projects" class="nav-link">Projects</a>
-
-
-
-                <a href="#certifications" class="nav-link">Certifications</a>
-
-
-
-                <a href="#contact" class="nav-link">Contact</a>
-
-
-
-            </nav>
-
-
-
-            <div class="nav-hamburger" id="navHamburger">
-
-
-
-                <i class="fas fa-bars"></i>
-
-
-
-            </div>
-
-
-
-        </div>
-
-
-
-    </header>
-
-
-
-
-
-
-
-    <!-- Hero Section -->
-
-
-
-    <section class="hero-section" id="hero">
-        <div class="container hero-container">
-            <div class="hero-content reveal">
-                <div class="hero-badge">
-                    <span class="pulse-dot"></span> Available for Opportunities
-                </div>
-                <h1 class="hero-title">
-                    Hi, I'm <span class="text-gradient">Krishna Gupta</span>
-                </h1>
-                <p class="hero-tagline">AI/ML Engineer & B.Tech Data Science (Class of 2027) | Agentic AI, LLMOps & Full-Stack Systems</p>
-                <p class="hero-description">
-                    Innovative AI/ML Engineer with dual industry internship experience architecting Large Language Model (LLM) post-training workflows, autonomous multi-agent systems (LangGraph), and high-throughput data pipelines. Proven expertise across the entire MLflow lifecycle, computer vision (OpenCV/OCR), and full-stack cloud microservices with 99.9% uptime. Certified AWS Developer.
-                </p>
-                
-                <div class="hero-actions">
-                    <a href="static/assets/Krishna_Gupta_Resume.pdf" class="btn btn-primary" download="Krishna_Gupta_Resume.pdf" target="_blank">
-                        <i class="fas fa-file-download"></i> Download Resume
-                    </a>
-                    <a href="#contact" class="btn btn-secondary">
-                        <i class="fas fa-paper-plane"></i> Get In Touch
-                    </a>
-                </div>
-
-                <!-- Featured Credentials (Quick Spotlight) -->
-                <div class="featured-certs">
-                    <p class="featured-certs-title">Featured Credentials & Recognitions</p>
-                    <div class="featured-certs-grid">
-                        <div class="feat-cert-item">
-                            <span class="feat-cert-icon"><i class="fab fa-aws"></i></span>
-                            <div class="feat-cert-text">
-                                <strong>AWS Certified Developer</strong>
-                                <span>Infosys Springboard</span>
-                            </div>
-                        </div>
-                        <div class="feat-cert-item">
-                            <span class="feat-cert-icon"><i class="fab fa-python"></i></span>
-                            <div class="feat-cert-text">
-                                <strong>ML with Python</strong>
-                                <span>IBM SkillsBuild</span>
-                            </div>
-                        </div>
-                        <div class="feat-cert-item">
-                            <span class="feat-cert-icon"><i class="fas fa-database"></i></span>
-                            <div class="feat-cert-text">
-                                <strong>Data Science & Analytics</strong>
-                                <span>HP LIFE Foundation</span>
-                            </div>
-                        </div>
-                        <div class="feat-cert-item">
-                            <span class="feat-cert-icon"><i class="fas fa-chart-line"></i></span>
-                            <div class="feat-cert-text">
-                                <strong>Data Analytics Simulation</strong>
-                                <span>Deloitte Australia</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="hero-socials">
-                    <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                    <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
-                    <a href="mailto:hg497kg@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
-                    <a href="tel:+919993153109" aria-label="Phone"><i class="fas fa-phone-alt"></i></a>
-                </div>
-            </div>
-            
-            <div class="hero-visual reveal delay-1">
-                <div class="visual-wrapper" data-tilt>
-                    <div class="canvas-3d-container" id="hero-canvas-container">
-                        <!-- Three.js 3D Floating Geometry Scene -->
-                    </div>
-                    <div class="visual-decorations">
-                        <div class="decor-circle circle-1"></div>
-                        <div class="decor-circle circle-2"></div>
-                        <div class="floating-badge badge-1">
-                            <i class="fas fa-robot"></i>
-                            <span>Agentic AI & LLMs</span>
-                        </div>
-                        <div class="floating-badge badge-2">
-                            <i class="fas fa-cogs"></i>
-                            <span>MLflow & MLOps</span>
-                        </div>
-                        <div class="floating-badge badge-3">
-                            <i class="fas fa-server"></i>
-                            <span>FastAPI & Microservices</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="hero-scroll-indicator">
-            <a href="#about" aria-label="Scroll to About"><i class="fas fa-chevron-down"></i></a>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- About Section -->
-
-
-
-    <section class="about-section" id="about">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 class="section-title">About Me</h2>
-                <div class="section-bar"></div>
-            </div>
-            
-            <div class="about-grid">
-                <div class="about-text reveal">
-                    <p class="about-p">
-                        I am an AI/ML Engineer and B.Tech in Data Science student (Class of 2027) at the <strong>Oriental Institute of Science and Technology, Bhopal</strong>. I have dual industry internship experience architecting Large Language Model (LLM) post-training workflows, autonomous multi-agent systems (LangGraph), and high-throughput data pipelines.
-                    </p>
-                    <p class="about-p">
-                        My proven expertise spans the entire <strong>MLflow lifecycle</strong> (tracing, model evaluation, prompt templates, AI gateways, agent servers, and hyperparameter tuning), <strong>computer vision & OCR</strong> (OpenCV, EasyOCR), and full-stack cloud microservices maintaining 99.9% uptime. Certified AWS Developer with deep technical proficiency in PyTorch, Scikit-learn, FastAPI, and SQL database optimization.
-                    </p>
-                    
-                    <div class="about-info-grid">
-                        <div class="about-info-item">
-                            <span class="info-label">Email:</span>
-                            <span class="info-value"><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></span>
-                        </div>
-                        <div class="about-info-item">
-                            <span class="info-label">Phone:</span>
-                            <span class="info-value"><a href="tel:+919993153109">+91 9993153109</a></span>
-                        </div>
-                        <div class="about-info-item">
-                            <span class="info-label">Location:</span>
-                            <span class="info-value">Bhopal, Madhya Pradesh, India</span>
-                        </div>
-                        <div class="about-info-item">
-                            <span class="info-label">Degree:</span>
-                            <span class="info-value">B.Tech in Data Science (2023 – 2027)</span>
-                        </div>
-                        <div class="about-info-item">
-                            <span class="info-label">Availability:</span>
-                            <span class="info-value text-green">Open to Roles & Internships</span>
-                        </div>
-                        <div class="about-info-item">
-                            <span class="info-label">Portfolio:</span>
-                            <span class="info-value"><a href="https://kgupta.is-a.dev" target="_blank">kgupta.is-a.dev</a></span>
-                        </div>
-                    </div>
-                    
-                    <div class="about-action">
-                        <a href="static/assets/Krishna_Gupta_Resume.pdf" class="btn btn-primary" download="Krishna_Gupta_Resume.pdf" target="_blank">
-                            <i class="fas fa-file-download"></i> Download Full Resume
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="about-highlights reveal delay-2">
-                    <div class="highlight-card" data-tilt>
-                        <div class="highlight-icon"><i class="fas fa-robot"></i></div>
-                        <div class="highlight-content">
-                            <h3>Agentic Systems & LLMOps</h3>
-                            <p>Architecting autonomous multi-agent operating systems (LangGraph), Vision-Language Models (VLMs), and Hybrid RAG pipelines cutting query latency by 40%.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="highlight-card" data-tilt>
-                        <div class="highlight-icon"><i class="fas fa-cogs"></i></div>
-                        <div class="highlight-content">
-                            <h3>MLflow Lifecycle & MLOps</h3>
-                            <p>End-to-end MLflow tracing, model evaluation, prompt templates, AI gateways, agent servers, and systematic hyperparameter tuning.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="highlight-card" data-tilt>
-                        <div class="highlight-icon"><i class="fas fa-eye"></i></div>
-                        <div class="highlight-content">
-                            <h3>Computer Vision & OCR</h3>
-                            <p>Building high-accuracy OCR extraction and semantic vector matching engines with OpenCV, EasyOCR, and FAISS achieving sub-200ms latency.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="highlight-card" data-tilt>
-                        <div class="highlight-icon"><i class="fas fa-server"></i></div>
-                        <div class="highlight-content">
-                            <h3>Cloud & Full-Stack Systems</h3>
-                            <p>Deploying production-grade FastAPI microservices, React.js apps, Docker containers, and optimizing PostgreSQL/MySQL schemas with 99.9% uptime.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- Skills Section -->
-
-
-
-    <section class="skills-section" id="skills">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 class="section-title">Technical Expertise</h2>
-                <div class="section-bar"></div>
-            </div>
-            
-            <div class="skills-tabs reveal">
-                <button class="tab-btn active" data-tab="genai-agents">Generative AI & Agentic Systems</button>
-                <button class="tab-btn" data-tab="mlops-mlflow">MLOps & MLflow Ecosystem</button>
-                <button class="tab-btn" data-tab="ml-dl">Machine Learning & Deep Learning</button>
-                <button class="tab-btn" data-tab="backend-db">Backend, APIs & Databases</button>
-            </div>
-            
-            <div class="skills-tab-content reveal delay-2">
-                <!-- Generative AI & Agentic Systems -->
-                <div class="tab-pane active" id="genai-agents">
-                    <div class="skills-grid">
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-network-wired"></i></span>
-                            <h3>Autonomous Multi-Agents & OS</h3>
-                            <p>Architecting autonomous multi-agent systems and multi-step reasoning workflows with graph-based orchestrators and tool-calling servers.</p>
-                            <div class="tech-tags">
-                                <span>LangGraph</span>
-                                <span>LangChain</span>
-                                <span>Autonomous Multi-Agents</span>
-                                <span>Agent Server</span>
-                                <span>Multi-Step Reasoning</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-brain"></i></span>
-                            <h3>LLMs, VLMs & Post-Training</h3>
-                            <p>Benchmarking 50,000+ model outputs, LLMOps alignment (RLHF/DPO), prompt templates, safety guardrails, and Vision-Language models.</p>
-                            <div class="tech-tags">
-                                <span>Large Language Models (LLMs)</span>
-                                <span>Vision-Language Models (VLMs)</span>
-                                <span>Model Alignment (RLHF/DPO)</span>
-                                <span>Safety Guardrails</span>
-                                <span>Hugging Face Transformers</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-search-plus"></i></span>
-                            <h3>Hybrid RAG & Vector Intelligence</h3>
-                            <p>Constructing high-throughput semantic retrieval systems combining dense vector embeddings with ultra-fast vector index engines.</p>
-                            <div class="tech-tags">
-                                <span>Hybrid RAG</span>
-                                <span>FAISS</span>
-                                <span>pgvector</span>
-                                <span>Sentence-Transformers</span>
-                                <span>Prompt Engineering</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- MLOps & MLflow Ecosystem -->
-                <div class="tab-pane" id="mlops-mlflow">
-                    <div class="skills-grid">
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-chart-line"></i></span>
-                            <h3>MLflow Tracing & Evaluation</h3>
-                            <p>Full lifecycle tracking: request tracing, automated evaluation matrices, prompt template registries, and AI gateway proxy servers.</p>
-                            <div class="tech-tags">
-                                <span>MLflow Tracing</span>
-                                <span>Model Evaluation</span>
-                                <span>Prompt Templates</span>
-                                <span>AI Gateways</span>
-                                <span>Agent Server</span>
-                                <span>Experiment Tracking</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-sliders-h"></i></span>
-                            <h3>Model Tuning & Framework MLOps</h3>
-                            <p>Systematic hyperparameter optimization, model registry versioning, artifact caching, and PyTorch/Scikit-Learn experiment management.</p>
-                            <div class="tech-tags">
-                                <span>PyTorch MLOps</span>
-                                <span>Scikit-Learn MLOps</span>
-                                <span>Hyperparameter Tuning</span>
-                                <span>Model Registry</span>
-                                <span>Experiment Versioning</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-cloud"></i></span>
-                            <h3>CI/CD & Cloud Infrastructure</h3>
-                            <p>Continuous integration, Docker containerization, AWS cloud architecture, and high-availability server administration maintaining 99.9% uptime.</p>
-                            <div class="tech-tags">
-                                <span>AWS Cloud Infrastructure</span>
-                                <span>Docker Containers</span>
-                                <span>CI/CD Pipelines</span>
-                                <span>Linux Server Administration</span>
-                                <span>Cloudflare Workers</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Machine Learning & Deep Learning -->
-                <div class="tab-pane" id="ml-dl">
-                    <div class="skills-grid">
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-project-diagram"></i></span>
-                            <h3>Machine Learning Algorithms</h3>
-                            <p>Supervised and unsupervised learning, advanced classification, predictive regression, clustering, and data dimensionality reduction.</p>
-                            <div class="tech-tags">
-                                <span>Scikit-learn</span>
-                                <span>Supervised Learning</span>
-                                <span>Unsupervised Learning</span>
-                                <span>Classification</span>
-                                <span>Regression</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-eye"></i></span>
-                            <h3>Computer Vision & Deep Learning</h3>
-                            <p>Convolutional neural networks (CNNs), deep feature extractors, optical character recognition (OCR), and sub-200ms image matching.</p>
-                            <div class="tech-tags">
-                                <span>PyTorch</span>
-                                <span>TensorFlow</span>
-                                <span>Deep Neural Networks (CNNs)</span>
-                                <span>OpenCV</span>
-                                <span>EasyOCR</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-chart-area"></i></span>
-                            <h3>Time-Series & Financial Modeling</h3>
-                            <p>Quantitative financial asset modeling and LSTM recurrent networks predicting asset price movements with 88% precision.</p>
-                            <div class="tech-tags">
-                                <span>Time-Series Forecasting (LSTM)</span>
-                                <span>Quantitative Financial Modeling</span>
-                                <span>Pandas</span>
-                                <span>NumPy</span>
-                                <span>Feature Engineering</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Backend, APIs & Databases -->
-                <div class="tab-pane" id="backend-db">
-                    <div class="skills-grid">
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-server"></i></span>
-                            <h3>FastAPI, Microservices & Web</h3>
-                            <p>Developing asynchronous RESTful APIs, high-throughput microservices, webhook processing engines, and reactive web applications.</p>
-                            <div class="tech-tags">
-                                <span>Python (Advanced)</span>
-                                <span>FastAPI</span>
-                                <span>RESTful APIs</span>
-                                <span>Microservices</span>
-                                <span>Node.js</span>
-                                <span>React.js</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-database"></i></span>
-                            <h3>SQL & Dimensional Modeling</h3>
-                            <p>Optimizing relational schemas, indexing strategies, sub-second query latency, and designing dimensional Star and Snowflake schemas.</p>
-                            <div class="tech-tags">
-                                <span>SQL (PostgreSQL, MySQL)</span>
-                                <span>Dimensional Modeling (Star/Snowflake)</span>
-                                <span>Query Optimization</span>
-                                <span>Indexing Strategies</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-card" data-tilt>
-                            <span class="skill-icon"><i class="fas fa-stream"></i></span>
-                            <h3>Data Pipelines & Agile SDLC</h3>
-                            <p>Constructing high-reliability ETL/ELT pipelines, real-time transaction webhook recovery, Git version control, and Linux sysadmin.</p>
-                            <div class="tech-tags">
-                                <span>ETL/ELT Pipelines</span>
-                                <span>Git</span>
-                                <span>Linux Server Administration</span>
-                                <span>Agile/SDLC</span>
-                                <span>Data Validation</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- Experience Section -->
-
-
-
-    <section class="experience-section" id="experience">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 class="section-title">Work Experience</h2>
-                <div class="section-bar"></div>
-            </div>
-            
-            <div class="timeline reveal">
-                <!-- Timeline Item 1: Ethara.AI -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">Feb 2026 – May 2026</div>
-                    <div class="timeline-content" data-tilt>
-                        <div class="timeline-header">
-                            <h3>LLM & AI Post Training Intern</h3>
-                            <span class="company-badge">Ethara.AI</span>
-                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
-                        </div>
-                        <p class="timeline-role">Paid Internship</p>
-                        <ul class="timeline-bullets">
-                            <li>Benchmarked and evaluated <strong>50,000+ Large Language Model outputs</strong> within LLMOps workflows, boosting model alignment, precision, and safety guardrails by <strong>15%</strong> across diverse prompt distributions.</li>
-                            <li>Automated Python data preprocessing, feature extraction, and validation pipelines, <strong>saving 20+ hours per week</strong> in manual quality assurance and dataset screening tasks.</li>
-                            <li>Formulated structured technical capability matrices and evaluation rubrics to ensure <strong>100% compliance</strong> with enterprise data security and privacy standards.</li>
-                            <li>Collaborated with AI research teams to analyze edge cases, debug reward-signal discrepancies, and streamline dataset curation for downstream reinforcement learning environments.</li>
-                        </ul>
-                        <div class="timeline-tags">
-                            <span>LLMOps</span>
-                            <span>Model Evaluation</span>
-                            <span>RLHF / Alignment</span>
-                            <span>Python Pipelines</span>
-                            <span>Safety Guardrails</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Timeline Item 2: Kanchan Pvt Ltd -->
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-date">Oct 2025 – Feb 2026</div>
-                    <div class="timeline-content" data-tilt>
-                        <div class="timeline-header">
-                            <h3>Full Stack Development Intern</h3>
-                            <span class="company-badge">Kanchan Pvt Ltd – Web Wing (Sapphire)</span>
-                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
-                        </div>
-                        <p class="timeline-role">Paid Internship</p>
-                        <ul class="timeline-bullets">
-                            <li>Architected and deployed full-stack web infrastructure for review analytics platform <strong>"RevU Social" (revu.social)</strong> using React.js and Node.js REST APIs, driving a <strong>20% user increase</strong>.</li>
-                            <li>Optimized PostgreSQL and MySQL relational database schemas and indexing strategies, reducing query latency and <strong>accelerating transaction speeds by 25%</strong>.</li>
-                            <li>Implemented secure JWT authentication protocols and deployed Docker container microservices on Linux cloud servers, maintaining <strong>99.9% uptime and zero security incidents</strong>.</li>
-                        </ul>
-                        <div class="timeline-tags">
-                            <span>React.js</span>
-                            <span>Node.js</span>
-                            <span>PostgreSQL & MySQL</span>
-                            <span>Docker</span>
-                            <span>JWT Security</span>
-                            <span>Linux Cloud</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- Projects Section -->
-
-
-
-    <section class="projects-section" id="projects">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 class="section-title">Key Technical Projects</h2>
-                <div class="section-bar"></div>
-            </div>
-            
-            <div class="projects-grid reveal">
-                <!-- Project 1: KALKI 1.5 -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">KALKI 1.5</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://kalki.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Autonomous Multi-Agent AI & MLOps</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025/KALKI-1.5" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://kalki.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">KALKI 1.5 – Autonomous Multi-Agent OS & MLOps Platform</h3>
-                            <p class="project-desc">
-                                Engineered an autonomous multi-agent operating system integrating LLMs and Vision-Language Models (VLMs) via LangGraph & LangChain. Constructed a low-latency Hybrid RAG pipeline with FAISS cutting retrieval latency by 40%, plus integrated MLflow tracing, prompt evaluation templates, and automated guardrail logging.
-                            </p>
-                            <div class="project-stack">
-                                <span>Python</span>
-                                <span>FastAPI</span>
-                                <span>LangGraph</span>
-                                <span>LangChain</span>
-                                <span>LLMs / VLMs</span>
-                                <span>MLflow</span>
-                                <span>Hybrid RAG</span>
-                                <span>FAISS</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 2: Score Vision - AI (FOG Tech) -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">Score Vision - AI</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://scorevision-ai.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Computer Vision & Document OCR</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025/FOG_Technologies" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://scorevision-ai.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">Score Vision - AI (FOG Tech)</h3>
-                            <p class="project-desc">
-                                Developed an intelligent OCR and computer vision pipeline achieving 92% text extraction accuracy and sub-200ms semantic matching on complex imagery. Integrated Sentence-Transformers and FAISS vector databases to construct a semantic matching and ETL transformation service deployed with FastAPI.
-                            </p>
-                            <div class="project-stack">
-                                <span>Python</span>
-                                <span>OpenCV</span>
-                                <span>EasyOCR</span>
-                                <span>Sentence-Transformers</span>
-                                <span>FAISS</span>
-                                <span>FastAPI</span>
-                                <span>React</span>
-                                <span>Docker</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 3: Razorpay Recovery -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">Razorpay Recovery</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://razor-recovery.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">FinTech Transaction Pipeline</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025/Razor-Recovery" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://razor-recovery.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">Razorpay Recovery – Smart Payment Recovery</h3>
-                            <p class="project-desc">
-                                Constructed an automated transaction recovery pipeline capturing failed payment webhooks in real time, successfully recovering 18% of abandoned checkouts. Designed analytical SQL schemas in PostgreSQL to aggregate transaction failure patterns, automate notification triggers, and generate recovery analytics.
-                            </p>
-                            <div class="project-stack">
-                                <span>Python</span>
-                                <span>SQL</span>
-                                <span>PostgreSQL</span>
-                                <span>REST APIs</span>
-                                <span>Webhooks</span>
-                                <span>Data Pipelines</span>
-                                <span>Analytics</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 4: SHELF-SCANNER -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">SHELF-SCANNER</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://shelf-scanner.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Computer Vision & Document OCR</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025/SHELF-SCANNER" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://shelf-scanner.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">SHELF-SCANNER – High-Speed OCR Platform</h3>
-                            <p class="project-desc">
-                                Engineered an image-to-text OCR and semantic book-matching platform using EasyOCR and FAISS vector search, achieving sub-200ms query retrieval latency across high-density book collections and physical libraries.
-                            </p>
-                            <div class="project-stack">
-                                <span>Python</span>
-                                <span>OpenCV</span>
-                                <span>EasyOCR</span>
-                                <span>Sentence-Transformers</span>
-                                <span>FAISS</span>
-                                <span>FastAPI</span>
-                                <span>Workers</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 5: Future Stock Market Prediction -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">Stock Market Prediction</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://smf-ai.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Quantitative Finance & MLOps</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://smf-ai.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">Future Stock Market Prediction & Financial Modeling</h3>
-                            <p class="project-desc">
-                                Built a quantitative time-series forecasting model using PyTorch (LSTM) and Scikit-learn to predict financial asset price trends with 88% precision. Implemented MLflow hyperparameter tuning and experiment tracking to systematically evaluate learning rates, sequence lengths, and optimizer parameters.
-                            </p>
-                            <div class="project-stack">
-                                <span>Python</span>
-                                <span>PyTorch (LSTM)</span>
-                                <span>Scikit-learn</span>
-                                <span>MLflow</span>
-                                <span>Hyperparameter Tuning</span>
-                                <span>Time-Series</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Project 6: RevU Social -->
-                <div class="project-card-container">
-                    <div class="project-card">
-                        <!-- Front Face (Live Preview) -->
-                        <div class="project-card-front">
-                            <div class="preview-header">
-                                <h4 class="preview-title">RevU Social</h4>
-                                <div style="display: flex; align-items: center; gap: 10px;">
-                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
-                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
-                                </div>
-                            </div>
-                            <div class="preview-frame-container">
-                                <iframe src="https://www.revu.social/" class="preview-iframe" loading="lazy"></iframe>
-                                <div class="preview-click-indicator">
-                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Back Face (Details) -->
-                        <div class="project-card-back">
-                            <div class="project-header">
-                                <span class="project-type">Full-Stack Application & BI</span>
-                                <div class="project-links">
-                                    <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
-                                    <a href="https://www.revu.social/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
-                                </div>
-                            </div>
-                            <h3 class="project-title">RevU Social – Review & Analytics Platform</h3>
-                            <p class="project-desc">
-                                Architected and deployed full-stack web infrastructure for review analytics platform "RevU Social" using React.js and Node.js REST APIs, driving a 20% user increase. Designed dimensional star-schema database models in PostgreSQL/MySQL to power real-time business intelligence and performance dashboards.
-                            </p>
-                            <div class="project-stack">
-                                <span>React.js</span>
-                                <span>Node.js</span>
-                                <span>REST APIs</span>
-                                <span>MySQL</span>
-                                <span>PostgreSQL</span>
-                                <span>Star Schema</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- Certifications Section -->
-
-
-
-    <section class="certifications-section" id="certifications">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 class="section-title">Certifications & Credentials</h2>
-                <div class="section-bar"></div>
-            </div>
-            <p class="section-subtitle reveal">Browse and verify official credentials, cloud certifications, and technical completions.</p>
-            
-            <div class="certifications-grid reveal">
-                <!-- AWS Certified Developer -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fab fa-aws cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">Infosys Springboard</span>
-                                <h3 class="cert-name">AWS Certified Developer - Associate</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">AWS Certified Developer Associate</h3>
-                                <p class="cert-description">Validates technical proficiency in core AWS services, containerized microservices deployments, IAM policies, and serverless architectures.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                                    <a href="static/assets/certificates/AWS_Certified_Developer.pdf" class="btn btn-download-sm" download="AWS_Certified_Developer.pdf">
-                                        <i class="fas fa-download"></i> Download PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- IBM Machine Learning -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fab fa-python cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">IBM SkillsBuild</span>
-                                <h3 class="cert-name">Machine Learning with Python</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Machine Learning with Python</h3>
-                                <p class="cert-description">Completed ML0101EN focusing on predictive regression, classification algorithms, hierarchical clustering, and recommender systems with Python.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                                    <a href="static/assets/certificates/IBM_ML0101EN_Certificate.pdf" class="btn btn-download-sm" download="IBM_ML0101EN_Certificate.pdf">
-                                        <i class="fas fa-download"></i> Download PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- HP LIFE Data Science -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fas fa-database cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">HP LIFE Foundation</span>
-                                <h3 class="cert-name">Data Science & Analytics</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Data Science & Analytics</h3>
-                                <p class="cert-description">Statistical analysis, exploratory data analysis (EDA), data extraction pipelines, and applying business intelligence metrics for strategic decision-making.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                                    <a href="static/assets/certificates/HP_LIFE_Data_Science_Analytics.pdf" class="btn btn-download-sm" download="HP_LIFE_Data_Science_Analytics.pdf">
-                                        <i class="fas fa-download"></i> Download PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Neural Networks & CNNs (LinkedIn) -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fas fa-network-wired cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">LinkedIn Learning</span>
-                                <h3 class="cert-name">Neural Networks & CNNs</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Neural Networks & CNNs</h3>
-                                <p class="cert-description">Deep learning foundations, multi-layer perceptrons, backpropagation, convolutional layers (CNNs), feature map pooling, and image processing architectures.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                                    <a href="static/assets/certificates/Neural_Networks_CNN_Essential_Training.pdf" class="btn btn-download-sm" download="Neural_Networks_CNN_Essential_Training.pdf">
-                                        <i class="fas fa-download"></i> Download PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Deloitte Australia Data Analytics (Forage) -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fas fa-chart-line cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">Forage</span>
-                                <h3 class="cert-name">Deloitte Australia Data Analytics</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Deloitte Australia Job Simulation</h3>
-                                <p class="cert-description">Practical data analysis simulation analyzing client datasets, forensic data investigation, statistical trend identification, and executive dashboard communication.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> September 2025</span>
-                                    <span class="cert-badge" style="color: var(--primary); font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Verified Simulation</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tata Data Visualisation (Forage) -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fas fa-chart-pie cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">Forage</span>
-                                <h3 class="cert-name">Tata Data Visualisation</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Tata Data Visualisation: Business Insights</h3>
-                                <p class="cert-description">Business intelligence visualization simulation designing executive dashboards, exploratory data analysis, and translating complex operational metrics for leadership.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> September 2025</span>
-                                    <span class="cert-badge" style="color: var(--primary); font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Verified Simulation</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Gemini for Google Workspace -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fab fa-google cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">Google</span>
-                                <h3 class="cert-name">Gemini for Google Workspace</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Gemini for Google Workspace</h3>
-                                <p class="cert-description">Practical implementation of generative AI workflows, prompt design, and AI-driven productivity systems.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> December 2025</span>
-                                    <a href="static/assets/certificates/Gemini_for_Google_Workshop.png" class="btn btn-download-sm" download="Gemini_for_Google_Workshop.png">
-                                        <i class="fas fa-download"></i> View Credential
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Learning SQL Programming (LinkedIn) -->
-                <div class="cert-card-container">
-                    <div class="cert-card-flipper">
-                        <div class="cert-card-front">
-                            <div class="cert-media">
-                                <i class="fas fa-code cert-badge-icon"></i>
-                            </div>
-                            <div class="cert-front-content">
-                                <span class="cert-issuer">LinkedIn Learning</span>
-                                <h3 class="cert-name">Learning SQL Programming</h3>
-                            </div>
-                        </div>
-                        <div class="cert-card-back">
-                            <div class="cert-back-content">
-                                <h3 class="cert-name-back">Learning SQL Programming</h3>
-                                <p class="cert-description">Advanced relational querying, joins, indexing strategies, data aggregation, and database schema administration.</p>
-                                <div class="cert-footer">
-                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
-                                    <a href="static/assets/certificates/Learning_SQL_Programming.pdf" class="btn btn-download-sm" download="Learning_SQL_Programming.pdf">
-                                        <i class="fas fa-download"></i> Download PDF
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- Education Section -->
-
-
-
-    <section class="education-section" id="education">
-        <div class="container">
-            <div class="section-header reveal">
-                <h2 class="section-title">Education & Coursework</h2>
-                <div class="section-bar"></div>
-            </div>
-            
-            <div class="edu-course-grid">
-                <div class="education-list reveal">
-                    <h3>Academic Timeline</h3>
-                    <div class="edu-card">
-                        <div class="edu-dot"></div>
-                        <span class="edu-period">Aug 2023 – May 2027</span>
-                        <h4>Oriental Institute of Science and Technology, Bhopal</h4>
-                        <p class="edu-degree">Bachelor of Technology (B.Tech) in Data Science (Class of 2027)</p>
-                        <p class="edu-desc">Focusing on algorithms, advanced data schemas, data warehousing, high-throughput pipelines, and AI/ML modeling.</p>
-                    </div>
-                    <div class="edu-card">
-                        <div class="edu-dot"></div>
-                        <span class="edu-period">2021 – 2023</span>
-                        <h4>Bardsley English Medium Senior Secondary School, Katni</h4>
-                        <p class="edu-degree">Higher Secondary Education (Class X & XII)</p>
-                        <p class="edu-desc">Strengthened analytical capabilities in Mathematics, Physics, and Computer Science.</p>
-                    </div>
-                </div>
-                
-                <div class="coursework-list reveal delay-2">
-                    <h3>Relevant Coursework</h3>
-                    <div class="course-tags">
-                        <span>Data Structures & Algorithms</span>
-                        <span>Database Management Systems</span>
-                        <span>Operating Systems</span>
-                        <span>Computer Networks</span>
-                        <span>Machine Learning</span>
-                        <span>Deep Learning & NLP</span>
-                        <span>Big Data Engineering</span>
-                        <span>Software Engineering</span>
-                        <span>System Design</span>
-                        <span>Object-Oriented Programming (OOP)</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-
-
-    <!-- Contact Section -->
-
-
-
-    <section class="contact-section" id="contact">
-
-
-
-        <div class="container">
-
-
-
-            <div class="section-header reveal">
-
-
-
-                <h2 class="section-title">Get In Touch</h2>
-
-
-
-                <div class="section-bar"></div>
-
-
-
-            </div>
-
-
-
-            
-
-
-
-            <div class="contact-grid">
-
-
-
-                <div class="contact-info reveal">
-
-
-
-                    <h3>Let's collaborate on data and code.</h3>
-
-
-
-                    <p>I am actively seeking internships, entry-level, or remote roles in Data Engineering, AI/ML development, and Software Engineering.</p>
-
-
-
-                    
-
-
-
-                    <div class="contact-details-list">
-
-
-
-                        <div class="contact-detail-item">
-
-
-
-                            <i class="fas fa-envelope"></i>
-
-
-
-                            <div>
-
-
-
-                                <h4>Email</h4>
-
-
-
-                                <p><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></p>
-
-
-
-                            </div>
-
-
-
-                        </div>
-
-
-
-                        <div class="contact-detail-item">
-
-
-
-                            <i class="fas fa-phone-alt"></i>
-
-
-
-                            <div>
-
-
-
-                                <h4>Phone</h4>
-
-
-
-                                <p><a href="tel:+919993153109">+91-9993153109</a></p>
-
-
-
-                            </div>
-
-
-
-                        </div>
-
-
-
-                        <div class="contact-detail-item">
-
-
-
-                            <i class="fas fa-map-marker-alt"></i>
-
-
-
-                            <div>
-
-
-
-                                <h4>Location</h4>
-
-
-
-                                <p>Bhopal, Madhya Pradesh, India (Open to remote & relocation)</p>
-
-
-
-                            </div>
-
-
-
-                        </div>
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-                
-
-
-
-                <div class="contact-form-container reveal delay-2">
-
-
-
-                    <form id="contactForm" class="contact-form">
-
-
-
-                        <div class="form-group">
-
-
-
-                            <label for="name">Full Name</label>
-
-
-
-                            <input type="text" id="name" name="name" required placeholder="Krishna Gupta">
-
-
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-
-
-                            <label for="email">Email Address</label>
-
-
-
-                            <input type="email" id="email" name="email" required placeholder="hg497kg@gmail.com">
-
-
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-
-
-                            <label for="message">Message</label>
-
-
-
-                            <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, let's talk about a role..."></textarea>
-
-
-
-                        </div>
-
-
-
-                        <button type="submit" class="btn btn-primary btn-block">
-
-
-
-                            <span id="btnText">Send Message</span> <i class="fas fa-paper-plane"></i>
-
-
-
-                        </button>
-
-
-
-                    </form>
-
-
-
-                    <div id="formFeedback" class="form-feedback hidden"></div>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-        </div>
-
-
-
-    </section>
-
-
-
-
-
-
-
-    <!-- Footer -->
-
-
-
-    <footer class="footer">
-
-
-
-        <div class="container footer-container">
-
-
-
-            <p>&copy; 2026 Krishna Gupta. All Rights Reserved.</p>
-
-
-
-            <div class="footer-socials">
-
-
-
-                <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank"><i class="fab fa-linkedin"></i></a>
-
-
-
-                <a href="https://github.com/KGupta171025" target="_blank"><i class="fab fa-github"></i></a>
-
-
-
-                <a href="mailto:hg497kg@gmail.com"><i class="fas fa-envelope"></i></a>
-
-
-
-            </div>
-
-
-
-        </div>
-
-
-
-    </footer>
-
-
-
-
-
-
-
-    <!-- AI Chatbot Widget -->
-
-
-
-    <div id="ai-chat-widget" class="ai-chat-widget">
-
-
-
-        <!-- Floating Toggle Button -->
-
-
-
-        <button id="ai-chat-toggle" class="ai-chat-toggle" aria-label="Open AI Assistant">
-
-
-
-            <i class="fas fa-robot"></i>
-
-
-
-            <span class="chat-badge hidden">1</span>
-
-
-
-        </button>
-
-
-
-
-
-
-
-        <!-- Chat Window Container -->
-
-
-
-        <div id="ai-chat-window" class="ai-chat-window hidden">
-
-
-
-            <!-- Header -->
-
-
-
-            <div class="chat-header">
-
-
-
-                <div class="chat-header-info">
-
-
-
-                    <div class="chat-avatar">
-
-
-
-                        <i class="fas fa-robot"></i>
-
-
-
-                        <span class="online-indicator"></span>
-
-
-
-                    </div>
-
-
-
-                    <div>
-
-
-
-                        <h4>KG Assistant</h4>
-
-
-
-                        <p>Ask about Krishna</p>
-
-
-
-                    </div>
-
-
-
-                </div>
-
-
-
-                <div class="chat-header-actions">
-
-
-
-                    <button id="chat-clear" class="chat-clear-btn" title="Clear Chat History" aria-label="Clear Chat History">
-
-
-
-                        <i class="fas fa-trash-alt"></i>
-
-
-
-                    </button>
-
-
-
-                    <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-
-
-            <!-- Messages Stream -->
-
-
-
-            <div id="chat-messages" class="chat-messages">
-
-
-
-                <div class="chat-message bot">
-
-
-
-                    <p>Hello! I am Krishna's AI assistant. 🤖</p>
-
-
-
-                </div>
-
-
-
-                <div class="chat-message bot">
-
-
-
-                    <p>You can ask me questions about his experience, projects, skills, or certifications. How can I help you today?</p>
-
-
-
-                </div>
-
-
-
-                <div class="chat-quick-replies">
-
-
-
-                    <button class="quick-reply-btn" data-query="Who is Krishna Gupta?">Who is Krishna?</button>
-
-
-
-                    <button class="quick-reply-btn" data-query="Tell me about KALKI 1.5">KALKI 1.5 Project</button>
-
-
-
-                    <button class="quick-reply-btn" data-query="What are his core technical skills?">Technical Skills</button>
-
-
-
-                    <button class="quick-reply-btn" data-query="Show professional experience">Experience</button>
-
-
-
-                    <button class="quick-reply-btn" data-query="How can I contact Krishna?">Contact Details</button>
-
-
-
-                </div>
-
-
-
-            </div>
-
-
-
-
-
-
-
-            <!-- Input Bar -->
-
-
-
-            <div class="chat-input-bar">
-
-
-
-                <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
-
-
-
-                <button id="chat-send" class="chat-send-btn" aria-label="Send Message">
-
-
-
-                    <i class="fas fa-paper-plane"></i>
-
-
-
-                </button>
-
-
-
-            </div>
-
-
-
-        </div>
-
-
-
-    </div>
-
-
-
-
-
-
-
-
-
-
-
-    <!-- Firebase SDK (Compat Version) -->
-
-
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" integrity="sha384-ViccRjS0k/lvYsrtaKXk+ES61/4PAZlFI/mPHmLC1YWzK0AIbXbI5ZXDzcm3F8gH" crossorigin="anonymous"></script>
-
-
-
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" integrity="sha384-7TetnPNdXXu6qURzIEXWCwpXedGGBJSXIR5Cv0gOWTB34UD5TxPHx33PhjA6wFQ3" crossorigin="anonymous"></script>
-
-
-
-    <!-- EmailJS SDK -->
-
-
-
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" integrity="sha384-VDbnsk/qjpIVHPQMkJiROI+vW/7cw0k8TFYVLUabm7EWoLEDwcXh09XQ6gQ86Y0B" crossorigin="anonymous"></script>
-
-
-
-    <!-- Three.js from CDN -->
-
-
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
-
-
-
-    <!-- Custom JS -->
-
-
-
-        <!-- Lenis Smooth Scrolling CDN -->
-    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js" integrity="sha384-eD5ubmuCcvTdCADWuSchJYE7wcj2nzNr0itbrh6w/KJyBiltSZ8w3VFRBSWu5YQ8" crossorigin="anonymous"></script>
-
-    <!-- GSAP & ScrollTrigger Animations CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" integrity="sha384-poC0r6usQOX2Ayt/VGA+t81H6V3iN9L+Irz9iO8o+s0X20tLpzc9DOOtnKxhaQSE" crossorigin="anonymous"></script>
-
-    <script src="static/js/thinking-orbs.js"></script>
-    <script src="static/js/script.js?v=3.9"></script>
-
-
-
-</body>
-
-
-
-</html>
-
-
-
+<!DOCTYPE html>
+
+
+
+
+
+
+
+<html lang="en">
+
+
+
+
+
+
+
+<head>
+
+
+
+
+
+
+
+    <meta charset="UTF-8">
+
+
+
+
+
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+
+
+
+    <title>Krishna Gupta | Data Scientist & Full-Stack Developer</title>
+
+
+
+
+
+
+
+    <meta name="description" content="Portfolio of Krishna Gupta - B.Tech Data Science student skilled in Data Engineering, AI/ML, and Software Development. Explore interactive 3D elements, projects, and downloads.">
+
+
+
+
+
+
+
+    <!-- Google Fonts -->
+
+
+
+
+
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+
+
+
+
+
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+
+
+
+
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+
+
+
+
+
+
+    <!-- FontAwesome for Icons -->
+
+
+
+
+
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+
+
+
+
+
+    <!-- Custom CSS -->
+
+
+
+
+
+
+
+    <link rel="stylesheet" href="static/css/styles.css?v=3.5">
+
+
+
+
+
+
+
+    <link rel="icon" type="image/svg+xml" href="static/assets/favicon.svg">
+
+</head>
+
+
+
+
+
+
+
+<body class="dark-theme">
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Full-Page 3D WebGL Background Canvas -->
+
+
+
+
+
+
+
+    <canvas id="three-bg"></canvas>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Header & Navigation -->
+
+
+
+
+
+
+
+    <header class="navbar" id="navbar">
+
+
+
+
+
+
+
+        <div class="nav-container">
+
+
+
+
+
+
+
+            <a href="#" class="nav-logo">
+
+
+
+
+
+
+
+                <span class="logo-accent">&lt;</span>Krishna<span class="logo-accent">.G /&gt;</span>
+
+
+
+
+
+
+
+            </a>
+
+
+
+
+
+
+
+            <nav class="nav-menu" id="navMenu">
+
+
+
+
+
+
+
+                <a href="#hero" class="nav-link active">Home</a>
+
+
+
+
+
+
+
+                <a href="#about" class="nav-link">About</a>
+
+
+
+
+
+
+
+                <a href="#skills" class="nav-link">Skills</a>
+
+
+
+
+
+
+
+                <a href="#experience" class="nav-link">Experience</a>
+
+
+
+
+
+
+
+                <a href="#projects" class="nav-link">Projects</a>
+
+
+
+
+
+
+
+                <a href="#certifications" class="nav-link">Certifications</a>
+
+
+
+
+
+
+
+                <a href="#contact" class="nav-link">Contact</a>
+
+
+
+
+
+
+
+            </nav>
+
+
+
+
+
+
+
+            <div class="nav-hamburger" id="navHamburger">
+
+
+
+
+
+
+
+                <i class="fas fa-bars"></i>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+    </header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Hero Section -->
+
+
+
+
+
+
+
+        <section class="hero-section" id="hero">
+        <div class="container hero-container">
+            <div class="hero-content reveal">
+                <div class="hero-badge">
+                    <span class="pulse-dot"></span> Available for Opportunities
+                </div>
+                <h1 class="hero-title">
+                    Hi, I'm <span class="text-gradient">Krishna Gupta</span>
+                </h1>
+                <p class="hero-tagline">B.Tech Data Science Student | Data Engineer | AI/ML Developer</p>
+                <p class="hero-description">
+                    I build end-to-end data pipelines, optimize relational databases, deploy scalable AI/ML solutions, and construct interactive full-stack applications.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="static/assets/Krishna_Gupta_Resume.pdf" class="btn btn-primary" download="Krishna_Gupta_Resume.pdf" target="_blank">
+                        <i class="fas fa-file-download"></i> Download Resume
+                    </a>
+                    <a href="#contact" class="btn btn-secondary">
+                        <i class="fas fa-paper-plane"></i> Get In Touch
+                    </a>
+                </div>
+
+                <!-- Featured Credentials (Quick Spotlight) -->
+                <div class="featured-certs">
+                    <p class="featured-certs-title">Featured Credentials</p>
+                    <div class="featured-certs-grid">
+                        <div class="featured-cert-card" data-tilt data-brand="aws">
+                            <i class="fab fa-aws cert-icon-aws"></i>
+                            <div class="featured-cert-info">
+                                <h4>AWS Certified Developer</h4>
+                                <p>Infosys Springboard</p>
+                            </div>
+                        </div>
+                        <div class="featured-cert-card" data-tilt data-brand="ibm">
+                            <i class="fab fa-python cert-icon-ibm"></i>
+                            <div class="featured-cert-info">
+                                <h4>ML with Python</h4>
+                                <p>IBM SkillsBuild</p>
+                            </div>
+                        </div>
+                        <div class="featured-cert-card" data-tilt data-brand="hp">
+                            <i class="fas fa-chart-line cert-icon-hp"></i>
+                            <div class="featured-cert-info">
+                                <h4>Data Science & Analytics</h4>
+                                <p>HP LIFE</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-visual reveal delay-2">
+                <div class="visual-card" data-tilt>
+                    <div class="code-header">
+                        <span class="code-dot red"></span>
+                        <span class="code-dot yellow"></span>
+                        <span class="code-dot green"></span>
+                        <span class="code-title">krishna_profile.py</span>
+                    </div>
+                    <div class="code-body">
+                        <pre><code><span class="code-keyword">class</span> <span class="code-class">DataScientist</span>:
+    <span class="code-keyword">def</span> <span class="code-method">__init__</span>(self):
+        self.name = <span class="code-str">"Krishna Gupta"</span>
+        self.role = <span class="code-str">"Data & AI Developer"</span>
+        self.education = <span class="code-str">"B.Tech Data Science (2027)"</span>
+        self.skills = [
+            <span class="code-str">"Python"</span>, <span class="code-str">"PySpark"</span>, <span class="code-str">"SQL"</span>,
+            <span class="code-str">"AI/ML"</span>, <span class="code-str">"RAG"</span>, <span class="code-str">"LLMs"</span>
+        ]
+
+    <span class="code-keyword">def</span> <span class="code-method">objective</span>(self):
+        <span class="code-keyword">return</span> <span class="code-str">"Build scalable AI & Data systems"</span>
+
+me = DataScientist()
+print(me.objective())</code></pre>
+                        <div class="code-terminal-output">
+                            <span class="terminal-dot"></span>
+                            <span class="terminal-text">&gt; "Build scalable AI & Data systems"</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- About Section -->
+
+
+
+
+
+
+
+    <section class="about-section" id="about">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">About Me</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="about-grid">
+
+                <div class="about-text reveal">
+
+                    <p class="about-p">
+
+                        I am an AI/ML Engineer and B.Tech in Data Science student (Class of 2027) at the <strong>Oriental Institute of Science and Technology, Bhopal</strong>. I have dual industry internship experience architecting Large Language Model (LLM) post-training workflows, autonomous multi-agent systems (LangGraph), and high-throughput data pipelines.
+
+                    </p>
+
+                    <p class="about-p">
+
+                        My proven expertise spans the entire <strong>MLflow lifecycle</strong> (tracing, model evaluation, prompt templates, AI gateways, agent servers, and hyperparameter tuning), <strong>computer vision & OCR</strong> (OpenCV, EasyOCR), and full-stack cloud microservices maintaining 99.9% uptime. Certified AWS Developer with deep technical proficiency in PyTorch, Scikit-learn, FastAPI, and SQL database optimization.
+
+                    </p>
+
+                    
+
+                    <div class="about-info-grid">
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Email:</span>
+
+                            <span class="info-value"><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Phone:</span>
+
+                            <span class="info-value"><a href="tel:+919993153109">+91 9993153109</a></span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Location:</span>
+
+                            <span class="info-value">Bhopal, Madhya Pradesh, India</span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Degree:</span>
+
+                            <span class="info-value">B.Tech in Data Science (2023 – 2027)</span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Availability:</span>
+
+                            <span class="info-value text-green">Open to Roles & Internships</span>
+
+                        </div>
+
+                        <div class="about-info-item">
+
+                            <span class="info-label">Portfolio:</span>
+
+                            <span class="info-value"><a href="https://kgupta.is-a.dev" target="_blank">kgupta.is-a.dev</a></span>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <div class="about-action">
+
+                        <a href="static/assets/Krishna_Gupta_Resume.pdf" class="btn btn-primary" download="Krishna_Gupta_Resume.pdf" target="_blank">
+
+                            <i class="fas fa-file-download"></i> Download Full Resume
+
+                        </a>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="about-highlights reveal delay-2">
+
+                    <div class="highlight-card" data-tilt>
+
+                        <div class="highlight-icon"><i class="fas fa-robot"></i></div>
+
+                        <div class="highlight-content">
+
+                            <h3>Agentic Systems & LLMOps</h3>
+
+                            <p>Architecting autonomous multi-agent operating systems (LangGraph), Vision-Language Models (VLMs), and Hybrid RAG pipelines cutting query latency by 40%.</p>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <div class="highlight-card" data-tilt>
+
+                        <div class="highlight-icon"><i class="fas fa-cogs"></i></div>
+
+                        <div class="highlight-content">
+
+                            <h3>MLflow Lifecycle & MLOps</h3>
+
+                            <p>End-to-end MLflow tracing, model evaluation, prompt templates, AI gateways, agent servers, and systematic hyperparameter tuning.</p>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <div class="highlight-card" data-tilt>
+
+                        <div class="highlight-icon"><i class="fas fa-eye"></i></div>
+
+                        <div class="highlight-content">
+
+                            <h3>Computer Vision & OCR</h3>
+
+                            <p>Building high-accuracy OCR extraction and semantic vector matching engines with OpenCV, EasyOCR, and FAISS achieving sub-200ms latency.</p>
+
+                        </div>
+
+                    </div>
+
+                    
+
+                    <div class="highlight-card" data-tilt>
+
+                        <div class="highlight-icon"><i class="fas fa-server"></i></div>
+
+                        <div class="highlight-content">
+
+                            <h3>Cloud & Full-Stack Systems</h3>
+
+                            <p>Deploying production-grade FastAPI microservices, React.js apps, Docker containers, and optimizing PostgreSQL/MySQL schemas with 99.9% uptime.</p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Skills Section -->
+
+
+
+
+
+
+
+    <section class="skills-section" id="skills">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Technical Expertise</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="skills-tabs reveal">
+
+                <button class="tab-btn active" data-tab="genai-agents">Generative AI & Agentic Systems</button>
+
+                <button class="tab-btn" data-tab="mlops-mlflow">MLOps & MLflow Ecosystem</button>
+
+                <button class="tab-btn" data-tab="ml-dl">Machine Learning & Deep Learning</button>
+
+                <button class="tab-btn" data-tab="backend-db">Backend, APIs & Databases</button>
+
+            </div>
+
+            
+
+            <div class="skills-tab-content reveal delay-2">
+
+                <!-- Generative AI & Agentic Systems -->
+
+                <div class="tab-pane active" id="genai-agents">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-network-wired"></i></span>
+
+                            <h3>Autonomous Multi-Agents & OS</h3>
+
+                            <p>Architecting autonomous multi-agent systems and multi-step reasoning workflows with graph-based orchestrators and tool-calling servers.</p>
+
+                            <div class="tech-tags">
+
+                                <span>LangGraph</span>
+
+                                <span>LangChain</span>
+
+                                <span>Autonomous Multi-Agents</span>
+
+                                <span>Agent Server</span>
+
+                                <span>Multi-Step Reasoning</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-brain"></i></span>
+
+                            <h3>LLMs, VLMs & Post-Training</h3>
+
+                            <p>Benchmarking 50,000+ model outputs, LLMOps alignment (RLHF/DPO), prompt templates, safety guardrails, and Vision-Language models.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Large Language Models (LLMs)</span>
+
+                                <span>Vision-Language Models (VLMs)</span>
+
+                                <span>Model Alignment (RLHF/DPO)</span>
+
+                                <span>Safety Guardrails</span>
+
+                                <span>Hugging Face Transformers</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-search-plus"></i></span>
+
+                            <h3>Hybrid RAG & Vector Intelligence</h3>
+
+                            <p>Constructing high-throughput semantic retrieval systems combining dense vector embeddings with ultra-fast vector index engines.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Hybrid RAG</span>
+
+                                <span>FAISS</span>
+
+                                <span>pgvector</span>
+
+                                <span>Sentence-Transformers</span>
+
+                                <span>Prompt Engineering</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- MLOps & MLflow Ecosystem -->
+
+                <div class="tab-pane" id="mlops-mlflow">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-chart-line"></i></span>
+
+                            <h3>MLflow Tracing & Evaluation</h3>
+
+                            <p>Full lifecycle tracking: request tracing, automated evaluation matrices, prompt template registries, and AI gateway proxy servers.</p>
+
+                            <div class="tech-tags">
+
+                                <span>MLflow Tracing</span>
+
+                                <span>Model Evaluation</span>
+
+                                <span>Prompt Templates</span>
+
+                                <span>AI Gateways</span>
+
+                                <span>Agent Server</span>
+
+                                <span>Experiment Tracking</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-sliders-h"></i></span>
+
+                            <h3>Model Tuning & Framework MLOps</h3>
+
+                            <p>Systematic hyperparameter optimization, model registry versioning, artifact caching, and PyTorch/Scikit-Learn experiment management.</p>
+
+                            <div class="tech-tags">
+
+                                <span>PyTorch MLOps</span>
+
+                                <span>Scikit-Learn MLOps</span>
+
+                                <span>Hyperparameter Tuning</span>
+
+                                <span>Model Registry</span>
+
+                                <span>Experiment Versioning</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-cloud"></i></span>
+
+                            <h3>CI/CD & Cloud Infrastructure</h3>
+
+                            <p>Continuous integration, Docker containerization, AWS cloud architecture, and high-availability server administration maintaining 99.9% uptime.</p>
+
+                            <div class="tech-tags">
+
+                                <span>AWS Cloud Infrastructure</span>
+
+                                <span>Docker Containers</span>
+
+                                <span>CI/CD Pipelines</span>
+
+                                <span>Linux Server Administration</span>
+
+                                <span>Cloudflare Workers</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Machine Learning & Deep Learning -->
+
+                <div class="tab-pane" id="ml-dl">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-project-diagram"></i></span>
+
+                            <h3>Machine Learning Algorithms</h3>
+
+                            <p>Supervised and unsupervised learning, advanced classification, predictive regression, clustering, and data dimensionality reduction.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Scikit-learn</span>
+
+                                <span>Supervised Learning</span>
+
+                                <span>Unsupervised Learning</span>
+
+                                <span>Classification</span>
+
+                                <span>Regression</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-eye"></i></span>
+
+                            <h3>Computer Vision & Deep Learning</h3>
+
+                            <p>Convolutional neural networks (CNNs), deep feature extractors, optical character recognition (OCR), and sub-200ms image matching.</p>
+
+                            <div class="tech-tags">
+
+                                <span>PyTorch</span>
+
+                                <span>TensorFlow</span>
+
+                                <span>Deep Neural Networks (CNNs)</span>
+
+                                <span>OpenCV</span>
+
+                                <span>EasyOCR</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-chart-area"></i></span>
+
+                            <h3>Time-Series & Financial Modeling</h3>
+
+                            <p>Quantitative financial asset modeling and LSTM recurrent networks predicting asset price movements with 88% precision.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Time-Series Forecasting (LSTM)</span>
+
+                                <span>Quantitative Financial Modeling</span>
+
+                                <span>Pandas</span>
+
+                                <span>NumPy</span>
+
+                                <span>Feature Engineering</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Backend, APIs & Databases -->
+
+                <div class="tab-pane" id="backend-db">
+
+                    <div class="skills-grid">
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-server"></i></span>
+
+                            <h3>FastAPI, Microservices & Web</h3>
+
+                            <p>Developing asynchronous RESTful APIs, high-throughput microservices, webhook processing engines, and reactive web applications.</p>
+
+                            <div class="tech-tags">
+
+                                <span>Python (Advanced)</span>
+
+                                <span>FastAPI</span>
+
+                                <span>RESTful APIs</span>
+
+                                <span>Microservices</span>
+
+                                <span>Node.js</span>
+
+                                <span>React.js</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-database"></i></span>
+
+                            <h3>SQL & Dimensional Modeling</h3>
+
+                            <p>Optimizing relational schemas, indexing strategies, sub-second query latency, and designing dimensional Star and Snowflake schemas.</p>
+
+                            <div class="tech-tags">
+
+                                <span>SQL (PostgreSQL, MySQL)</span>
+
+                                <span>Dimensional Modeling (Star/Snowflake)</span>
+
+                                <span>Query Optimization</span>
+
+                                <span>Indexing Strategies</span>
+
+                            </div>
+
+                        </div>
+
+                        
+
+                        <div class="skill-card" data-tilt>
+
+                            <span class="skill-icon"><i class="fas fa-stream"></i></span>
+
+                            <h3>Data Pipelines & Agile SDLC</h3>
+
+                            <p>Constructing high-reliability ETL/ELT pipelines, real-time transaction webhook recovery, Git version control, and Linux sysadmin.</p>
+
+                            <div class="tech-tags">
+
+                                <span>ETL/ELT Pipelines</span>
+
+                                <span>Git</span>
+
+                                <span>Linux Server Administration</span>
+
+                                <span>Agile/SDLC</span>
+
+                                <span>Data Validation</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Experience Section -->
+
+
+
+
+
+
+
+    <section class="experience-section" id="experience">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Work Experience</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="timeline reveal">
+
+                <!-- Timeline Item 1: Ethara.AI -->
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-date">Feb 2026 – May 2026</div>
+
+                    <div class="timeline-content" data-tilt>
+
+                        <div class="timeline-header">
+
+                            <h3>LLM & AI Post Training Intern</h3>
+
+                            <span class="company-badge">Ethara.AI</span>
+
+                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
+
+                        </div>
+
+                        <p class="timeline-role">Paid Internship</p>
+
+                        <ul class="timeline-bullets">
+
+                            <li>Benchmarked and evaluated <strong>50,000+ Large Language Model outputs</strong> within LLMOps workflows, boosting model alignment, precision, and safety guardrails by <strong>15%</strong> across diverse prompt distributions.</li>
+
+                            <li>Automated Python data preprocessing, feature extraction, and validation pipelines, <strong>saving 20+ hours per week</strong> in manual quality assurance and dataset screening tasks.</li>
+
+                            <li>Formulated structured technical capability matrices and evaluation rubrics to ensure <strong>100% compliance</strong> with enterprise data security and privacy standards.</li>
+
+                            <li>Collaborated with AI research teams to analyze edge cases, debug reward-signal discrepancies, and streamline dataset curation for downstream reinforcement learning environments.</li>
+
+                        </ul>
+
+                        <div class="timeline-tags">
+
+                            <span>LLMOps</span>
+
+                            <span>Model Evaluation</span>
+
+                            <span>RLHF / Alignment</span>
+
+                            <span>Python Pipelines</span>
+
+                            <span>Safety Guardrails</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                
+
+                <!-- Timeline Item 2: Kanchan Pvt Ltd -->
+
+                <div class="timeline-item">
+
+                    <div class="timeline-dot"></div>
+
+                    <div class="timeline-date">Oct 2025 – Feb 2026</div>
+
+                    <div class="timeline-content" data-tilt>
+
+                        <div class="timeline-header">
+
+                            <h3>Full Stack Development Intern</h3>
+
+                            <span class="company-badge">Kanchan Pvt Ltd – Web Wing (Sapphire)</span>
+
+                            <span class="location-badge"><i class="fas fa-map-marker-alt"></i> Remote</span>
+
+                        </div>
+
+                        <p class="timeline-role">Paid Internship</p>
+
+                        <ul class="timeline-bullets">
+
+                            <li>Architected and deployed full-stack web infrastructure for review analytics platform <strong>"RevU Social" (revu.social)</strong> using React.js and Node.js REST APIs, driving a <strong>20% user increase</strong>.</li>
+
+                            <li>Optimized PostgreSQL and MySQL relational database schemas and indexing strategies, reducing query latency and <strong>accelerating transaction speeds by 25%</strong>.</li>
+
+                            <li>Implemented secure JWT authentication protocols and deployed Docker container microservices on Linux cloud servers, maintaining <strong>99.9% uptime and zero security incidents</strong>.</li>
+
+                        </ul>
+
+                        <div class="timeline-tags">
+
+                            <span>React.js</span>
+
+                            <span>Node.js</span>
+
+                            <span>PostgreSQL & MySQL</span>
+
+                            <span>Docker</span>
+
+                            <span>JWT Security</span>
+
+                            <span>Linux Cloud</span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Projects Section -->
+
+
+
+
+
+
+
+    <section class="projects-section" id="projects">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Key Technical Projects</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="projects-grid reveal">
+
+                <!-- Project 1: KALKI 1.5 -->
+
+                <div class="project-card-container">
+
+                    <div class="project-card">
+
+                        <!-- Front Face (Live Preview) -->
+
+                        <div class="project-card-front">
+
+                            <div class="preview-header">
+
+                                <h4 class="preview-title">KALKI 1.5</h4>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="preview-frame-container">
+
+                                <iframe src="https://kalki.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
+
+                                <div class="preview-click-indicator">
+
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Back Face (Details) -->
+
+                        <div class="project-card-back">
+
+                            <div class="project-header">
+
+                                <span class="project-type">Autonomous Multi-Agent AI & MLOps</span>
+
+                                <div class="project-links">
+
+                                    <a href="https://github.com/KGupta171025/KALKI-1.5" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                                    <a href="https://kalki.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+
+                                </div>
+
+                            </div>
+
+                            <h3 class="project-title">KALKI 1.5 – Autonomous Multi-Agent OS & MLOps Platform</h3>
+
+                            <p class="project-desc">
+
+                                Engineered an autonomous multi-agent operating system integrating LLMs and Vision-Language Models (VLMs) via LangGraph & LangChain. Constructed a low-latency Hybrid RAG pipeline with FAISS cutting retrieval latency by 40%, plus integrated MLflow tracing, prompt evaluation templates, and automated guardrail logging.
+
+                            </p>
+
+                            <div class="project-stack">
+
+                                <span>Python</span>
+
+                                <span>FastAPI</span>
+
+                                <span>LangGraph</span>
+
+                                <span>LangChain</span>
+
+                                <span>LLMs / VLMs</span>
+
+                                <span>MLflow</span>
+
+                                <span>Hybrid RAG</span>
+
+                                <span>FAISS</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Project 2: Score Vision - AI (FOG Tech) -->
+
+                <div class="project-card-container">
+
+                    <div class="project-card">
+
+                        <!-- Front Face (Live Preview) -->
+
+                        <div class="project-card-front">
+
+                            <div class="preview-header">
+
+                                <h4 class="preview-title">Score Vision - AI</h4>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="preview-frame-container">
+
+                                <iframe src="https://scorevision-ai.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
+
+                                <div class="preview-click-indicator">
+
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Back Face (Details) -->
+
+                        <div class="project-card-back">
+
+                            <div class="project-header">
+
+                                <span class="project-type">Computer Vision & Document OCR</span>
+
+                                <div class="project-links">
+
+                                    <a href="https://github.com/KGupta171025/FOG_Technologies" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                                    <a href="https://scorevision-ai.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+
+                                </div>
+
+                            </div>
+
+                            <h3 class="project-title">Score Vision - AI (FOG Tech)</h3>
+
+                            <p class="project-desc">
+
+                                Developed an intelligent OCR and computer vision pipeline achieving 92% text extraction accuracy and sub-200ms semantic matching on complex imagery. Integrated Sentence-Transformers and FAISS vector databases to construct a semantic matching and ETL transformation service deployed with FastAPI.
+
+                            </p>
+
+                            <div class="project-stack">
+
+                                <span>Python</span>
+
+                                <span>OpenCV</span>
+
+                                <span>EasyOCR</span>
+
+                                <span>Sentence-Transformers</span>
+
+                                <span>FAISS</span>
+
+                                <span>FastAPI</span>
+
+                                <span>React</span>
+
+                                <span>Docker</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Project 3: Razorpay Recovery -->
+
+                <div class="project-card-container">
+
+                    <div class="project-card">
+
+                        <!-- Front Face (Live Preview) -->
+
+                        <div class="project-card-front">
+
+                            <div class="preview-header">
+
+                                <h4 class="preview-title">Razorpay Recovery</h4>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="preview-frame-container">
+
+                                <iframe src="https://razor-recovery.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
+
+                                <div class="preview-click-indicator">
+
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Back Face (Details) -->
+
+                        <div class="project-card-back">
+
+                            <div class="project-header">
+
+                                <span class="project-type">FinTech Transaction Pipeline</span>
+
+                                <div class="project-links">
+
+                                    <a href="https://github.com/KGupta171025/Razor-Recovery" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                                    <a href="https://razor-recovery.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+
+                                </div>
+
+                            </div>
+
+                            <h3 class="project-title">Razorpay Recovery – Smart Payment Recovery</h3>
+
+                            <p class="project-desc">
+
+                                Constructed an automated transaction recovery pipeline capturing failed payment webhooks in real time, successfully recovering 18% of abandoned checkouts. Designed analytical SQL schemas in PostgreSQL to aggregate transaction failure patterns, automate notification triggers, and generate recovery analytics.
+
+                            </p>
+
+                            <div class="project-stack">
+
+                                <span>Python</span>
+
+                                <span>SQL</span>
+
+                                <span>PostgreSQL</span>
+
+                                <span>REST APIs</span>
+
+                                <span>Webhooks</span>
+
+                                <span>Data Pipelines</span>
+
+                                <span>Analytics</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Project 4: SHELF-SCANNER -->
+
+                <div class="project-card-container">
+
+                    <div class="project-card">
+
+                        <!-- Front Face (Live Preview) -->
+
+                        <div class="project-card-front">
+
+                            <div class="preview-header">
+
+                                <h4 class="preview-title">SHELF-SCANNER</h4>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="preview-frame-container">
+
+                                <iframe src="https://shelf-scanner.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
+
+                                <div class="preview-click-indicator">
+
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Back Face (Details) -->
+
+                        <div class="project-card-back">
+
+                            <div class="project-header">
+
+                                <span class="project-type">Computer Vision & Document OCR</span>
+
+                                <div class="project-links">
+
+                                    <a href="https://github.com/KGupta171025/SHELF-SCANNER" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                                    <a href="https://shelf-scanner.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+
+                                </div>
+
+                            </div>
+
+                            <h3 class="project-title">SHELF-SCANNER – High-Speed OCR Platform</h3>
+
+                            <p class="project-desc">
+
+                                Engineered an image-to-text OCR and semantic book-matching platform using EasyOCR and FAISS vector search, achieving sub-200ms query retrieval latency across high-density book collections and physical libraries.
+
+                            </p>
+
+                            <div class="project-stack">
+
+                                <span>Python</span>
+
+                                <span>OpenCV</span>
+
+                                <span>EasyOCR</span>
+
+                                <span>Sentence-Transformers</span>
+
+                                <span>FAISS</span>
+
+                                <span>FastAPI</span>
+
+                                <span>Workers</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Project 5: Future Stock Market Prediction -->
+
+                <div class="project-card-container">
+
+                    <div class="project-card">
+
+                        <!-- Front Face (Live Preview) -->
+
+                        <div class="project-card-front">
+
+                            <div class="preview-header">
+
+                                <h4 class="preview-title">Stock Market Prediction</h4>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="preview-frame-container">
+
+                                <iframe src="https://smf-ai.hg497kg.workers.dev/" class="preview-iframe" loading="lazy"></iframe>
+
+                                <div class="preview-click-indicator">
+
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Back Face (Details) -->
+
+                        <div class="project-card-back">
+
+                            <div class="project-header">
+
+                                <span class="project-type">Quantitative Finance & MLOps</span>
+
+                                <div class="project-links">
+
+                                    <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                                    <a href="https://smf-ai.hg497kg.workers.dev/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+
+                                </div>
+
+                            </div>
+
+                            <h3 class="project-title">Future Stock Market Prediction & Financial Modeling</h3>
+
+                            <p class="project-desc">
+
+                                Built a quantitative time-series forecasting model using PyTorch (LSTM) and Scikit-learn to predict financial asset price trends with 88% precision. Implemented MLflow hyperparameter tuning and experiment tracking to systematically evaluate learning rates, sequence lengths, and optimizer parameters.
+
+                            </p>
+
+                            <div class="project-stack">
+
+                                <span>Python</span>
+
+                                <span>PyTorch (LSTM)</span>
+
+                                <span>Scikit-learn</span>
+
+                                <span>MLflow</span>
+
+                                <span>Hyperparameter Tuning</span>
+
+                                <span>Time-Series</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Project 6: RevU Social -->
+
+                <div class="project-card-container">
+
+                    <div class="project-card">
+
+                        <!-- Front Face (Live Preview) -->
+
+                        <div class="project-card-front">
+
+                            <div class="preview-header">
+
+                                <h4 class="preview-title">RevU Social</h4>
+
+                                <div style="display: flex; align-items: center; gap: 10px;">
+
+                                    <span class="preview-badge"><i class="fas fa-play-circle"></i> Live Preview</span>
+
+                                    <span class="preview-flip-icon"><i class="fas fa-sync-alt"></i></span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="preview-frame-container">
+
+                                <iframe src="https://www.revu.social/" class="preview-iframe" loading="lazy"></iframe>
+
+                                <div class="preview-click-indicator">
+
+                                    <span><i class="fas fa-mouse"></i> Scroll to Explore | Click Header or Indicator to Flip</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Back Face (Details) -->
+
+                        <div class="project-card-back">
+
+                            <div class="project-header">
+
+                                <span class="project-type">Full-Stack Application & BI</span>
+
+                                <div class="project-links">
+
+                                    <a href="https://github.com/KGupta171025" target="_blank" aria-label="GitHub"><i class="fab fa-github"></i></a>
+
+                                    <a href="https://www.revu.social/" target="_blank" aria-label="Live Demo"><i class="fas fa-external-link-alt"></i></a>
+
+                                </div>
+
+                            </div>
+
+                            <h3 class="project-title">RevU Social – Review & Analytics Platform</h3>
+
+                            <p class="project-desc">
+
+                                Architected and deployed full-stack web infrastructure for review analytics platform "RevU Social" using React.js and Node.js REST APIs, driving a 20% user increase. Designed dimensional star-schema database models in PostgreSQL/MySQL to power real-time business intelligence and performance dashboards.
+
+                            </p>
+
+                            <div class="project-stack">
+
+                                <span>React.js</span>
+
+                                <span>Node.js</span>
+
+                                <span>REST APIs</span>
+
+                                <span>MySQL</span>
+
+                                <span>PostgreSQL</span>
+
+                                <span>Star Schema</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Certifications Section -->
+
+
+
+
+
+
+
+    <section class="certifications-section" id="certifications">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Certifications & Credentials</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            <p class="section-subtitle reveal">Browse and verify official credentials, cloud certifications, and technical completions.</p>
+
+            
+
+            <div class="certifications-grid reveal">
+
+                <!-- AWS Certified Developer -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fab fa-aws cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Infosys Springboard</span>
+
+                                <h3 class="cert-name">AWS Certified Developer - Associate</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">AWS Certified Developer Associate</h3>
+
+                                <p class="cert-description">Validates technical proficiency in core AWS services, containerized microservices deployments, IAM policies, and serverless architectures.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/AWS_Certified_Developer.pdf" class="btn btn-download-sm" download="AWS_Certified_Developer.pdf">
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- IBM Machine Learning -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fab fa-python cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">IBM SkillsBuild</span>
+
+                                <h3 class="cert-name">Machine Learning with Python</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Machine Learning with Python</h3>
+
+                                <p class="cert-description">Completed ML0101EN focusing on predictive regression, classification algorithms, hierarchical clustering, and recommender systems with Python.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/IBM_ML0101EN_Certificate.pdf" class="btn btn-download-sm" download="IBM_ML0101EN_Certificate.pdf">
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- HP LIFE Data Science -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-database cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">HP LIFE Foundation</span>
+
+                                <h3 class="cert-name">Data Science & Analytics</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Data Science & Analytics</h3>
+
+                                <p class="cert-description">Statistical analysis, exploratory data analysis (EDA), data extraction pipelines, and applying business intelligence metrics for strategic decision-making.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/HP_LIFE_Data_Science_Analytics.pdf" class="btn btn-download-sm" download="HP_LIFE_Data_Science_Analytics.pdf">
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Neural Networks & CNNs (LinkedIn) -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-network-wired cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">LinkedIn Learning</span>
+
+                                <h3 class="cert-name">Neural Networks & CNNs</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Neural Networks & CNNs</h3>
+
+                                <p class="cert-description">Deep learning foundations, multi-layer perceptrons, backpropagation, convolutional layers (CNNs), feature map pooling, and image processing architectures.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/Neural_Networks_CNN_Essential_Training.pdf" class="btn btn-download-sm" download="Neural_Networks_CNN_Essential_Training.pdf">
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Deloitte Australia Data Analytics (Forage) -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-chart-line cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Forage</span>
+
+                                <h3 class="cert-name">Deloitte Australia Data Analytics</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Deloitte Australia Job Simulation</h3>
+
+                                <p class="cert-description">Practical data analysis simulation analyzing client datasets, forensic data investigation, statistical trend identification, and executive dashboard communication.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> September 2025</span>
+
+                                    <span class="cert-badge" style="color: var(--primary); font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Verified Simulation</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Tata Data Visualisation (Forage) -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-chart-pie cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Forage</span>
+
+                                <h3 class="cert-name">Tata Data Visualisation</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Tata Data Visualisation: Business Insights</h3>
+
+                                <p class="cert-description">Business intelligence visualization simulation designing executive dashboards, exploratory data analysis, and translating complex operational metrics for leadership.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> September 2025</span>
+
+                                    <span class="cert-badge" style="color: var(--primary); font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Verified Simulation</span>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Gemini for Google Workspace -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fab fa-google cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">Google</span>
+
+                                <h3 class="cert-name">Gemini for Google Workspace</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Gemini for Google Workspace</h3>
+
+                                <p class="cert-description">Practical implementation of generative AI workflows, prompt design, and AI-driven productivity systems.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> December 2025</span>
+
+                                    <a href="static/assets/certificates/Gemini_for_Google_Workshop.png" class="btn btn-download-sm" download="Gemini_for_Google_Workshop.png">
+
+                                        <i class="fas fa-download"></i> View Credential
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- Learning SQL Programming (LinkedIn) -->
+
+                <div class="cert-card-container">
+
+                    <div class="cert-card-flipper">
+
+                        <div class="cert-card-front">
+
+                            <div class="cert-media">
+
+                                <i class="fas fa-code cert-badge-icon"></i>
+
+                            </div>
+
+                            <div class="cert-front-content">
+
+                                <span class="cert-issuer">LinkedIn Learning</span>
+
+                                <h3 class="cert-name">Learning SQL Programming</h3>
+
+                            </div>
+
+                        </div>
+
+                        <div class="cert-card-back">
+
+                            <div class="cert-back-content">
+
+                                <h3 class="cert-name-back">Learning SQL Programming</h3>
+
+                                <p class="cert-description">Advanced relational querying, joins, indexing strategies, data aggregation, and database schema administration.</p>
+
+                                <div class="cert-footer">
+
+                                    <span class="cert-date"><i class="far fa-calendar-alt"></i> June 2026</span>
+
+                                    <a href="static/assets/certificates/Learning_SQL_Programming.pdf" class="btn btn-download-sm" download="Learning_SQL_Programming.pdf">
+
+                                        <i class="fas fa-download"></i> Download PDF
+
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Education Section -->
+
+
+
+
+
+
+
+    <section class="education-section" id="education">
+
+        <div class="container">
+
+            <div class="section-header reveal">
+
+                <h2 class="section-title">Education & Coursework</h2>
+
+                <div class="section-bar"></div>
+
+            </div>
+
+            
+
+            <div class="edu-course-grid">
+
+                <div class="education-list reveal">
+
+                    <h3>Academic Timeline</h3>
+
+                    <div class="edu-card">
+
+                        <div class="edu-dot"></div>
+
+                        <span class="edu-period">Aug 2023 – May 2027</span>
+
+                        <h4>Oriental Institute of Science and Technology, Bhopal</h4>
+
+                        <p class="edu-degree">Bachelor of Technology (B.Tech) in Data Science (Class of 2027)</p>
+
+                        <p class="edu-desc">Focusing on algorithms, advanced data schemas, data warehousing, high-throughput pipelines, and AI/ML modeling.</p>
+
+                    </div>
+
+                    <div class="edu-card">
+
+                        <div class="edu-dot"></div>
+
+                        <span class="edu-period">2021 – 2023</span>
+
+                        <h4>Bardsley English Medium Senior Secondary School, Katni</h4>
+
+                        <p class="edu-degree">Higher Secondary Education (Class X & XII)</p>
+
+                        <p class="edu-desc">Strengthened analytical capabilities in Mathematics, Physics, and Computer Science.</p>
+
+                    </div>
+
+                </div>
+
+                
+
+                <div class="coursework-list reveal delay-2">
+
+                    <h3>Relevant Coursework</h3>
+
+                    <div class="course-tags">
+
+                        <span>Data Structures & Algorithms</span>
+
+                        <span>Database Management Systems</span>
+
+                        <span>Operating Systems</span>
+
+                        <span>Computer Networks</span>
+
+                        <span>Machine Learning</span>
+
+                        <span>Deep Learning & NLP</span>
+
+                        <span>Big Data Engineering</span>
+
+                        <span>Software Engineering</span>
+
+                        <span>System Design</span>
+
+                        <span>Object-Oriented Programming (OOP)</span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Contact Section -->
+
+
+
+
+
+
+
+    <section class="contact-section" id="contact">
+
+
+
+
+
+
+
+        <div class="container">
+
+
+
+
+
+
+
+            <div class="section-header reveal">
+
+
+
+
+
+
+
+                <h2 class="section-title">Get In Touch</h2>
+
+
+
+
+
+
+
+                <div class="section-bar"></div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+            
+
+
+
+
+
+
+
+            <div class="contact-grid">
+
+
+
+
+
+
+
+                <div class="contact-info reveal">
+
+
+
+
+
+
+
+                    <h3>Let's collaborate on data and code.</h3>
+
+
+
+
+
+
+
+                    <p>I am actively seeking internships, entry-level, or remote roles in Data Engineering, AI/ML development, and Software Engineering.</p>
+
+
+
+
+
+
+
+                    
+
+
+
+
+
+
+
+                    <div class="contact-details-list">
+
+
+
+
+
+
+
+                        <div class="contact-detail-item">
+
+
+
+
+
+
+
+                            <i class="fas fa-envelope"></i>
+
+
+
+
+
+
+
+                            <div>
+
+
+
+
+
+
+
+                                <h4>Email</h4>
+
+
+
+
+
+
+
+                                <p><a href="mailto:hg497kg@gmail.com">hg497kg@gmail.com</a></p>
+
+
+
+
+
+
+
+                            </div>
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="contact-detail-item">
+
+
+
+
+
+
+
+                            <i class="fas fa-phone-alt"></i>
+
+
+
+
+
+
+
+                            <div>
+
+
+
+
+
+
+
+                                <h4>Phone</h4>
+
+
+
+
+
+
+
+                                <p><a href="tel:+919993153109">+91-9993153109</a></p>
+
+
+
+
+
+
+
+                            </div>
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="contact-detail-item">
+
+
+
+
+
+
+
+                            <i class="fas fa-map-marker-alt"></i>
+
+
+
+
+
+
+
+                            <div>
+
+
+
+
+
+
+
+                                <h4>Location</h4>
+
+
+
+
+
+
+
+                                <p>Bhopal, Madhya Pradesh, India (Open to remote & relocation)</p>
+
+
+
+
+
+
+
+                            </div>
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+                <div class="contact-form-container reveal delay-2">
+
+
+
+
+
+
+
+                    <form id="contactForm" class="contact-form">
+
+
+
+
+
+
+
+                        <div class="form-group">
+
+
+
+
+
+
+
+                            <label for="name">Full Name</label>
+
+
+
+
+
+
+
+                            <input type="text" id="name" name="name" required placeholder="Krishna Gupta">
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="form-group">
+
+
+
+
+
+
+
+                            <label for="email">Email Address</label>
+
+
+
+
+
+
+
+                            <input type="email" id="email" name="email" required placeholder="hg497kg@gmail.com">
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <div class="form-group">
+
+
+
+
+
+
+
+                            <label for="message">Message</label>
+
+
+
+
+
+
+
+                            <textarea id="message" name="message" rows="5" required placeholder="Hey Krishna, let's talk about a role..."></textarea>
+
+
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+
+                        <button type="submit" class="btn btn-primary btn-block">
+
+
+
+
+
+
+
+                            <span id="btnText">Send Message</span> <i class="fas fa-paper-plane"></i>
+
+
+
+
+
+
+
+                        </button>
+
+
+
+
+
+
+
+                    </form>
+
+
+
+
+
+
+
+                    <div id="formFeedback" class="form-feedback hidden"></div>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Footer -->
+
+
+
+
+
+
+
+    <footer class="footer">
+
+
+
+
+
+
+
+        <div class="container footer-container">
+
+
+
+
+
+
+
+            <p>&copy; 2026 Krishna Gupta. All Rights Reserved.</p>
+
+
+
+
+
+
+
+            <div class="footer-socials">
+
+
+
+
+
+
+
+                <a href="https://linkedin.com/in/krishnaofficialgupta" target="_blank"><i class="fab fa-linkedin"></i></a>
+
+
+
+
+
+
+
+                <a href="https://github.com/KGupta171025" target="_blank"><i class="fab fa-github"></i></a>
+
+
+
+
+
+
+
+                <a href="mailto:hg497kg@gmail.com"><i class="fas fa-envelope"></i></a>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+    </footer>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- AI Chatbot Widget -->
+
+
+
+
+
+
+
+    <div id="ai-chat-widget" class="ai-chat-widget">
+
+
+
+
+
+
+
+        <!-- Floating Toggle Button -->
+
+
+
+
+
+
+
+        <button id="ai-chat-toggle" class="ai-chat-toggle" aria-label="Open AI Assistant">
+
+
+
+
+
+
+
+            <i class="fas fa-robot"></i>
+
+
+
+
+
+
+
+            <span class="chat-badge hidden">1</span>
+
+
+
+
+
+
+
+        </button>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Chat Window Container -->
+
+
+
+
+
+
+
+        <div id="ai-chat-window" class="ai-chat-window hidden">
+
+
+
+
+
+
+
+            <!-- Header -->
+
+
+
+
+
+
+
+            <div class="chat-header">
+
+
+
+
+
+
+
+                <div class="chat-header-info">
+
+
+
+
+
+
+
+                    <div class="chat-avatar">
+
+
+
+
+
+
+
+                        <i class="fas fa-robot"></i>
+
+
+
+
+
+
+
+                        <span class="online-indicator"></span>
+
+
+
+
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                    <div>
+
+
+
+
+
+
+
+                        <h4>KG Assistant</h4>
+
+
+
+
+
+
+
+                        <p>Ask about Krishna</p>
+
+
+
+
+
+
+
+                    </div>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="chat-header-actions">
+
+
+
+
+
+
+
+                    <button id="chat-clear" class="chat-clear-btn" title="Clear Chat History" aria-label="Clear Chat History">
+
+
+
+
+
+
+
+                        <i class="fas fa-trash-alt"></i>
+
+
+
+
+
+
+
+                    </button>
+
+
+
+
+
+
+
+                    <button id="ai-chat-close" class="chat-close-btn" aria-label="Close Chat">&times;</button>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Messages Stream -->
+
+
+
+
+
+
+
+            <div id="chat-messages" class="chat-messages">
+
+
+
+
+
+
+
+                <div class="chat-message bot">
+
+
+
+
+
+
+
+                    <p>Hello! I am Krishna's AI assistant. 🤖</p>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="chat-message bot">
+
+
+
+
+
+
+
+                    <p>You can ask me questions about his experience, projects, skills, or certifications. How can I help you today?</p>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+                <div class="chat-quick-replies">
+
+
+
+
+
+
+
+                    <button class="quick-reply-btn" data-query="Who is Krishna Gupta?">Who is Krishna?</button>
+
+
+
+
+
+
+
+                    <button class="quick-reply-btn" data-query="Tell me about KALKI 1.5">KALKI 1.5 Project</button>
+
+
+
+
+
+
+
+                    <button class="quick-reply-btn" data-query="What are his core technical skills?">Technical Skills</button>
+
+
+
+
+
+
+
+                    <button class="quick-reply-btn" data-query="Show professional experience">Experience</button>
+
+
+
+
+
+
+
+                    <button class="quick-reply-btn" data-query="How can I contact Krishna?">Contact Details</button>
+
+
+
+
+
+
+
+                </div>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <!-- Input Bar -->
+
+
+
+
+
+
+
+            <div class="chat-input-bar">
+
+
+
+
+
+
+
+                <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
+
+
+
+
+
+
+
+                <button id="chat-send" class="chat-send-btn" aria-label="Send Message">
+
+
+
+
+
+
+
+                    <i class="fas fa-paper-plane"></i>
+
+
+
+
+
+
+
+                </button>
+
+
+
+
+
+
+
+            </div>
+
+
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Firebase SDK (Compat Version) -->
+
+
+
+
+
+
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js" integrity="sha384-ViccRjS0k/lvYsrtaKXk+ES61/4PAZlFI/mPHmLC1YWzK0AIbXbI5ZXDzcm3F8gH" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js" integrity="sha384-7TetnPNdXXu6qURzIEXWCwpXedGGBJSXIR5Cv0gOWTB34UD5TxPHx33PhjA6wFQ3" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+    <!-- EmailJS SDK -->
+
+
+
+
+
+
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js" integrity="sha384-VDbnsk/qjpIVHPQMkJiROI+vW/7cw0k8TFYVLUabm7EWoLEDwcXh09XQ6gQ86Y0B" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+    <!-- Three.js from CDN -->
+
+
+
+
+
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha384-CI3ELBVUz9XQO+97x6nwMDPosPR5XvsxW2ua7N1Xeygeh1IxtgqtCkGfQY9WWdHu" crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+    <!-- Custom JS -->
+
+
+
+
+
+
+
+        <!-- Lenis Smooth Scrolling CDN -->
+
+    <script src="https://unpkg.com/lenis@1.1.20/dist/lenis.min.js" integrity="sha384-eD5ubmuCcvTdCADWuSchJYE7wcj2nzNr0itbrh6w/KJyBiltSZ8w3VFRBSWu5YQ8" crossorigin="anonymous"></script>
+
+
+
+    <!-- GSAP & ScrollTrigger Animations CDN -->
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha384-d+vyQ0dYcymoP8ndq2hW7FGC50nqGdXUEgoOUGxbbkAJwZqL7h+jKN0GGgn9hFDS" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" integrity="sha384-poC0r6usQOX2Ayt/VGA+t81H6V3iN9L+Irz9iO8o+s0X20tLpzc9DOOtnKxhaQSE" crossorigin="anonymous"></script>
+
+
+
+    <script src="static/js/thinking-orbs.js"></script>
+
+    <script src="static/js/script.js?v=3.9"></script>
+
+
+
+
+
+
+
+</body>
+
+
+
+
+
+
+
+</html>
+
+
+
+
+
+
+

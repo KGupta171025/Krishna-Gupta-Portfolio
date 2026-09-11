@@ -3249,6 +3249,31 @@ def update_project_links_in_file(filepath, project_name, new_github, new_live):
 
 
 
+
+@app.route('/download/resume', methods=['GET'])
+@app.route('/api/v1/resume/download', methods=['GET'])
+def download_dynamic_resume():
+    """Dynamically routes MP visitors to Bhopal resume, and outside MP visitors to Bengaluru resume."""
+    region = request.headers.get('CF-Region', '').lower()
+    ip_country = request.headers.get('CF-IPCountry', '').upper()
+    
+    # Check if visitor is in Madhya Pradesh
+    is_mp = 'madhya pradesh' in region or region == 'mp'
+    
+    target_filename = 'Krishna_Gupta_Resume_MP.pdf' if is_mp else 'Krishna_Gupta_Resume_BLR.pdf'
+    assets_dir = os.path.join(app.root_path, 'static', 'assets')
+    
+    if not os.path.exists(os.path.join(assets_dir, target_filename)):
+        target_filename = 'Krishna_Gupta_Resume.pdf'
+        
+    return send_from_directory(
+        assets_dir,
+        target_filename,
+        as_attachment=True,
+        download_name="Krishna Gupta Resume.pdf"
+    )
+
+
 if __name__ == '__main__':
     sync_rag_document_cache()
 

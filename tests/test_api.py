@@ -49,13 +49,15 @@ class PortfolioAPITestCase(unittest.TestCase):
         res_mp = self.client.get('/download/resume', headers={'CF-Region': 'Madhya Pradesh'})
         self.assertEqual(res_mp.status_code, 200)
         self.assertIn('Krishna Gupta Resume.pdf', res_mp.headers.get('Content-Disposition', ''))
-        self.assertEqual(len(res_mp.data), 154567)
+        mp_size = os.path.getsize(os.path.join(app.root_path, 'static', 'assets', 'Krishna_Gupta_Resume_MP.pdf'))
+        self.assertEqual(len(res_mp.data), mp_size)
 
         # 2. Test non-MP visitor (e.g. Karnataka/Global) gets Bengaluru resume named 'Krishna Gupta Resume.pdf'
         res_blr = self.client.get('/download/resume', headers={'CF-Region': 'Karnataka'})
         self.assertEqual(res_blr.status_code, 200)
         self.assertIn('Krishna Gupta Resume.pdf', res_blr.headers.get('Content-Disposition', ''))
-        self.assertEqual(len(res_blr.data), 154181)
+        blr_size = os.path.getsize(os.path.join(app.root_path, 'static', 'assets', 'Krishna_Gupta_Resume_BLR.pdf'))
+        self.assertEqual(len(res_blr.data), blr_size)
 
 if __name__ == '__main__':
     unittest.main()

@@ -2050,162 +2050,99 @@
 
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
-
-
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${GITHUB_BRANCH}`, { headers });
-
             if (res.status === 404) return null;
-
+            if (res.status === 401) {
+                localStorage.removeItem('kg_portfolio_gh_token');
+                updateSyncButtonStatus();
+            }
             if (!res.ok) throw new Error(`GitHub API Error: ${res.statusText}`);
-
             return await res.json();
-
         }
-
-
 
         async function uploadFileToGitHub(path, fileContentBase64, commitMessage, existingSha = null) {
-
             const token = getGitHubToken();
-
             if (!token) {
-
                 openGitHubSyncModal("Please provide your GitHub Token to perform cloud uploads.");
-
                 throw new Error("Missing GitHub Personal Access Token");
-
             }
-
-
 
             const body = {
-
                 message: commitMessage,
-
                 content: fileContentBase64,
-
                 branch: GITHUB_BRANCH
-
             };
-
             if (existingSha) {
-
                 body.sha = existingSha;
-
             }
-
-
 
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`, {
-
                 method: 'PUT',
-
                 headers: {
-
                     'Authorization': `Bearer ${token}`,
-
                     'Content-Type': 'application/json',
-
                     'Accept': 'application/vnd.github.v3+json'
-
                 },
-
                 body: JSON.stringify(body)
-
             });
 
-
-
             const data = await res.json();
-
             if (!res.ok) {
-
+                if (res.status === 401 || (data.message && data.message.toLowerCase().includes('bad credentials'))) {
+                    localStorage.removeItem('kg_portfolio_gh_token');
+                    updateSyncButtonStatus();
+                    openGitHubSyncModal("Your GitHub Token is expired or invalid (Bad credentials). Please enter a fresh Personal Access Token with 'repo' scope.");
+                    throw new Error("GitHub Token expired or invalid (Bad credentials). Please update your token.");
+                }
                 throw new Error(data.message || 'GitHub API Upload Failed');
-
             }
-
             return data;
-
         }
 
-
-
         async function deleteFileFromGitHub(path, commitMessage, existingSha = null) {
-
             const token = getGitHubToken();
-
             if (!token) {
-
                 openGitHubSyncModal("Please provide your GitHub Token to delete cloud files.");
-
                 throw new Error("Missing GitHub Personal Access Token");
-
             }
-
-
 
             let sha = existingSha;
-
             if (!sha) {
-
                 const fileInfo = await fetchGitHubPathInfo(path);
-
                 if (fileInfo && fileInfo.sha) {
-
                     sha = fileInfo.sha;
-
                 }
-
             }
-
-
 
             if (!sha) {
-
                 throw new Error(`File "${path}" not found on GitHub repository`);
-
             }
-
-
 
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}`, {
-
                 method: 'DELETE',
-
                 headers: {
-
                     'Authorization': `Bearer ${token}`,
-
                     'Content-Type': 'application/json',
-
                     'Accept': 'application/vnd.github.v3+json'
-
                 },
-
                 body: JSON.stringify({
-
                     message: commitMessage,
-
                     sha: sha,
-
                     branch: GITHUB_BRANCH
-
                 })
-
             });
 
-
-
             const data = await res.json();
-
             if (!res.ok) {
-
+                if (res.status === 401 || (data.message && data.message.toLowerCase().includes('bad credentials'))) {
+                    localStorage.removeItem('kg_portfolio_gh_token');
+                    updateSyncButtonStatus();
+                    openGitHubSyncModal("Your GitHub Token is expired or invalid (Bad credentials). Please enter a fresh Personal Access Token with 'repo' scope.");
+                    throw new Error("GitHub Token expired or invalid (Bad credentials). Please update your token.");
+                }
                 throw new Error(data.message || 'GitHub API Delete Failed');
-
             }
-
             return data;
-
         }
 
 
@@ -3113,138 +3050,49 @@
 
 
 
-            // Adopt the new selected filename (sanitized)
-
             const cleanNewName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const targetPath = originalPath;
 
-            let newPath = `static/assets/${cleanNewName}`;
-
-            if (originalCategory === 'Certificate') {
-
-                newPath = `static/assets/certificates/${cleanNewName}`;
-
-            }
-
-
-
-            showToast(`Replacing "${originalFilename}" with "${cleanNewName}"...`, "info");
-
-
+            showToast(`Replacing "${originalFilename}" with "${selectedFile.name}"...`, "info");
 
             if (isStaticMode) {
-
                 try {
-
                     const token = getGitHubToken();
-
                     if (!token) {
-
                         openGitHubSyncModal("Please set your GitHub Token to replace files in cloud storage.");
-
                         return;
-
                     }
-
-
 
                     const base64Content = await fileToBase64(selectedFile);
-
                     
+                    let existingSha = null;
+                    try {
+                        const existing = await fetchGitHubPathInfo(targetPath);
+                        if (existing && existing.sha) existingSha = existing.sha;
+                    } catch (err) {}
 
-                    if (cleanNewName === originalFilename) {
+                    await uploadFileToGitHub(targetPath, base64Content, `Exchange/Replace ${originalFilename} via Admin Document Control Center`, existingSha);
 
-                        // Same filename: Overwrite file content in place
-
-                        let existingSha = null;
-
+                    // If it's a resume, also ensure default alias link points to latest content
+                    if (originalCategory.toLowerCase().includes('resume') || originalFilename.toLowerCase().includes('resume')) {
                         try {
-
-                            const existing = await fetchGitHubPathInfo(originalPath);
-
-                            if (existing && existing.sha) existingSha = existing.sha;
-
-                        } catch (err) {}
-
-
-
-                        await uploadFileToGitHub(originalPath, base64Content, `Exchange/Replace ${originalFilename} via Admin Document Control Center`, existingSha);
-
-                    } else {
-
-                        // Different filename: 1. Upload new file with its new name
-
-                        let newSha = null;
-
-                        try {
-
-                            const existingNew = await fetchGitHubPathInfo(newPath);
-
-                            if (existingNew && existingNew.sha) newSha = existingNew.sha;
-
-                        } catch (err) {}
-
-
-
-                        await uploadFileToGitHub(newPath, base64Content, `Upload ${cleanNewName} (Replaces ${originalFilename}) via Admin Document Control Center`, newSha);
-
-
-
-                        // 2. Delete the old file from repository
-
-                        try {
-
-                            await deleteFileFromGitHub(originalPath, `Remove old ${originalFilename} after replacement with ${cleanNewName}`);
-
-                        } catch (delErr) {
-
-                            console.log("Note on old file cleanup:", delErr);
-
-                        }
-
-                    }
-
-
-
-                    // If it's a resume, also ensure alias links point to latest content
-
-                    if (originalCategory === 'Resume') {
-
-                        try {
-
                             let sha1 = null;
-
                             const f1 = await fetchGitHubPathInfo('static/assets/Krishna_Gupta_Resume.pdf');
-
                             if (f1 && f1.sha) sha1 = f1.sha;
-
                             await uploadFileToGitHub('static/assets/Krishna_Gupta_Resume.pdf', base64Content, `Sync active resume alias`, sha1);
-
                         } catch (e) {}
-
                     }
 
-
-
-                    showToast(`Document "${originalFilename}" successfully replaced with "${cleanNewName}"!`, "success");
-
+                    showToast(`Document "${originalFilename}" successfully updated!`, "success");
                     loadCatalog();
-
                 } catch (err) {
-
                     console.error("Cloud exchange error:", err);
-
                     showToast(`Replacement failed: ${err.message}`, "error");
-
                 } finally {
-
                     exchangeFileInput.value = '';
-
                     activeExchangeInfo = null;
-
                 }
-
                 return;
-
             }
 
 
@@ -3896,29 +3744,28 @@
 
 
             const projList = document.getElementById('projects-list');
-
             if (projList) {
-
                 projList.addEventListener('click', (e) => {
-
                     const deleteBtn = e.target.closest('.btn-proj-delete');
-
                     if (deleteBtn) {
-
                         e.preventDefault();
-
                         e.stopPropagation();
-
                         const name = deleteBtn.getAttribute('data-name');
-
                         deleteProject(name);
-
                         return;
-
                     }
 
+                    const editBtn = e.target.closest('.btn-proj-edit');
+                    if (editBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const name = editBtn.getAttribute('data-name');
+                        const git = editBtn.getAttribute('data-git');
+                        const live = editBtn.getAttribute('data-live');
+                        openEditModal(name, git, live);
+                        return;
+                    }
                 });
-
             }
 
         });

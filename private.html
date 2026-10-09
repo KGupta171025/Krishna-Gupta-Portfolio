@@ -1888,173 +1888,105 @@
 
 
 
-        // GitHub Token Helpers
-
+        // GitHub Token Helpers (Permanent storage with Cookie + LocalStorage backup)
         function getGitHubToken() {
-
-            return localStorage.getItem('kg_portfolio_gh_token') || '';
-
+            try {
+                const stored = localStorage.getItem('kg_portfolio_gh_token');
+                if (stored) return stored.trim();
+                // Check cookie fallback
+                const match = document.cookie.match(/(?:^|;\s*)kg_portfolio_gh_token=([^;]+)/);
+                if (match) return decodeURIComponent(match[1]).trim();
+            } catch (e) {}
+            return '';
         }
-
-
 
         function setGitHubToken(token) {
-
-            if (token) {
-
-                localStorage.setItem('kg_portfolio_gh_token', token.trim());
-
-            } else {
-
-                localStorage.removeItem('kg_portfolio_gh_token');
-
-            }
-
+            try {
+                if (token && token.trim()) {
+                    const cleanToken = token.trim();
+                    localStorage.setItem('kg_portfolio_gh_token', cleanToken);
+                    // Also store in cookie for 1 year so it persists across clear-cache/sessions
+                    document.cookie = `kg_portfolio_gh_token=${encodeURIComponent(cleanToken)}; path=/; max-age=31536000; SameSite=Strict; Secure`;
+                } else {
+                    localStorage.removeItem('kg_portfolio_gh_token');
+                    document.cookie = 'kg_portfolio_gh_token=; path=/; max-age=0; SameSite=Strict; Secure';
+                }
+            } catch (e) {}
             updateSyncButtonStatus();
-
         }
-
-
 
         function updateSyncButtonStatus() {
-
             const token = getGitHubToken();
-
             const syncBtn = document.getElementById('github-sync-btn');
-
             const syncLabel = document.getElementById('sync-btn-label');
-
             if (syncBtn && syncLabel) {
-
                 if (token) {
-
                     syncBtn.classList.add('active');
-
-                    syncLabel.innerHTML = '<i class="fas fa-check-circle" style="color: var(--green);"></i> Cloud Sync Active';
-
+                    syncLabel.innerHTML = '<i class="fas fa-check-circle" style="color: var(--green);"></i> Cloud Sync Saved';
                 } else {
-
                     syncBtn.classList.remove('active');
-
                     syncLabel.textContent = 'Cloud Sync Token';
-
                 }
-
             }
-
         }
-
-
 
         function openGitHubSyncModal(optionalMessage) {
-
             const modal = document.getElementById('github-sync-modal');
-
             const input = document.getElementById('gh-token-input');
-
             input.value = getGitHubToken();
-
             modal.style.display = 'flex';
-
             if (optionalMessage) {
-
                 showToast(optionalMessage, "info");
-
             }
-
         }
-
-
 
         function closeGitHubSyncModal() {
-
             document.getElementById('github-sync-modal').style.display = 'none';
-
         }
-
-
 
         function clearGitHubToken() {
-
             setGitHubToken('');
-
             document.getElementById('gh-token-input').value = '';
-
             showToast("GitHub Cloud Sync token removed.", "info");
-
             closeGitHubSyncModal();
-
         }
-
-
 
         document.getElementById('github-token-form')?.addEventListener('submit', (e) => {
-
             e.preventDefault();
-
             const token = document.getElementById('gh-token-input').value.trim();
-
             if (!token) {
-
                 showToast("Please enter a valid GitHub token.", "error");
-
                 return;
-
             }
-
             setGitHubToken(token);
-
-            showToast("GitHub Cloud Sync Token saved! 1-Click cloud uploads enabled.", "success");
-
+            showToast("Token saved permanently! You will not be asked again.", "success");
             closeGitHubSyncModal();
-
             loadCatalog();
-
         });
 
-
-
         // Helper: Convert File to Base64 string
-
         function fileToBase64(file) {
-
             return new Promise((resolve, reject) => {
-
                 const reader = new FileReader();
-
                 reader.readAsDataURL(file);
-
                 reader.onload = () => {
-
                     const base64String = reader.result.split(',')[1];
-
                     resolve(base64String);
-
                 };
-
                 reader.onerror = error => reject(error);
-
             });
-
         }
 
-
-
         // GitHub REST API Direct Operations
-
         async function fetchGitHubPathInfo(path) {
-
             const token = getGitHubToken();
-
             const headers = { 'Accept': 'application/vnd.github.v3+json' };
-
             if (token) headers['Authorization'] = `Bearer ${token}`;
 
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${path}?ref=${GITHUB_BRANCH}`, { headers });
             if (res.status === 404) return null;
-            if (res.status === 401) {
-                localStorage.removeItem('kg_portfolio_gh_token');
-                updateSyncButtonStatus();
+            if (res.status === 401 && token) {
+                console.warn("GitHub API: token rejected (401).");
             }
             if (!res.ok) throw new Error(`GitHub API Error: ${res.statusText}`);
             return await res.json();
@@ -2063,7 +1995,7 @@
         async function uploadFileToGitHub(path, fileContentBase64, commitMessage, existingSha = null) {
             const token = getGitHubToken();
             if (!token) {
-                openGitHubSyncModal("Please provide your GitHub Token to perform cloud uploads.");
+                openGitHubSyncModal("Please set your GitHub Token once to enable 1-Click cloud uploads.");
                 throw new Error("Missing GitHub Personal Access Token");
             }
 
@@ -2089,10 +2021,8 @@
             const data = await res.json();
             if (!res.ok) {
                 if (res.status === 401 || (data.message && data.message.toLowerCase().includes('bad credentials'))) {
-                    localStorage.removeItem('kg_portfolio_gh_token');
-                    updateSyncButtonStatus();
-                    openGitHubSyncModal("Your GitHub Token is expired or invalid (Bad credentials). Please enter a fresh Personal Access Token with 'repo' scope.");
-                    throw new Error("GitHub Token expired or invalid (Bad credentials). Please update your token.");
+                    openGitHubSyncModal("Your saved token appears invalid or lacks 'repo' scope. Please verify your token.");
+                    throw new Error("GitHub Token invalid or lacks 'repo' scope.");
                 }
                 throw new Error(data.message || 'GitHub API Upload Failed');
             }
@@ -2102,7 +2032,7 @@
         async function deleteFileFromGitHub(path, commitMessage, existingSha = null) {
             const token = getGitHubToken();
             if (!token) {
-                openGitHubSyncModal("Please provide your GitHub Token to delete cloud files.");
+                openGitHubSyncModal("Please set your GitHub Token once to delete cloud files.");
                 throw new Error("Missing GitHub Personal Access Token");
             }
 
@@ -2135,10 +2065,8 @@
             const data = await res.json();
             if (!res.ok) {
                 if (res.status === 401 || (data.message && data.message.toLowerCase().includes('bad credentials'))) {
-                    localStorage.removeItem('kg_portfolio_gh_token');
-                    updateSyncButtonStatus();
-                    openGitHubSyncModal("Your GitHub Token is expired or invalid (Bad credentials). Please enter a fresh Personal Access Token with 'repo' scope.");
-                    throw new Error("GitHub Token expired or invalid (Bad credentials). Please update your token.");
+                    openGitHubSyncModal("Your saved token appears invalid or lacks 'repo' scope. Please verify your token.");
+                    throw new Error("GitHub Token invalid or lacks 'repo' scope.");
                 }
                 throw new Error(data.message || 'GitHub API Delete Failed');
             }

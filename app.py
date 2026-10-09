@@ -1011,7 +1011,15 @@ KRISHNA_KNOWLEDGE = {
 
     "experience": """
 
-    1. Ethara.AI (Feb 2026 - May 2026) | LLM & AI Post Training Intern (Remote, Paid):
+    1. Nexoramind Tech (Sep 2026 - Present) | AI Engineer Intern (Remote, 6-Month AI Engineer Program):
+
+       - Architected and benchmarked deep learning microservices using PyTorch, FastAPI, and Hugging Face Transformers, achieving 92.8% Top-1 accuracy and sub-45ms latency.
+
+       - Engineered an interactive Streamlit analytics dashboard with real-time Top-5 confidence probability distributions and automated session export.
+
+       - Formulated end-to-end production pipelines for sentiment analysis and deep CNN backbones (MobileNetV2, ResNet50) with automated Pytest suites.
+
+    2. Ethara.AI (Feb 2026 - May 2026) | LLM & AI Post Training Intern (Remote, Paid):
 
        - Benchmarked and evaluated 50,000+ LLM outputs within LLMOps workflows, boosting model alignment, precision, and safety guardrails by 15%.
 
@@ -1021,7 +1029,7 @@ KRISHNA_KNOWLEDGE = {
 
        - Collaborated with AI research teams to analyze edge cases and debug reward-signal discrepancies.
 
-    2. Kanchan Pvt Ltd - Sapphire Web Wing (Oct 2025 - Feb 2026) | Full Stack Development Intern (Remote, Paid):
+    3. Kanchan Pvt Ltd - Sapphire Web Wing (Oct 2025 - Feb 2026) | Full Stack Development Intern (Remote, Paid):
 
        - Architected and deployed full-stack web infrastructure for review analytics platform "RevU Social" (revu.social) using React.js and Node.js REST APIs (20% user increase).
 
@@ -1044,6 +1052,8 @@ KRISHNA_KNOWLEDGE = {
     5. Future Stock Market Prediction & Quantitative Financial Modeling (Python, Scikit-learn, PyTorch MLOps, MLflow Hyperparameter Tuning, LSTM) | Live: https://smf-ai.hg497kg.workers.dev/ | GitHub: https://github.com/KGupta171025
 
     6. RevU Social – Full-Stack Review & Analytics Platform (React.js, Node.js, REST APIs, MySQL, PostgreSQL, Star Schema) | Live: https://revu.social/ | GitHub: https://github.com/KGupta171025
+
+    7. NITI AI – College Major Project (Next.js 14, TypeScript, GenAI, GovTech, Firebase, Cloudflare Workers) | Live: https://niti--ai.web.app/ | GitHub: https://github.com/KGupta171025/NITI-AI
 
     """,
 

@@ -12611,75 +12611,51 @@ function initAIChatbot() {
 
 
         if (cleanQuery.includes('revu') || cleanQuery.includes('revu social')) {
-
             return `<strong>RevU Social – Full-Stack Review & Analytics Platform</strong><br>
-
             • Full-stack review analytics platform built with React.js & Node.js REST APIs (20% user increase).<br>
-
             • Dimensional star-schema models in PostgreSQL/MySQL for real-time BI & performance dashboards.<br>
-
             • <a href="https://revu.social/" target="_blank" style="color:#06b6d4;text-decoration:underline;">Live Platform</a> | <a href="https://github.com/KGupta171025" target="_blank" style="color:#06b6d4;text-decoration:underline;">GitHub</a>`;
-
         }
 
-
+        if (cleanQuery.includes('niti') || cleanQuery.includes('niti ai') || cleanQuery.includes('major project')) {
+            return `<strong>NITI AI – College Major Project (GovTech Scheme Intelligence)</strong><br>
+            • Multilingual AI platform for Indian entrepreneurs to match government schemes and subsidies.<br>
+            • Conversational mentor (NITI Saathi AI), rule-based evaluation, and sub-100ms edge delivery with Next.js 14.<br>
+            • <a href="https://niti--ai.web.app/" target="_blank" style="color:#06b6d4;text-decoration:underline;">Live Platform</a> | <a href="https://github.com/KGupta171025/NITI-AI" target="_blank" style="color:#06b6d4;text-decoration:underline;">GitHub Repository</a>`;
+        }
 
         if (cleanQuery.includes('project') || cleanQuery.includes('portfolio')) {
-
-            return `Krishna has engineered 6 key technical projects:<br>
-
+            return `Krishna has engineered 7 key technical projects:<br>
             1. <strong>KALKI 1.5</strong> (Autonomous Multi-Agent OS & MLOps Platform)<br>
-
             2. <strong>Score Vision - AI</strong> (Computer Vision & Document OCR Extraction)<br>
-
             3. <strong>Razorpay Recovery</strong> (FinTech Automated Transaction Pipeline)<br>
-
             4. <strong>SHELF-SCANNER</strong> (High-Speed Computer Vision & OCR Platform)<br>
-
             5. <strong>Stock Market Prediction</strong> (Quantitative Financial LSTM & MLOps)<br>
-
-            6. <strong>RevU Social</strong> (Full-Stack Review & BI Analytics Platform)`;
-
+            6. <strong>RevU Social</strong> (Full-Stack Review & BI Analytics Platform)<br>
+            7. <strong>NITI AI</strong> (College Major Project • GovTech & GenAI Platform)`;
         }
-
-
 
         // 3. Skills (4 Structured Pillars)
-
         if (cleanQuery.includes('skill') || cleanQuery.includes('technolog') || cleanQuery.includes('languages') || cleanQuery.includes('stack')) {
-
             return `Krishna's technical skills are categorized into 4 core pillars:<br>
-
             • <strong>Generative AI & Agentic Systems</strong>: LLMs, VLMs, LangGraph, LangChain, Multi-Agents, Hybrid RAG, Prompt Engineering, RLHF/DPO, FAISS, pgvector, Hugging Face.<br>
-
             • <strong>MLOps & MLflow Ecosystem</strong>: MLflow (Tracing, Evaluation, Prompt Templates, AI Gateways, Agent Server, PyTorch/Scikit-Learn MLOps, Hyperparameter Tuning), Model Registry, Docker, AWS.<br>
-
             • <strong>Machine Learning & Deep Learning</strong>: Supervised/Unsupervised Learning, Classification, Regression, Time-Series (LSTM), Financial Modeling, OpenCV, EasyOCR, CNNs, PyTorch, TensorFlow.<br>
-
             • <strong>Backend, APIs & Databases</strong>: Python, SQL (PostgreSQL, MySQL), FastAPI, REST APIs, Microservices, Node.js, React.js, ETL/ELT Pipelines, Star/Snowflake Schemas, Git, Linux.`;
-
         }
 
-
-
-        // 4. Experience (Dual Industry Internships)
-
-        if (cleanQuery.includes('experience') || cleanQuery.includes('job') || cleanQuery.includes('work') || cleanQuery.includes('intern') || cleanQuery.includes('ethara') || cleanQuery.includes('kanchan')) {
-
-            return `Krishna has dual industry internship experience:<br><br>
-
-            1. <strong>Ethara.AI</strong> (Feb 2026 – May 2026) | <em>LLM & AI Post Training Intern (Remote)</em><br>
-
+        // 4. Experience (Industry Internships)
+        if (cleanQuery.includes('experience') || cleanQuery.includes('job') || cleanQuery.includes('work') || cleanQuery.includes('intern') || cleanQuery.includes('nexoramind') || cleanQuery.includes('ethara') || cleanQuery.includes('kanchan')) {
+            return `Krishna has comprehensive industry internship experience:<br><br>
+            1. <strong>Nexoramind Tech</strong> (Sep 2026 – Present) | <em>AI Engineer Intern (Remote)</em><br>
+            • Deep learning microservices with PyTorch, FastAPI, and Hugging Face (92.8% Top-1 accuracy, sub-45ms latency).<br>
+            • Interactive Streamlit dashboard with real-time Top-5 confidence distributions and session history export.<br><br>
+            2. <strong>Ethara.AI</strong> (Feb 2026 – May 2026) | <em>LLM & AI Post Training Intern (Remote)</em><br>
             • Benchmarked 50,000+ LLM outputs, boosting alignment, precision, and safety guardrails by 15%.<br>
-
             • Automated Python validation pipelines saving 20+ hrs/week in manual QA.<br><br>
-
-            2. <strong>Kanchan Pvt Ltd – Sapphire</strong> (Oct 2025 – Feb 2026) | <em>Full Stack Development Intern (Remote)</em><br>
-
+            3. <strong>Kanchan Pvt Ltd – Sapphire</strong> (Oct 2025 – Feb 2026) | <em>Full Stack Development Intern (Remote)</em><br>
             • Architected full-stack web infrastructure for RevU Social (revu.social) driving 20% user increase.<br>
-
             • Optimized database schemas accelerating transactions by 25%, maintaining 99.9% uptime with Docker.`;
-
         }
 
 

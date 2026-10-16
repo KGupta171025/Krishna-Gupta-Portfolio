@@ -320,10 +320,28 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .nav-logo {
+    display: inline-flex;
+    align-items: center;
     font-family: var(--font-heading);
     font-weight: 800;
     font-size: 1.5rem;
     letter-spacing: -0.5px;
+    text-decoration: none;
+}
+
+.nav-logo-img {
+    height: 42px;
+    width: auto;
+    max-height: 42px;
+    object-fit: contain;
+    display: block;
+    transition: transform var(--transition-fast), filter var(--transition-fast);
+    filter: drop-shadow(0 2px 10px rgba(0, 240, 255, 0.2));
+}
+
+.nav-logo:hover .nav-logo-img {
+    transform: scale(1.06);
+    filter: drop-shadow(0 4px 16px rgba(0, 240, 255, 0.45));
 }
 
 .logo-accent {
@@ -1521,6 +1539,11 @@ h1, h2, h3, h4, h5, h6 {
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border-bottom: 1px solid var(--border-color);
+    }
+    
+    .nav-logo-img {
+        height: 36px;
+        max-height: 36px;
     }
     
     .nav-hamburger {

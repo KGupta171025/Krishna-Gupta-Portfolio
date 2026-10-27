@@ -8,8 +8,6 @@ __pycache__/
 venv/
 ENV/
 env/
-.env
-.env.*
 !.env.example
 
 # Private Keys & Certificates
@@ -32,7 +30,6 @@ pip-delete-this-directory.txt
 *.log
 
 # Editor / OS configs
-.vscode/
 .idea/
 .DS_Store
 Thumbs.db
@@ -46,3 +43,5 @@ Thumbs.db
 *.enc
 *.sqlite*
 *.db
+config.bat
+node_modules

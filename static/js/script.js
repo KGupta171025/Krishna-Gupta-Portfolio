@@ -13336,113 +13336,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 // ============================================================================
-// GEOLOCATION DYNAMIC RESUME ROUTER (Seamless Location-Based Delivery)
-// MP Visitors -> Bhopal Resume | Outside MP / Global -> Bengaluru Resume
+// RESUME DOWNLOAD MANAGER (Direct Native & Seamless Location-Safe Delivery)
 // Downloaded File Name: "Krishna Gupta Resume.pdf"
 // ============================================================================
 
 const GEO_RESUME_CONFIG = {
-    mpResume: 'static/assets/Krishna_Gupta_Resume_MP.pdf',
-    blrResume: 'static/assets/Krishna_Gupta_Resume_BLR.pdf',
+    resumeUrl: 'static/assets/Krishna_Gupta_Resume.pdf',
+    mpResume: 'static/assets/Krishna_Gupta_Resume.pdf',
+    blrResume: 'static/assets/Krishna_Gupta_Resume.pdf',
     downloadName: 'Krishna Gupta Resume.pdf'
 };
 
-function isMadhyaPradeshRegion(regionStr, regionCode, stateStr) {
-    const combined = `${regionStr || ''} ${regionCode || ''} ${stateStr || ''}`.toLowerCase();
-    return /(madhya\s*pradesh|\bmp\b)/i.test(combined);
-}
-
-async function detectVisitorTargetResume() {
-    try {
-        const cached = sessionStorage.getItem('kg_target_resume');
-        if (cached) return cached;
-    } catch (e) {}
-
-    const fetchTimeout = (url, timeoutMs = 2500) => {
-        return Promise.race([
-            fetch(url).then(res => res.ok ? res.json() : Promise.reject('HTTP ' + res.status)),
-            new Promise((_, reject) => setTimeout(() => reject('Timeout'), timeoutMs))
-        ]);
-    };
-
-    let targetResume = GEO_RESUME_CONFIG.blrResume; // Default to Bengaluru / Global for non-MP & international
-
-    try {
-        // 1. Primary: ipapi.co
-        const d1 = await fetchTimeout('https://ipapi.co/json/', 2500);
-        if (d1 && isMadhyaPradeshRegion(d1.region, d1.region_code, d1.region)) {
-            targetResume = GEO_RESUME_CONFIG.mpResume;
-        }
-    } catch (e1) {
-        try {
-            // 2. Fallback: freeipapi.net
-            const d2 = await fetchTimeout('https://freeipapi.net/api/json', 2500);
-            if (d2 && isMadhyaPradeshRegion(d2.regionName, d2.regionCode, d2.regionName)) {
-                targetResume = GEO_RESUME_CONFIG.mpResume;
-            }
-        } catch (e2) {
-            try {
-                // 3. Fallback: ipwhois.app
-                const d3 = await fetchTimeout('https://ipwhois.app/json/', 2500);
-                if (d3 && isMadhyaPradeshRegion(d3.region, d3.region_code, d3.region)) {
-                    targetResume = GEO_RESUME_CONFIG.mpResume;
-                }
-            } catch (e3) {
-                // Default remains BLR
-            }
-        }
-    }
-
-    try {
-        sessionStorage.setItem('kg_target_resume', targetResume);
-    } catch (e) {}
-
-    return targetResume;
-}
-
-function updateAllResumeLinks(targetUrl) {
-    const resumeLinks = document.querySelectorAll('a[href*="Resume"], .btn-geo-resume, .btn-download-resume');
+function updateAllResumeLinks() {
+    const resumeUrl = GEO_RESUME_CONFIG.resumeUrl;
+    const downloadName = GEO_RESUME_CONFIG.downloadName;
+    const resumeLinks = document.querySelectorAll('a[href*="Resume"], a[href*="resume"], .btn-geo-resume, .btn-download-resume');
     resumeLinks.forEach(link => {
-        link.setAttribute('href', targetUrl);
-        link.setAttribute('download', GEO_RESUME_CONFIG.downloadName);
+        link.setAttribute('href', resumeUrl);
+        link.setAttribute('download', downloadName);
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
     });
 }
 
 function initGeoResumeRouter() {
-    // Pre-resolve location on page load
-    detectVisitorTargetResume().then(targetUrl => {
-        updateAllResumeLinks(targetUrl);
-    });
+    // Immediately set all links to the verified official resume URL
+    updateAllResumeLinks();
 
-    // Intercept click on any download resume button to guarantee seamless delivery
-    document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('a[href*="Resume"], .btn-geo-resume, .btn-download-resume');
+    // Cache official resume target
+    try {
+        sessionStorage.setItem('kg_target_resume', GEO_RESUME_CONFIG.resumeUrl);
+    } catch (e) {}
+
+    // Handle clicks cleanly without blocking native mobile downloads
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('a[href*="Resume"], a[href*="resume"], .btn-geo-resume, .btn-download-resume');
         if (btn) {
-            e.preventDefault();
-            e.stopPropagation();
+            // Ensure href and download are set to the verified official resume
+            btn.setAttribute('href', GEO_RESUME_CONFIG.resumeUrl);
+            btn.setAttribute('download', GEO_RESUME_CONFIG.downloadName);
 
-            let targetUrl = null;
-            try {
-                targetUrl = sessionStorage.getItem('kg_target_resume');
-            } catch (err) {}
-
-            if (!targetUrl) {
-                targetUrl = await detectVisitorTargetResume();
+            // If it's a non-anchor element (e.g. <button>), trigger programmatic download
+            if (btn.tagName !== 'A') {
+                e.preventDefault();
+                const dl = document.createElement('a');
+                dl.href = GEO_RESUME_CONFIG.resumeUrl;
+                dl.download = GEO_RESUME_CONFIG.downloadName;
+                dl.target = '_blank';
+                dl.rel = 'noopener noreferrer';
+                dl.style.display = 'none';
+                document.body.appendChild(dl);
+                dl.click();
+                setTimeout(() => {
+                    try { document.body.removeChild(dl); } catch (re) {}
+                }, 100);
             }
-
-            const downloadUrl = targetUrl || GEO_RESUME_CONFIG.blrResume;
-            
-            // Programmatically trigger download with exact clean filename
-            const dl = document.createElement('a');
-            dl.href = downloadUrl;
-            dl.download = GEO_RESUME_CONFIG.downloadName;
-            dl.target = '_blank';
-            dl.style.display = 'none';
-            document.body.appendChild(dl);
-            dl.click();
-            setTimeout(() => {
-                try { document.body.removeChild(dl); } catch (re) {}
-            }, 100);
+            // For <a> tags, allow native browser download pipeline without e.preventDefault()!
         }
     });
 }
